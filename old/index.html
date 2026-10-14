@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="過去の制作物・AIレポート・WebGLシェーダー・ギリシャ神話解説のアーカイブインデックス">
+  <title>Archive Index | 旧コンテンツ一覧</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07), 0 2px 6px rgba(15, 23, 42, 0.04);
+      --shadow-hover: 0 10px 24px rgba(15, 23, 42, 0.09), 0 3px 8px rgba(15, 23, 42, 0.04);
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle background glow */
+    .bg-glow {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1200px;
+      height: 340px;
+      background: radial-gradient(50% 100% at 50% 0%, rgba(100, 116, 139, 0.08) 0%, rgba(248, 250, 252, 0) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    /* Top Back Navigation */
+    .top-nav {
+      margin-bottom: 2rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      color: var(--primary);
+      border-color: var(--border-hover);
+      transform: translateX(-2px);
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 2.5rem;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .archive-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f59e0b;
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      margin-bottom: 0.6rem;
+    }
+
+    .lead-text {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 680px;
+    }
+
+    /* Search & Filter Bar */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-soft);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-subtle);
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .category-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      border: none;
+      background: var(--surface-subtle);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn:hover {
+      color: var(--text-main);
+      background: #e2e8f0;
+    }
+
+    .pill-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Section Styling */
+    .section-block {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-count {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-subtle);
+      padding: 0.15rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+    }
+
+    /* Grid Layouts */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .gods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Card Component */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card:hover, .card:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--border-hover);
+      outline: none;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      background: var(--surface-subtle);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .badge.ai {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #dbeafe;
+    }
+
+    .badge.viz {
+      background: #fdf4ff;
+      color: #a21caf;
+      border-color: #f5d0fe;
+    }
+
+    .badge.creative {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .badge.myth {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #ffedd5;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      margin-bottom: 0.45rem;
+      transition: color 0.2s ease;
+      line-height: 1.4;
+    }
+
+    .card:hover .card-title {
+      color: var(--primary);
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+      gap: 0.3rem;
+    }
+
+    .card:hover .arrow-icon {
+      transform: translateX(3px);
+    }
+
+    .arrow-icon {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.2s ease;
+    }
+
+    /* Compact Myth Card */
+    .myth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .myth-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #fdba74;
+      background: #fffdfb;
+    }
+
+    .myth-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .myth-name {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .myth-card:hover .myth-name {
+      color: #ea580c;
+    }
+
+    .myth-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .myth-arrow {
+      color: var(--text-soft);
+      transition: all 0.2s ease;
+    }
+
+    .myth-card:hover .myth-arrow {
+      color: #ea580c;
+      transform: translateX(3px);
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 2rem 1rem 3.5rem;
+      }
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .category-pills {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.3rem;
+      }
+      .cards-grid, .gods-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <div class="container">
+    <nav class="top-nav" aria-label="上位階層への移動">
+      <a href="../index.html" class="back-btn" id="link-back-root">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        最新トップページに戻る
+      </a>
+    </nav>
+
+    <header>
+      <div class="header-badge">
+        <span class="archive-tag-dot"></span>
+        <span>LEGACY / ARCHIVE DIRECTORY</span>
+      </div>
+      <h1>旧ページ・アーカイブ一覧</h1>
+      <p class="lead-text">
+        以前のバージョンで公開されていたレポート、ビジュアライゼーション、WebGLシェーダー、ギリシャ神話解説などのアーカイブです。
+      </p>
+    </header>
+
+    <!-- Search & Filter Controls -->
+    <div class="filter-bar">
+      <div class="search-input-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="ページ名やキーワードで検索..." autocomplete="off">
+      </div>
+      <div class="category-pills" role="tablist">
+        <button class="pill-btn active" data-category="all" type="button">すべて</button>
+        <button class="pill-btn" data-category="ai" type="button">AI・レポート</button>
+        <button class="pill-btn" data-category="creative" type="button">グラフィック・実験</button>
+        <button class="pill-btn" data-category="myth" type="button">ギリシャ神話</button>
+      </div>
+    </div>
+
+    <div id="emptyState" class="empty-state">
+      該当するページが見つかりませんでした。別のキーワードをお試しください。
+    </div>
+
+    <!-- Section 1: AI Reports & Infographics -->
+    <section class="section-block" data-section="ai">
+      <h2 class="section-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        AI・テクノロジー レポート & インフォグラフィック
+        <span class="section-count">5件</span>
+      </h2>
+      <div class="cards-grid">
+        <a href="GoogleIO2025.html" class="card" data-category="ai" data-keywords="Google IO 2025 インタラクティブ サマリー AI イベント">
+          <div class="card-meta">
+            <span class="badge ai">Google I/O</span>
+            <span class="badge">Interactive</span>
+          </div>
+          <h3 class="card-title">Google I/O 2025 インタラクティブサマリー</h3>
+          <p class="card-desc">Google I/O 2025 のキーノートおよび主要テクノロジーの発表内容を網羅した動的サマリー。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+
+        <a href="DR-RP-gemini3.5flash.html" class="card" data-category="ai" data-keywords="Google IO 2026 Gemini 3.5 Flash ディープリサーチ レポート">
+          <div class="card-meta">
+            <span class="badge ai">Deep Research</span>
+            <span class="badge">Gemini 3.5</span>
+          </div>
+          <h3 class="card-title">Google I/O 2026 Report Summary</h3>
+          <p class="card-desc">Gemini 3.5 Flash を用いた Google I/O 2026 の動向・発表技術に関する詳細リサーチサマリー。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+
+        <a href="DR-IG-gemini3.5flash.html" class="card" data-category="ai" data-keywords="Google IO 2026 Gemini 3.5 Flash インフォグラフィック">
+          <div class="card-meta">
+            <span class="badge viz">Infographic</span>
+            <span class="badge">Gemini 3.5</span>
+          </div>
+          <h3 class="card-title">Google I/O 2026 Summary Infographic</h3>
+          <p class="card-desc">Google I/O 2026 の主要トピックとエコシステムの進化をビジュアルに解説したインフォグラフィック。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+
+        <a href="DR-IG-gemma4.html" class="card" data-category="ai" data-keywords="Google IO 2026 Gemma 4 解析 レポート">
+          <div class="card-meta">
+            <span class="badge ai">Analysis</span>
+            <span class="badge">Gemma 4</span>
+          </div>
+          <h3 class="card-title">Google I/O 2026 Analysis Report</h3>
+          <p class="card-desc">軽量モデル Gemma 4 の技術革新とアーキテクチャ特性に焦点を当てた多角的解析レポート。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+
+        <a href="daily_news_infographic_luminous_ivory.html" class="card" data-category="ai" data-keywords="Daily News Luminous Ivory 日刊 ニュース インフォグラフィック 気候 フィジカルAI">
+          <div class="card-meta">
+            <span class="badge viz">Data Viz</span>
+            <span class="badge">News Briefing</span>
+          </div>
+          <h3 class="card-title">Daily Information - Luminous Ivory Briefing</h3>
+          <p class="card-desc">人工知能の最新テック革新、極端気象・脱炭素、フィジカルAI動向などを高密度に整理したニュースブリーフィング。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 2: Creative & Visual Lab -->
+    <section class="section-block" data-section="creative">
+      <h2 class="section-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+        グラフィックス & インタラクティブ実験
+        <span class="section-count">3件</span>
+      </h2>
+      <div class="cards-grid">
+        <a href="wave.html" class="card" data-category="creative" data-keywords="wave 水流 シェーダー WebGL Canvas 流体 長時間露光">
+          <div class="card-meta">
+            <span class="badge creative">WebGL / Shader</span>
+            <span class="badge">Canvas</span>
+          </div>
+          <h3 class="card-title">Long Exposure Water Flow Shader</h3>
+          <p class="card-desc">リアルタイムWebGLシェーダーによる、長時間露光写真のような滑らかな水流・波束の動的レンダリング実験。</p>
+          <div class="card-footer">
+            <span>デモを起動</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+
+        <a href="MelpiphiaAS.html" class="card" data-category="creative" data-keywords="メルピピアAS モリグー スキル パフォーマンス 総覧 ゲーム データ">
+          <div class="card-meta">
+            <span class="badge creative">Game Analytics</span>
+            <span class="badge">Database</span>
+          </div>
+          <h3 class="card-title">メルピピアAS（モリグー） スキル・パフォーマンス総覧</h3>
+          <p class="card-desc">キャラクター「メルピピアAS」の能力値、スキル倍率、実効パフォーマンスを詳細に可視化した総覧。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+
+        <a href="mermaid_puppet.html" class="card" data-category="creative" data-keywords="mermaid puppet 人魚 人形劇 SVG 影絵 海底 アニメーション">
+          <div class="card-meta">
+            <span class="badge creative">Vector Art</span>
+            <span class="badge">SVG Puppet</span>
+          </div>
+          <h3 class="card-title">Mermaid Puppet SVG Theatre</h3>
+          <p class="card-desc">深海と光をテーマに、精緻なベクターグラデーションで構築されたパペット人形劇調のSVGグラフィックアート。</p>
+          <div class="card-footer">
+            <span>閲覧する</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 3: Greek Mythology -->
+    <section class="section-block" data-section="myth">
+      <h2 class="section-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
+        ギリシャ神話の神々（オリンポス十二神ほか）
+        <span class="section-count">13件</span>
+      </h2>
+      <div class="gods-grid">
+        <a href="zeus.html" class="myth-card" data-category="myth" data-keywords="ゼウス Zeus 天 雷 神々の王">
+          <div class="myth-info">
+            <span class="myth-name">ゼウス (Zeus)</span>
+            <span class="myth-role">天と雷の神、神々の王</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="hera.html" class="myth-card" data-category="myth" data-keywords="ヘラ Hera 結婚 出産 女神 ゼウスの妻">
+          <div class="myth-info">
+            <span class="myth-name">ヘラ (Hera)</span>
+            <span class="myth-role">結婚と出産の女神、ゼウスの妻</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="poseidon.html" class="myth-card" data-category="myth" data-keywords="ポセイドン Poseidon 海 地震">
+          <div class="myth-info">
+            <span class="myth-name">ポセイドン (Poseidon)</span>
+            <span class="myth-role">海の神、海洋と地震の支配者</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="hades.html" class="myth-card" data-category="myth" data-keywords="ハデス Hades 死者の国 冥府">
+          <div class="myth-info">
+            <span class="myth-name">ハデス (Hades)</span>
+            <span class="myth-role">死者の国の神、冥界の支配者</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="athena.html" class="myth-card" data-category="myth" data-keywords="アテナ Athena 知恵 戦争 戦略">
+          <div class="myth-info">
+            <span class="myth-name">アテナ (Athena)</span>
+            <span class="myth-role">知恵と戦略的戦争の女神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="apollo.html" class="myth-card" data-category="myth" data-keywords="アポロン Apollo 太陽 音楽 予言 弓">
+          <div class="myth-info">
+            <span class="myth-name">アポロン (Apollo)</span>
+            <span class="myth-role">太陽、音楽、詩、予言の神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="artemis.html" class="myth-card" data-category="myth" data-keywords="アルテミス Artemis 月 狩猟 野生">
+          <div class="myth-info">
+            <span class="myth-name">アルテミス (Artemis)</span>
+            <span class="myth-role">月と狩猟、野生動物の女神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="ares.html" class="myth-card" data-category="myth" data-keywords="アレス Ares 戦争 闘争 暴力">
+          <div class="myth-info">
+            <span class="myth-name">アレス (Ares)</span>
+            <span class="myth-role">戦争と激戦の神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="aphrodite.html" class="myth-card" data-category="myth" data-keywords="アフロディーテ Aphrodite 愛 美 豊穣">
+          <div class="myth-info">
+            <span class="myth-name">アフロディーテ (Aphrodite)</span>
+            <span class="myth-role">愛と美、情熱の女神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="hermes.html" class="myth-card" data-category="myth" data-keywords="ヘルメス Hermes 商業 旅行 伝令 盗賊">
+          <div class="myth-info">
+            <span class="myth-name">ヘルメス (Hermes)</span>
+            <span class="myth-role">商業、旅行、神々の伝令使</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="hestia.html" class="myth-card" data-category="myth" data-keywords="ヘスティア Hestia 暖炉 家庭 祭火">
+          <div class="myth-info">
+            <span class="myth-name">ヘスティア (Hestia)</span>
+            <span class="myth-role">暖炉と家庭、祭壇の聖火の女神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="hephaestus.html" class="myth-card" data-category="myth" data-keywords="ヘパイストス Hephaestus 火 鍛冶 職人">
+          <div class="myth-info">
+            <span class="myth-name">ヘパイストス (Hephaestus)</span>
+            <span class="myth-role">火と鍛冶、金工の神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="dionysus.html" class="myth-card" data-category="myth" data-keywords="ディオニューソス Dionysus 酒 豊穣 演劇">
+          <div class="myth-info">
+            <span class="myth-name">ディオニューソス (Dionysus)</span>
+            <span class="myth-role">酒と豊穣、熱狂と演劇の神</span>
+          </div>
+          <svg class="arrow-icon myth-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; Pages Archive Repository.</p>
+  </footer>
+
+  <script>
+    // Search & Filter Logic
+    const searchInput = document.getElementById('searchInput');
+    const pillButtons = document.querySelectorAll('.pill-btn');
+    const sections = document.querySelectorAll('.section-block');
+    const cards = document.querySelectorAll('.card, .myth-card');
+    const emptyState = document.getElementById('emptyState');
+
+    let currentCategory = 'all';
+
+    function filterItems() {
+      const query = searchInput.value.trim().toLowerCase();
+      let totalVisible = 0;
+
+      sections.forEach(sec => {
+        const secCat = sec.getAttribute('data-section');
+        const secCards = sec.querySelectorAll('.card, .myth-card');
+        let secVisible = 0;
+
+        secCards.forEach(item => {
+          const cat = item.getAttribute('data-category');
+          const keywords = (item.getAttribute('data-keywords') || '').toLowerCase();
+          const text = item.textContent.toLowerCase();
+
+          const matchesCat = (currentCategory === 'all' || cat === currentCategory);
+          const matchesQuery = (!query || text.includes(query) || keywords.includes(query));
+
+          if (matchesCat && matchesQuery) {
+            item.style.display = '';
+            secVisible++;
+            totalVisible++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        // Toggle section visibility based on visible children
+        sec.style.display = secVisible > 0 ? '' : 'none';
+      });
+
+      emptyState.style.display = totalVisible === 0 ? 'block' : 'none';
+    }
+
+    searchInput.addEventListener('input', filterItems);
+
+    pillButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        pillButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.getAttribute('data-category');
+        filterItems();
+      });
+    });
+  </script>
+</body>
+</html>

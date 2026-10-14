@@ -1,80 +1,574 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ギリシャ神話の神々</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            font-size: 2em;
-            margin-bottom: 20px;
-            color: #336699; /* A nice blue */
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .god-list {
-            list-style: none;
-            padding: 0;
-        }
-        .god-list li {
-            margin-bottom: 10px;
-        }
-        a {
-            color: #336699;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.8em;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="来火(@highants.bsky.social)がAIに制作させたナレッジページの目録です。">
+  <title>Pages | 🏝️⛱️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07), 0 2px 6px rgba(15, 23, 42, 0.04);
+      --shadow-hover: 0 12px 28px rgba(15, 23, 42, 0.1), 0 4px 10px rgba(15, 23, 42, 0.05);
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Background subtle decorative gradient */
+    .bg-glow {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1200px;
+      height: 380px;
+      background: radial-gradient(50% 100% at 50% 0%, rgba(37, 99, 235, 0.05) 0%, rgba(248, 250, 252, 0) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 3.5rem;
+      text-align: left;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      color: var(--text-main);
+      margin-bottom: 0.75rem;
+    }
+
+    .lead-text {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .lead-text a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 3px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .lead-text a:hover {
+      color: #1d4ed8;
+      text-underline-offset: 2px;
+    }
+
+    /* Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 4rem;
+    }
+
+    /* Card Item */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--card-accent, var(--primary));
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--border-hover);
+      outline: none;
+    }
+
+    .card:hover::before,
+    .card:focus-visible::before {
+      opacity: 1;
+    }
+
+    /* Card Accents by topic */
+    .card[data-theme="hikari"] {
+      --card-accent: #d97706;
+      /* amber / gold */
+      --tag-bg: #fffbeb;
+      --tag-color: #b45309;
+    }
+
+    .card[data-theme="hydro"] {
+      --card-accent: #0284c7;
+      /* ocean blue */
+      --tag-bg: #f0f9ff;
+      --tag-color: #0369a1;
+    }
+
+    .card[data-theme="hydrow"] {
+      --card-accent: #6366f1;
+      /* indigo / wide dashboard */
+      --tag-bg: #eef2ff;
+      --tag-color: #4338ca;
+    }
+
+    .card[data-theme="argon"] {
+      --card-accent: #8b5cf6;
+      /* violet / AI comparison */
+      --tag-bg: #f5f3ff;
+      --tag-color: #6d28d9;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      background: var(--tag-bg, var(--primary-light));
+      color: var(--tag-color, var(--primary));
+      letter-spacing: 0.02em;
+    }
+
+    .format-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-title {
+      font-size: 1.28rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      transition: color 0.2s ease;
+    }
+
+    .card:hover .card-title {
+      color: var(--card-accent, var(--primary));
+    }
+
+    .card-subtitle {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid var(--surface-subtle);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--card-accent, var(--primary));
+    }
+
+    .card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: gap 0.2s ease;
+    }
+
+    .card:hover .card-action {
+      gap: 0.65rem;
+    }
+
+    .arrow-icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover .arrow-icon {
+      transform: translateX(3px);
+    }
+
+    /* Archive callout section */
+    .archive-section {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .archive-info {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .archive-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .archive-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .archive-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .archive-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .archive-link:hover {
+      background: var(--bg);
+      color: var(--text-main);
+      border-color: var(--border-hover);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 2rem 1.25rem 3rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .archive-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .archive-link {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>ギリシャ神話の神々</h1>
-        <p>このウェブサイトでは、ギリシャ神話に登場する様々な神々を紹介しています。  それぞれの神々の物語、属性、象徴などを分かりやすく解説しています。</p>
+  <div class="bg-glow" aria-hidden="true"></div>
 
-        <h2>主要な神々</h2>
-        <ul class="god-list">
-            <li><a href="zeus.html">ゼウス (Zeus)</a> - 天と雷の神、神々の王</li>
-            <li><a href="hera.html">ヘラ (Hera)</a> - 結婚と出産の女神、ゼウスの妻</li>
-            <li><a href="poseidon.html">ポセイドン (Poseidon)</a> - 海の神</li>
-            <li><a href="hades.html">ハデス (Hades)</a> - 死者の国の神</li>
-            <li><a href="athena.html">アテナ (Athena)</a> - 知恵と戦争の女神</li>
-            <li><a href="apollo.html">アポロン (Apollo)</a> - 太陽、音楽、予言の神</li>
-            <li><a href="artemis.html">アルテミス (Artemis)</a> - 月と狩猟の女神</li>
-            <li><a href="ares.html">アレス (Ares)</a> - 戦争の神</li>
-            <li><a href="aphrodite.html">アフロディーテ (Aphrodite)</a> - 愛と美の女神</li>
-            <li><a href="hermes.html">ヘルメス (Hermes)</a> - 商業、旅行、盗賊の神</li>
-            <li><a href="hestia.html">ヘスティア (Hestia)</a> - 暖炉と家庭の女神</li>
-            <li><a href="hephaestus.html">ヘパイストス (Hephaestus)</a> - 火と鍛冶の神</li>
-            <li><a href="dionysus.html">ディオニューソス (Dionysus)</a> - 酒と豊穣の神</li>
-        </ul>
+  <div class="container">
+    <header>
+      <div class="header-badge">
+        <span class="status-dot"></span>
+        <span>INDEX / REPOSITORY</span>
+      </div>
+      <h1>🏝️⛱️</h1>
+      <p class="lead-text">
+        私（来火 <a href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+          rel="noopener noreferrer">@highants.bsky.social</a>）がAIに制作させたナレッジページの目録です。各カードから各ページへアクセスできます。
+      </p>
+    </header>
 
-        <p>上記以外にも多くの神々がいます。  各神へのリンクは現在準備中です。</p>
+    <main class="grid" id="page-grid">
+      <!-- Card 1: hikari.html -->
+      <a href="hikari.html" class="card" data-theme="hikari" id="card-hikari">
+        <div class="card-top">
+          <span class="tag">ONTOLOGY / EXEGESIS</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+              <path d="M6 6h10"></path>
+              <path d="M6 10h10"></path>
+            </svg>
+            Text / Essay
+          </span>
+        </div>
+        <h2 class="card-title">光は言ではなく命である</h2>
+        <div class="card-subtitle">ヨハネ福音書 1:1–5 の存在論的階層</div>
+        <p class="card-desc">
+          ヨハネによる福音書第1章の脱構築。形式の論理（ロゴス）から溢れ出る生命（ゾーエー）と、それを捕らえきれぬ神聖なる暗闇を思索する存在論的読解。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            ページを開く
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
 
-    </div>
-    <footer>
-        <p>Copyright © 2023 ギリシャ神話の神々</p>
-    </footer>
+      <!-- Card 2: hydroiso.html -->
+      <a href="hydroiso.html" class="card" data-theme="hydro" id="card-hydroiso">
+        <div class="card-top">
+          <span class="tag">GEOPHYSICS / GIA</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+              <path d="M2 12h20"></path>
+            </svg>
+            Interactive Lab
+          </span>
+        </div>
+        <h2 class="card-title">Hydro-Isostasy: 大地が撓み、海が応える力学系</h2>
+        <div class="card-subtitle">動的平衡の観測室</div>
+        <p class="card-desc">
+          極域の氷床融解がもたらす海水の移動と深海底の沈降、そして深部マントルの粘弾性側方流動。水と粘弾性惑星が織りなす「ハイドロアイソスタシー」の全貌を解き明かす。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            観測室を開く
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 3: hydroisow.html -->
+      <a href="hydroisow.html" class="card" data-theme="hydrow" id="card-hydroisow">
+        <div class="card-top">
+          <span class="tag">DASHBOARD / 16:9</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+            Panorama View
+          </span>
+        </div>
+        <h2 class="card-title">Hydro-Isostasy: 統合観測パノラマ</h2>
+        <div class="card-subtitle">GIA Kinetic Equilibrium Platform</div>
+        <p class="card-desc">
+          5つの観測プレート（ダイアグラム）とシステムメトリクスを1画面に統合した、16:9横型ワイド仕様のダッシュボードパノラマ展示。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            パノラマを表示
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 4: argon-metis.html -->
+      <a href="argon-metis.html" class="card" data-theme="argon" id="card-argon">
+        <div class="card-top">
+          <span class="tag">AI / PERSPECTIVES</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+              <line x1="12" y1="3" x2="12" y2="21"></line>
+            </svg>
+            Parallel Read
+          </span>
+        </div>
+        <h2 class="card-title">Gemini 4 Argon 出力比較</h2>
+        <div class="card-subtitle">メーティス・アテナ・メデューサの洞察</div>
+        <p class="card-desc">
+          パーソナライズ「あり（内省的エッセイ）」と「なし（構造的神話学分析）」を左右並行・スクロール同期で比較読書できるインタラクティブビュー。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            並行して読む
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+    </main>
+
+    <!-- Archive section for old/ directory -->
+    <section class="archive-section" aria-label="過去のアーカイブ">
+      <div class="archive-info">
+        <div class="archive-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 8v13H3V8"></path>
+            <path d="M1 3h22v5H1z"></path>
+            <path d="M10 12h4"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="archive-title">過去のコンテンツ（アーカイブ）</div>
+          <div class="archive-desc">旧バージョン（神話解説・旧インフォグラフィック等の旧ページ）</div>
+        </div>
+      </div>
+      <a href="old/index.html" class="archive-link">
+        アーカイブ一覧 / 旧ページへ
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </a>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; Pages Repository. All rights reserved.</p>
+  </footer>
 </body>
+
 </html>

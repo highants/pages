@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gemini 4 Argon におけるパーソナライズあり／なしの出力比較。メーティス、アテナ、メデューサの関係性に関する洞察を左右並行で閲覧できます。">
+  <title>Gemini 4 Argon 出力比較 // メーティス・アテナ・メデューサの洞察</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-header: #ffffff;
+      --bg-pane: #ffffff;
+      --bg-pane-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --text-soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+
+      /* Personalized pane accent (Amber / Warm reflective) */
+      --color-personal: #b45309;
+      --bg-personal-subtle: #fffbeb;
+      --border-personal: #fde68a;
+
+      /* Default / Off pane accent (Indigo / Analytical) */
+      --color-neutral: #3730a3;
+      --bg-neutral-subtle: #eef2ff;
+      --border-neutral: #c7d2fe;
+
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-serif: 'Noto Serif JP', "Yu Mincho", "Hiragino Mincho ProN", serif;
+      --font-mono: 'JetBrains Mono', Consolas, Menlo, monospace;
+      
+      --base-font-size: 16px;
+      --base-line-height: 1.95;
+    }
+
+    /* Sepia Theme */
+    body.theme-sepia {
+      --bg-page: #fbf7ee;
+      --bg-header: #f4ece1;
+      --bg-pane: #fdfaf4;
+      --bg-pane-subtle: #f3ece0;
+      --text-main: #2d261e;
+      --text-body: #473c33;
+      --text-muted: #7c6f64;
+      --border: #e7decb;
+      --border-dark: #d5c8b0;
+    }
+
+    /* Dark Theme */
+    body.theme-dark {
+      --bg-page: #090d16;
+      --bg-header: #0f172a;
+      --bg-pane: #0f172a;
+      --bg-pane-subtle: #1e293b;
+      --text-main: #f8fafc;
+      --text-body: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --border-dark: #475569;
+      --bg-personal-subtle: #291c0e;
+      --bg-neutral-subtle: #1a1e36;
+      --border-personal: #78350f;
+      --border-neutral: #3730a3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-page);
+      color: var(--text-body);
+      font-family: var(--font-sans);
+      font-size: var(--base-font-size);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Top Global Header */
+    .global-header {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      flex-shrink: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-pane);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      color: var(--primary);
+      border-color: var(--border-dark);
+    }
+
+    .page-title-wrap h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .model-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--bg-personal-subtle);
+      color: var(--color-personal);
+      border: 1px solid var(--border-personal);
+    }
+
+    /* Controls Strip */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    /* View Switcher */
+    .view-toggle {
+      display: flex;
+      background: var(--bg-pane-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .view-btn {
+      border: none;
+      background: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.3rem 0.65rem;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .view-btn.active {
+      background: var(--bg-pane);
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Sync Toggle Switch */
+    .sync-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-pane);
+    }
+
+    .sync-toggle-label input {
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Font Size Controls */
+    .font-controls {
+      display: flex;
+      align-items: center;
+      background: var(--bg-pane);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .font-btn {
+      border: none;
+      background: none;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background 0.15s;
+    }
+
+    .font-btn:hover {
+      background: var(--bg-pane-subtle);
+      color: var(--text-main);
+    }
+
+    /* Theme Selector */
+    .theme-select {
+      font-size: 0.78rem;
+      font-family: inherit;
+      padding: 0.28rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-pane);
+      color: var(--text-muted);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Query Accordion Banner */
+    .query-banner {
+      background: var(--bg-pane-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.84rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      color: var(--text-body);
+    }
+
+    .query-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .query-text {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .query-meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Dual Pane Container */
+    .panes-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 0;
+      position: relative;
+    }
+
+    .panes-container.view-personal-only {
+      grid-template-columns: 1fr;
+    }
+
+    .panes-container.view-personal-only .pane-neutral {
+      display: none;
+    }
+
+    .panes-container.view-neutral-only {
+      grid-template-columns: 1fr;
+    }
+
+    .panes-container.view-neutral-only .pane-personal {
+      display: none;
+    }
+
+    /* Pane Item */
+    .pane {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-pane);
+      min-height: 0;
+      position: relative;
+    }
+
+    .pane-personal {
+      border-right: 1px solid var(--border);
+    }
+
+    /* Sticky Pane Header */
+    .pane-header {
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-pane);
+      border-bottom: 2px solid var(--pane-accent, var(--border));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .pane-personal .pane-header {
+      --pane-accent: var(--color-personal);
+      background: var(--bg-personal-subtle);
+    }
+
+    .pane-neutral .pane-header {
+      --pane-accent: var(--color-neutral);
+      background: var(--bg-neutral-subtle);
+    }
+
+    .pane-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pane-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pane-status-pill {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.18rem 0.5rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+
+    .pane-personal .pane-status-pill {
+      background: var(--color-personal);
+      color: #ffffff;
+    }
+
+    .pane-neutral .pane-status-pill {
+      background: var(--color-neutral);
+      color: #ffffff;
+    }
+
+    .pane-stats {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Scrollable Reading Area */
+    .pane-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2.2rem 2.4rem 6rem;
+      scroll-behavior: smooth;
+    }
+
+    /* Typography & Reading Rhythm */
+    .prose {
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: var(--base-font-size);
+      line-height: var(--base-line-height);
+    }
+
+    /* Personal Pane uses Literary / Introspective font */
+    .pane-personal .prose {
+      font-family: var(--font-serif);
+      color: var(--text-body);
+    }
+
+    .pane-personal .prose p {
+      margin-bottom: 1.6rem;
+      text-align: justify;
+      text-justify: inter-ideograph;
+    }
+
+    .pane-personal .prose strong {
+      color: var(--text-main);
+      font-weight: 700;
+      border-bottom: 2px solid var(--border-personal);
+      padding-bottom: 1px;
+    }
+
+    /* Neutral Pane uses Structured / Clean Sans */
+    .pane-neutral .prose {
+      font-family: var(--font-sans);
+      color: var(--text-body);
+    }
+
+    .pane-neutral .prose p {
+      margin-bottom: 1.4rem;
+    }
+
+    .pane-neutral h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 2.2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pane-neutral hr {
+      border: none;
+      border-top: 1px dashed var(--border);
+      margin: 2rem 0;
+    }
+
+    .pane-neutral ul {
+      margin-bottom: 1.5rem;
+      padding-left: 1.4rem;
+    }
+
+    .pane-neutral li {
+      margin-bottom: 0.6rem;
+      line-height: 1.8;
+    }
+
+    .pane-neutral strong {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .pane-neutral code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: var(--bg-pane-subtle);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      color: var(--primary);
+    }
+
+    /* Comparison Table in Neutral Pane */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-pane);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    th {
+      background: var(--bg-pane-subtle);
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(37, 99, 235, 0.02);
+    }
+
+    /* Callout Note */
+    .insight-callout {
+      background: var(--bg-pane-subtle);
+      border-left: 3px solid var(--primary);
+      padding: 1rem 1.25rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1.6rem 0;
+      font-size: 0.92rem;
+      color: var(--text-body);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .panes-container {
+        grid-template-columns: 1fr;
+      }
+      .pane-personal {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .pane-content {
+        padding: 1.5rem 1.2rem 4rem;
+      }
+      .query-banner {
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .query-meta {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Global Bar -->
+    <header class="global-header">
+      <div class="header-top">
+        <div class="nav-brand">
+          <a href="index.html" class="btn-back" title="トップページに戻る">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Pages
+          </a>
+          <div class="page-title-wrap">
+            <h1>
+              メーティス・アテナ・メデューサの洞察
+              <span class="model-tag">Gemini 4 Argon</span>
+            </h1>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="header-controls">
+          <!-- View Switcher -->
+          <div class="view-toggle" role="group" aria-label="ペイン表示切替">
+            <button class="view-btn active" id="btnSplit" type="button" title="左右並列表示">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+              並行
+            </button>
+            <button class="view-btn" id="btnPersonal" type="button" title="パーソナライズありのみ表示">
+              あり
+            </button>
+            <button class="view-btn" id="btnNeutral" type="button" title="パーソナライズなしのみ表示">
+              なし
+            </button>
+          </div>
+
+          <!-- Sync Scroll Switch -->
+          <label class="sync-toggle-label" title="左右のスクロールを同期">
+            <input type="checkbox" id="syncScrollCheck" checked>
+            <span>スクロール同期</span>
+          </label>
+
+          <!-- Font Size Adjustment -->
+          <div class="font-controls">
+            <button class="font-btn" id="btnFontDec" type="button" title="文字を小さく">A-</button>
+            <button class="font-btn" id="btnFontInc" type="button" title="文字を大きく">A+</button>
+          </div>
+
+          <!-- Theme -->
+          <select class="theme-select" id="themeSelect" aria-label="テーマ選択">
+            <option value="light">ライト</option>
+            <option value="sepia">セピア（読書）</option>
+            <option value="dark">ダーク</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Query prompt banner -->
+      <div class="query-banner">
+        <span class="query-label">PROMPT</span>
+        <span class="query-text">メーティスとアテナとメデューサの関係性について洞察してください。</span>
+        <span class="query-meta">Thinking: High | 2026-10-14</span>
+      </div>
+    </header>
+
+    <!-- Main Dual Panes -->
+    <main class="panes-container" id="panesContainer">
+      <!-- Left Pane: Personal ON -->
+      <section class="pane pane-personal" id="panePersonal" aria-label="パーソナライズあり">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-status-pill">Personalized ON</span>
+            <h2 class="pane-title">パーソナライズあり</h2>
+          </div>
+          <div class="pane-stats">
+            <span>内省・存在論的エッセイ</span>
+            <span>約 4,100 字</span>
+          </div>
+        </div>
+
+        <div class="pane-content" id="scrollPersonal">
+          <article class="prose">
+            <p>
+              メーティス、アテナ、そしてメデューサ。この三つの名前を並べて心に浮かべるとき、私自身の内側にある「知性」や「思考」の成り立ちそのものを、根底から見つめ直そうとしている自分に気づきます。普段、私たちが言葉を紡ぎ、論理を組み立て、物事を明晰に理解しようとする営みは、一見すると揺るぎない理性の光に導かれているように見えます。けれども、その明晰さの背後には、かつて呑み込まれて見えなくなったものと、怪物として切り捨てられたものが静かに息づいているのではないでしょうか。この三柱の存在をめぐる神話の糸をたぐることは、単なる古代の物語の解釈にとどまらず、私自身の知のあり方、さらには人間が「考える」という行為において無意識のうちに支払っている代償と、その先にある回復の可能性を探る旅でもあります。
+            </p>
+
+            <p>
+              まず目を向けたいのは、すべての始まりでありながら、物語の表舞台から最も早く姿を消してしまう「<strong>メーティス</strong>」という存在です。オーケアノスとテーテュースの娘である彼女は、ゼウスの最初の妻であり、その名は古代ギリシア語において「思慮」や「知恵」、とりわけ変化し続ける状況の中で瞬時に働く「狡知」や「臨機応変な実践知」を意味していました。それは、後に哲学者が尊ぶことになる不変の真理や体系的な論理（ロゴス）とは性質を異にする、水のように自在に姿を変え、網の目をくぐり抜け、危機を察知して未来を切り拓く、極めて身体的で流動的な知恵です。ゼウスはこのメーティスの助けを借りて父クロノスを倒し、最高神の座に就きました。しかし、「メーティスが産む男児は父を凌駕し、王座を奪うであろう」という予言を恐れたゼウスは、すでにアテナを身ごもっていたメーティスを甘言によって欺き、小さな姿に変えさせて自らの腹の中へと丸呑みにしてしまいます。
+            </p>
+
+            <p>
+              この「知恵の母が権力の父に呑み込まれる」という出来事こそが、その後のすべての構造を決定づけています。ゼウスはメーティスを自らの胎内に取り込むことで、彼女の持つ変幻自在の知恵を自分の支配下に置き、二度と自分を脅かす新たな世代が生まれないように時間を凍結させました。つまり、原初の豊かで流動的な知恵であるメーティスは、秩序と支配を司るシステムの中へと吸収され、外部からは見えない「腹の底の声」へと封じ込められてしまったのです。
+            </p>
+
+            <p>
+              そして、その呑み込まれた母の知恵が、父ゼウスの「頭部」という最も理性的で高貴とされる部位を突き破って外の世界へと現れた姿が、知恵と戦略の処女女神である「<strong>アテナ</strong>」でした。黄金の武具に身を包み、雄叫びを上げながら父の頭頂から誕生したアテナは、もはや母メーティスのような流動的で捕らえどころのない水の女神ではありません。彼女は都市を守護し、法廷を設立し、規律正しい戦術と工芸を司る、明晰で構造化された知性の体現者です。悲劇『エウメニデス』においてアテナ自身が「私には私を産んだ母はいない。私はすべてにおいて父の側の者である」と語るように、彼女は母の記憶を喪失したまま、父権的な秩序と理性の最も忠実な守護者として振る舞います。
+            </p>
+
+            <p>
+              ここで、もう一人の存在である「<strong>メデューサ</strong>」が浮かび上がってきます。なぜアテナの物語には、これほどまでに強くメデューサの影が付きまとうのでしょうか。興味深いことに、メデューサ（Medousa）という名前の語源をたどると、ギリシア語で「支配する」「守護する」「思慮をめぐらす」を意味する動詞（medô）に行き着きます。すなわち、メデューサという名もまた、メーティス（Mêtis）と同じ語根の領域に属する「<strong>思慮し支配する女</strong>」を意味しているのです。神話の古い層や比較神話学の視座を借りれば、メーティスとアテナとメデューサは、本来は生と死と再生、あるいは知恵と野生を併せ持つ太古の単一の女神（あるいは三相一体の女神）であったものが、オリュンポスの秩序が確立される過程で三つに分断された姿であると捉えることができます。
+            </p>
+
+            <p>
+              その分断の構造を私自身の思考に引き寄せて見つめ直すと、実に鮮烈な構図が立ち上がってきます。原初の全体的な知恵であった「<strong>メーティス</strong>」が、秩序と権力のシステムであるゼウスに呑み込まれたとき、知恵は上下の二つへと引き裂かれたのです。上なる頭脳から、鎧をまとった非の打ちどころのない理性として生まれ出たのが「<strong>アテナ</strong>」であり、反対に、頭脳へと昇華される過程で不純なものとして削ぎ落とされ、世界の果て（辺境）へと追いやられた身体性、情念、エロス、そして死と隣り合わせの野生の生命力が「<strong>メデューサ</strong>」なのではないでしょうか。
+            </p>
+
+            <p>
+              そう考えると、アテナにとってメデューサとは、決して無関係な異界の怪物ではなく、父の頭から生まれる際に切り捨ててきた「<strong>自分自身のもう一つの半身</strong>」であり、腹の底に消えた母メーティスの「生々しい身体の記憶」そのものだと言えます。後代のオウィディウスが記した神話において、美しい髪を持つ少女だったメデューサがアテナの神殿でポセイドンに交わった（あるいは凌辱された）際、アテナが怒って彼女の髪を蛇に変え、見る者を石にする怪物へと変貌させたというエピソードも、この「半身同士の引き合いと拒絶」として読むとき、全く異なる陰影を帯びてきます。
+            </p>
+
+            <p>
+              純潔な処女女神であるアテナの神殿に、海の混沌と荒ぶる情動を司るポセイドンが侵入し、メデューサと交わるという出来事は、武装した理性（アテナ）が抑圧していたはずの「身体的な生々しさや傷つきやすさ」が、まさに自分の聖域の真ん中で暴き出された瞬間です。通俗的な解釈では、アテナは神殿を汚された怒りから被害者であるメデューサを理不尽に罰したのだと語られます。しかし、その裏側にあるもう一つの側面にも目を向ける必要があります。アテナがメデューサに「見る者をすべて石に変える眼差し」を与えたことは、残酷な呪いであると同時に、二度と何者にもその身体を侵させないための「究極の不可侵の盾」を授ける行為でもあったのではないか、という視点です。傷ついた身体と激しい怒りを抱えた半身に対し、アテナは自らの鎧を分け与える代わりに、誰も近づけない怪物の貌を与えることで、彼女を世界の果てに隔離し、かつ守ろうとしたのかもしれません。
+            </p>
+
+            <p>
+              けれども、理性（アテナ）は、切り離した半身（メデューサ）をいつまでも辺境に放置しておくことはできません。なぜなら、身体性や情動を切り捨てたままの理性は、どれほど精巧な論理の槍や盾を持っていても、やがて血の通わない冷徹な教条主義へと乾ききってしまうからです。かといって、生身の人間や無防備な理性がメデューサの眼差し――すなわち、世界の不条理や生の根源的な恐怖、抑圧された激しい情念――を真正面から直視すれば、心は圧倒されて凍りつき、「<strong>石化</strong>」という名の思考停止に陥ってしまいます。
+            </p>
+
+            <p>
+              そこでアテナが英雄ペルセウスに授けたのが、青銅の「<strong>鏡の盾</strong>」でした。メデューサを直接見るのではなく、磨かれた盾の表面に映る「虚像（反射された像）」を見ながら間接的に近づき、その首を討つという戦術です。この「直接見れば石になるものを、鏡に映して扱う」という工夫こそ、かつて母メーティスが持っていた「狡知（状況に応じた間接化の知恵）」の鮮やかな発露にほかなりません。私たちが日々の暮らしや思索の中で、直視すれば心が砕けてしまうような深い悲しみや恐怖、あるいは自分自身の醜い欲望や矛盾に向き合うときも、これと全く同じことが起きています。生々しい現実をただ裸の目で直視して立ち尽くすのではなく、「言葉」や「概念」、「物語」や「芸術」、あるいはこうした「内省的な対話」という鏡の盾に一度映し出すこと。対象との間に安全な反射の距離を置くことで初めて、私たちは石化することなく、自らの暗部や混沌の正体を捉えることができるのです。
+            </p>
+
+            <p>
+              しかし、思索をここで終わらせて「アテナは鏡の知恵によって自らの半身であるメデューサを統合したのだ」と美しく結論づけてしまうことには、どこか危うい自己満足が潜んでいるようにも感じられます。この物語の結末を、より冷徹な両面的視点から検証してみなければなりません。
+            </p>
+
+            <p>
+              ペルセウスから献上されたメデューサの首を、アテナは自らの胸当て（アイギス）の中央に据え付けました。確かに一方の視点から見れば、それは父の頭から生まれた理性の女神が、排除されていた母性的・身体的な力を再び自分の心臓の近くに迎え入れ、論理と情念、秩序と混沌を一つに結び合わせた「全体性の回復」の象徴として映ります。メデューサの流した血から天翔けるペーガソス（飛翔する想像力）が生まれ、またアスクレーピオスがその血を用いて死者を蘇らせたように、直視しがたい混沌は、理性と結びつくことで創造と再生の源泉へと転化しました。
+            </p>
+
+            <p>
+              ところが、もう一方の視点からこの光景を眺めると、まったく逆の残酷な真実が浮かび上がります。アテナの胸元で睨みを利かせているメデューサは、もはや生きて呼吸する身体ではなく、「<strong>切り落とされた首</strong>」に過ぎないということです。生きたままの混沌や、制御不能な野生の情動はすでに殺されており、そこにあるのは、父権的な秩序（ゼウスとアテナの体制）を脅かす敵を威嚇し、石に変えて排除するための「最強の兵器」として加工された標本です。そして、ゼウスの腹の底に呑み込まれた母メーティス自身は、依然として暗い胎内に閉じ込められたまま、解放されてはいないのです。
+            </p>
+
+            <p>
+              この両義性は、私たちが何かを「理解した」「乗り越えた」と考えるときの欺瞞を鋭く照らし出します。私たちは自分の内側にあるドロドロとした感情や、割り切れない矛盾、野蛮な衝動（メデューサ的なもの）に直面したとき、それを知性の鏡に映して分析し、名前をつけ、整然とした論理の体系（アテナの鎧）の中へと組み込みます。そして「私は自分の弱さや暗部も受け入れ、糧にしている」と語るのです。しかし、それは本当に生きた感情との和解なのでしょうか。実際には、制御しがたい生の躍動の首を刎ねて安全な「概念」という標本に変え、自分の知性をより強固に見せるための装飾品や、他者を論破するための威嚇の道具（アイギスの紋章）として利用しているだけではないでしょうか。自分の思考を振り返ってみても、言葉を尽くして物事を整理しようとするあまり、生きた感情の脈動を「理解可能な枠組み」の中に押し込め、標本化してしまう誘惑から完全に自由であるとは言い切れません。
+            </p>
+
+            <p>
+              では、鎧を着たアテナの冷徹な支配に陥ることもなく、かといってメデューサの眼差しに呑み込まれて石と化すこともなく、私たちが本当に生きた知恵を取り戻すにはどうすればよいのでしょうか。その鍵は、アテナとメデューサという「引き裂かれた二つの結果」の間を行き来するだけでなく、その二つが分かたれる前にあった原初の源泉、すなわち腹の底に眠る「<strong>メーティス</strong>」の感触を思い出すことにあるのだと思います。
+            </p>
+
+            <p>
+              メーティスとは、完成された鎧でもなければ、切り落とされた首でもありません。それは、固定された形を持たず、状況の揺らぎとともに絶えず変容し続ける「生成のプロセス」そのものです。アテナの明晰な論理が「すでにある秩序を守ること」に向かいやすく、メデューサの圧倒的な情念が「時間を止めて石にすること」に向かいやすいのに対し、メーティスの知恵は常に「まだ見ぬ未来を孕み、今この瞬間の変化にしなやかに応答すること」へと開かれています。
+            </p>
+
+            <p>
+              私たちが思考を巡らせるとき、頭頂（アテナ）だけで言葉を組み立てようとすれば、そこからは正論という名の冷たい武器しか生まれません。また、胸に掲げた過去の傷や情念の標本（メデューサの首）ばかりを頼りにすれば、世界を敵と味方に分けて威嚇する硬直した態度から抜け出せなくなります。そうではなく、自らの最も深い場所――論理になる前の直観や、言葉になる前の身体的な揺らぎが息づく「腹の底」――に耳を澄ませること。そこには、システムに呑み込まれながらも決して消滅することなく、内側から静かに助言を送り続けているメーティスの声が今も響いているはずです。
+            </p>
+
+            <p>
+              頭脳の明晰さ（アテナ）を保ち、鏡の盾によって自己の暗部や混沌（メデューサ）から目を逸らさずに見つめながらも、決してその混沌を死んだ標本として固定化してしまわないこと。理性の鎧の継ぎ目を少しだけ緩め、腹の底にある水のような知恵（メーティス）が全身を巡るのを許したとき、私たちの知性は初めて、何かを支配したり石化させたりするための武器ではなく、他者や世界と共に変化し、新たな生を育むための豊かな器へと変わっていくのかもしれません。私自身、今こうして言葉を紡ぎながら、自分の思考がアテナの槍になっているのか、メデューサの眼差しを借りているのか、それとも深い水底のメーティスに触れようとしているのかを、静かに問い続けています。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Right Pane: Personal OFF -->
+      <section class="pane pane-neutral" id="paneNeutral" aria-label="パーソナライズなし">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-status-pill">Personalized OFF</span>
+            <h2 class="pane-title">パーソナライズなし</h2>
+          </div>
+          <div class="pane-stats">
+            <span>学術・神話学的構造分析</span>
+            <span>約 2,100 字</span>
+          </div>
+        </div>
+
+        <div class="pane-content" id="scrollNeutral">
+          <article class="prose">
+            <p>
+              ギリシア神話における<strong>メーティス（母）</strong>、<strong>アテナ（娘）</strong>、<strong>メデューサ（怪物／分身）</strong>の三者は、別個の登場人物でありながら、神話学・語源学・深層心理学の視点から見ると<strong>「本来ひとつであった太古の知恵と力の女神が、父権制（ゼウス中心の秩序）の確立過程で三つに分断された姿」</strong>として読み解くことができます。
+            </p>
+
+            <p>
+              それぞれが担わされた役割と象徴的な繋がりを整理すると、三者の構造的な関係が浮かび上がります。
+            </p>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>女神・存在</th>
+                    <th>語源的意味</th>
+                    <th>神話上の位置づけ</th>
+                    <th>象徴する側面</th>
+                    <th>身体と力のゆくえ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>メーティス</strong></td>
+                    <td>思慮・狡知・測る知恵</td>
+                    <td>ゼウスの最初の妻・アテナの母</td>
+                    <td><strong>根源的な叡智・母性</strong></td>
+                    <td>ゼウスに飲み込まれ、身体を失い「内なる声」へと不可視化される</td>
+                  </tr>
+                  <tr>
+                    <td><strong>アテナ</strong></td>
+                    <td>（先ギリシア語起源）都市の守護女神</td>
+                    <td>ゼウスの頭部から武装して誕生</td>
+                    <td><strong>理性・秩序・父権への適応</strong></td>
+                    <td>母の知恵を受け継ぎつつ、「母を持たぬ娘」として父の秩序を守る</td>
+                  </tr>
+                  <tr>
+                    <td><strong>メデューサ</strong></td>
+                    <td>支配する女・守護する女</td>
+                    <td>アテナに呪われ討たれたゴルゴーン</td>
+                    <td><strong>野生・身体性・畏怖（影）</strong></td>
+                    <td>首を斬られるが、アテナの盾（アイギス）に嵌め込まれ再統合される</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <hr>
+
+            <h3>1. 語源と起源が示す「同一の女神」の痕跡</h3>
+            <p>
+              メーティス（<em>Mētis</em>）とメデューサ（<em>Medousa</em>）は、神話の中では直接言葉を交わすことすらありませんが、言語学的には同じ印欧祖語の語根 <code>*med-</code>（測る、熟考する、助言する、支配する）に連なっています。
+            </p>
+            <ul>
+              <li><strong>メーティス</strong>は「知恵・思慮・策略」そのものを意味する名詞です。</li>
+              <li><strong>メデューサ</strong>は動詞 <em>medō</em>（支配する・守護する）の現在分詞女性形であり、「支配する女（女王）」「守護する女」を意味します。</li>
+            </ul>
+            <p>
+              比較神話学者ロバート・グレイヴスやフェミニズム神話学の研究者たちが指摘するように、先ギリシア時代（ミノア文明や北アフリカ・リビア起源の信仰）においては、知恵と戦いと死と再生を司る単一の強大な女神が存在していました。しかし、インド・ヨーロッパ語族の父権的なオリュンポス神話（ゼウス信仰）が先住の女神信仰を吸収・再編する過程で、その女神が持っていた強大すぎる力は「飲み込まれた母（メーティス）」「体制に従う娘（アテナ）」「討伐されるべき怪物（メデューサ）」の三つへと解体されました。
+            </p>
+
+            <hr>
+
+            <h3>2. メーティスとアテナ：母の抹消と「父の娘」の誕生</h3>
+            <p>
+              ヘシオドスの『神統記』において、ゼウスは最初の妻である知恵の女神メーティスが「自分より強力な息子を生む」という予言を恐れ、妊娠中の彼女を丸呑みにしてしまいます。その後、ゼウスは激しい頭痛に襲われ、プロメテウス（あるいはヘパイストス）に頭を割らせると、そこから黄金の鎧で武装したアテナが飛び出してきました。
+            </p>
+            <p>この神話が持つ政治的・象徴的な意味は極めて明確です。</p>
+            <ul>
+              <li><strong>母系の篡奪（さんだつ）</strong>：ゼウスはメーティスを体内に取り込むことで、「知恵（メーティス）」を自らの属性とし、さらに「出産」という女性固有の創造力をも自らの頭部からの誕生へと置き換えました。</li>
+              <li><strong>母なき娘としての自己規定</strong>：アイスキュロスの悲劇『慈しみ深い女神たち（エウメニデス）』の中で、母殺しの罪に問われたオレステスを弁護する際、アテナは「私を生んだ母はいない。私はすべてにおいて父のものだ」と公言します。</li>
+            </ul>
+            <p>
+              つまりアテナは、実母メーティスの知略と工芸の才をそのまま受け継ぎながら、自らのルーツである母の存在を忘却・否定し、家父長制とポリス（都市国家）の法秩序を体現する「父の娘」として振る舞うことを宿命づけられた存在です。
+            </p>
+
+            <hr>
+
+            <h3>3. アテナとメデューサ：光と影の鏡像（ドッペルゲンガー）</h3>
+            <p>
+              母メーティスが「不可視化された知恵」であるなら、メデューサはアテナから切り離された「抑圧された身体性と野生の力（シャドウ）」です。アテナとメデューサには、敵対関係でありながら驚くほど多くの共通点と対称性があります。
+            </p>
+            <ul>
+              <li><strong>蛇の象徴の共有</strong>：メデューサは蛇の髪を持つ怪物ですが、実はアテナ自身も古くは「蛇の女神」でした。アテナの盾や衣の縁には蛇があしらわれ、アテナイのアクロポリス神殿にはアテナの化身・眷属としての聖なる蛇（エリクトニオス）が祀られていました。古来の女神が持っていた「大地・死と再生・呪術」の象徴である蛇の属性のうち、畏怖すべき側面だけがメデューサへと押し付けられた形です。</li>
+              <li><strong>聖域の侵害と変容</strong>：後代のローマの詩人オウィディウス（『変身物語』）は、メデューサを「もとは美しい髪を持つ乙女だったが、アテナの神殿で海神ポセイドンに凌辱され、それに怒った処女神アテナによって髪を蛇に変えられた」と描きました。</li>
+              <li><strong>表層的な解釈</strong>では、純潔を重んじるアテナが、神殿を穢された怒りを被害者であるメデューサに向けた理不尽な処罰に見えます。</li>
+              <li><strong>深層的な解釈</strong>では、アテナにとってメデューサは「武装していない生身の女性としての自分自身」の投影です。男神（ポセイドン）の暴力によって聖域を蹂躙されたとき、アテナはその傷ついた女性性を「怪物」へと変貌させて切り離したとも、あるいは「二度と誰にも視姦・凌辱されないよう、見る者を石にする究極の防衛力」を授けたとも読み解くことができます。</li>
+            </ul>
+
+            <hr>
+
+            <h3>4. アイギス（盾）による再統合：三者がひとつに還る場所</h3>
+            <p>
+              この三者の物語において最も象徴的な結末は、アテナの導きを受けた英雄ペルセウスがメデューサの首を討ち取った後、<strong>アテナがその首（ゴルゴネイオン）を受け取り、自らの胸当て（または盾であるアイギス）の中央に嵌め込んだ</strong>ことです。
+            </p>
+            <p>
+              さらに、エウリピデスの悲劇『イオン』などでは、アイギス自体も元々は怪物や山羊の皮であり、メーティスがアテナのために鍛えた武具の系譜と重なります。
+            </p>
+            <ol style="margin-bottom: 1.5rem; padding-left: 1.4rem; line-height: 1.8;">
+              <li><strong>知恵の源泉である母メーティス</strong>は、ゼウスの内側（無意識の深層）に潜んでいる。</li>
+              <li><strong>理性と秩序の女神アテナ</strong>は、鎧をまとって世界の表舞台に立つ。</li>
+              <li><strong>切り捨てられた野生と魔力のメデューサ</strong>は、アテナの胸の中央（心臓の上）に据えられ、敵を威圧し身を守る最強の魔除け（アポトロパイオン）となる。</li>
+            </ol>
+            <p>
+              ユング心理学の視点から見れば、これは「自己（セルフ）の分割と再統合」のプロセスそのものです。
+            </p>
+            <p>
+              社会的な理性や規範に適応するために（アテナ化）、人は自らの根源的な直観（メーティス）を無意識の奥底に沈め、生々しい情動や怒り、セクシュアリティ（メデューサ）を「怪物的な影（シャドウ）」として切り捨てます。しかし、メデューサの首を鏡（ペルセウスの磨かれた盾＝直接飲み込まれずに客観視する知性）によって捉え直し、自らの胸（アイギス）に統合したとき、かつて他者を石化させていた破壊的な呪力は、自己を守り抜く最強の盾へと昇華されます。また、メデューサの流した血から天馬ペガサス（詩的霊感・飛翔する精神）が生まれ、名医アスクレピオスが死者蘇生の薬を得たことも、抑圧された影の中にこそ創造性と再生のエネルギーが眠っていることを示しています。
+            </p>
+
+            <hr>
+
+            <div class="insight-callout">
+              <strong>まとめ：</strong><br>
+              メーティス、アテナ、メデューサの三者は、「深層の叡智（メーティス）」「明晰な理性（アテナ）」「野生の生命力と怒り（メデューサ）」という、本来ひとつの全体性を成していた力が引き裂かれた姿です。アテナがメデューサの顔を自らの胸に掲げて立つ姿は、分断された女神たちが再びひとつに重なり合い、理性と魔力の双方を取り戻した瞬間を象徴しています。
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Elements
+    const panesContainer = document.getElementById('panesContainer');
+    const scrollPersonal = document.getElementById('scrollPersonal');
+    const scrollNeutral = document.getElementById('scrollNeutral');
+    const syncScrollCheck = document.getElementById('syncScrollCheck');
+    const btnSplit = document.getElementById('btnSplit');
+    const btnPersonal = document.getElementById('btnPersonal');
+    const btnNeutral = document.getElementById('btnNeutral');
+    const btnFontInc = document.getElementById('btnFontInc');
+    const btnFontDec = document.getElementById('btnFontDec');
+    const themeSelect = document.getElementById('themeSelect');
+
+    // Synchronized Scroll Logic
+    let isSyncingPersonal = false;
+    let isSyncingNeutral = false;
+
+    function handleScroll(source, target, setSyncFlag, checkSyncFlag) {
+      if (!syncScrollCheck.checked) return;
+      if (checkSyncFlag()) return;
+
+      setSyncFlag(true);
+      const sourceMax = source.scrollHeight - source.clientHeight;
+      const targetMax = target.scrollHeight - target.clientHeight;
+      
+      if (sourceMax > 0 && targetMax > 0) {
+        const percentage = source.scrollTop / sourceMax;
+        target.scrollTop = percentage * targetMax;
+      }
+      
+      requestAnimationFrame(() => {
+        setSyncFlag(false);
+      });
+    }
+
+    scrollPersonal.addEventListener('scroll', () => {
+      handleScroll(
+        scrollPersonal, 
+        scrollNeutral, 
+        (val) => isSyncingPersonal = val, 
+        () => isSyncingNeutral
+      );
+    });
+
+    scrollNeutral.addEventListener('scroll', () => {
+      handleScroll(
+        scrollNeutral, 
+        scrollPersonal, 
+        (val) => isSyncingNeutral = val, 
+        () => isSyncingPersonal
+      );
+    });
+
+    // View Switcher (Split, Personal Only, Neutral Only)
+    const viewButtons = [btnSplit, btnPersonal, btnNeutral];
+
+    function setView(viewMode) {
+      viewButtons.forEach(btn => btn.classList.remove('active'));
+      panesContainer.classList.remove('view-personal-only', 'view-neutral-only');
+
+      if (viewMode === 'split') {
+        btnSplit.classList.add('active');
+      } else if (viewMode === 'personal') {
+        btnPersonal.classList.add('active');
+        panesContainer.classList.add('view-personal-only');
+      } else if (viewMode === 'neutral') {
+        btnNeutral.classList.add('active');
+        panesContainer.classList.add('view-neutral-only');
+      }
+    }
+
+    btnSplit.addEventListener('click', () => setView('split'));
+    btnPersonal.addEventListener('click', () => setView('personal'));
+    btnNeutral.addEventListener('click', () => setView('neutral'));
+
+    // Font Size Adjustment
+    let currentFontSize = 16;
+    btnFontInc.addEventListener('click', () => {
+      if (currentFontSize < 22) {
+        currentFontSize += 1;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+      }
+    });
+
+    btnFontDec.addEventListener('click', () => {
+      if (currentFontSize > 13) {
+        currentFontSize -= 1;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+      }
+    });
+
+    // Theme Switcher
+    themeSelect.addEventListener('change', (e) => {
+      document.body.classList.remove('theme-sepia', 'theme-dark');
+      if (e.target.value === 'sepia') {
+        document.body.classList.add('theme-sepia');
+      } else if (e.target.value === 'dark') {
+        document.body.classList.add('theme-dark');
+      }
+    });
+  </script>
+</body>
+</html>
