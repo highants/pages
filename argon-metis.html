@@ -532,28 +532,219 @@
       padding: 1rem 1.25rem;
       border-radius: 0 6px 6px 0;
       margin: 1.6rem 0;
-      font-size: 0.92rem;
-      color: var(--text-body);
     }
 
-    /* Responsive */
-    @media (max-width: 900px) {
-      .panes-container {
-        grid-template-columns: 1fr;
+    /* Query Banner & Details */
+    .query-banner {
+      background: var(--bg-pane-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.84rem;
+      color: var(--text-body);
+      transition: all 0.2s ease;
+    }
+
+    .query-summary {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: default;
+      list-style: none;
+    }
+
+    .query-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .query-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .query-text {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .query-toggle-icon {
+      display: none;
+      color: var(--text-soft);
+      margin-left: auto;
+      transition: transform 0.2s ease;
+    }
+
+    details[open] .query-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .query-meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .query-expand-content {
+      margin-top: 0.4rem;
+      padding-top: 0.4rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Responsive: Mobile & Small Screens (<= 768px) */
+    @media (max-width: 768px) {
+      .global-header {
+        padding: 0.45rem 0.75rem 0.5rem;
+        gap: 0.45rem;
       }
-      .pane-personal {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
+
+      .header-top {
+        gap: 0.4rem;
       }
-      .pane-content {
-        padding: 1.5rem 1.2rem 4rem;
+
+      .nav-brand {
+        gap: 0.4rem;
+        flex: 1;
+        min-width: 0;
       }
+
+      .btn-back {
+        padding: 0.25rem 0.45rem;
+        font-size: 0.75rem;
+      }
+
+      .btn-back .back-text {
+        display: none;
+      }
+
+      .page-title-wrap {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .page-title-wrap h1 {
+        font-size: 0.88rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .model-tag {
+        display: none;
+      }
+
+      .header-controls {
+        gap: 0.35rem;
+      }
+
+      /* Desktop-only controls hidden on mobile */
+      #btnSplit,
+      .sync-toggle-label {
+        display: none !important;
+      }
+
+      /* View Toggle: Tab bar on mobile */
+      .view-toggle {
+        padding: 2px;
+        background: var(--bg-pane-subtle);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+
+      .view-btn {
+        padding: 0.32rem 0.75rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        justify-content: center;
+      }
+
+      .font-controls {
+        border-radius: 4px;
+      }
+
+      .font-btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
+      }
+
+      .theme-select {
+        padding: 0.2rem 0.35rem;
+        font-size: 0.75rem;
+      }
+
+      /* Query prompt banner: collapsible and compact on mobile */
       .query-banner {
-        flex-direction: column;
-        gap: 0.3rem;
+        padding: 0.25rem 0.55rem;
+        font-size: 0.74rem;
+        cursor: pointer;
       }
+
+      .query-summary {
+        cursor: pointer;
+      }
+
+      .query-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+      }
+
+      .query-toggle-icon {
+        display: inline-flex;
+        margin-left: 0.3rem;
+      }
+
       .query-meta {
-        margin-left: 0;
+        display: none;
+      }
+
+      /* Enforce Single Pane Mode on Mobile */
+      .panes-container {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* When not neutral-only, display personal pane only */
+      .pane-personal {
+        display: flex !important;
+        border-right: none;
+      }
+
+      .pane-neutral {
+        display: none !important;
+      }
+
+      /* When neutral-only, display neutral pane only */
+      .panes-container.view-neutral-only .pane-personal {
+        display: none !important;
+      }
+
+      .panes-container.view-neutral-only .pane-neutral {
+        display: flex !important;
+      }
+
+      /* Slimmer pane header on mobile */
+      .pane-header {
+        padding: 0.35rem 0.75rem;
+      }
+
+      .pane-title {
+        font-size: 0.82rem;
+      }
+
+      .pane-stats {
+        font-size: 0.7rem;
+      }
+
+      .pane-content {
+        padding: 1.2rem 1rem 4.5rem;
       }
     }
   </style>
@@ -566,7 +757,7 @@
         <div class="nav-brand">
           <a href="index.html" class="btn-back" title="トップページに戻る">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            Pages
+            <span class="back-text">Pages</span>
           </a>
           <div class="page-title-wrap">
             <h1>
@@ -584,10 +775,10 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
               並行
             </button>
-            <button class="view-btn" id="btnPersonal" type="button" title="パーソナライズありのみ表示">
+            <button class="view-btn" id="btnPersonal" type="button" title="パーソナライズあり表示">
               あり
             </button>
-            <button class="view-btn" id="btnNeutral" type="button" title="パーソナライズなしのみ表示">
+            <button class="view-btn" id="btnNeutral" type="button" title="パーソナライズなし表示">
               なし
             </button>
           </div>
@@ -613,12 +804,20 @@
         </div>
       </div>
 
-      <!-- Query prompt banner -->
-      <div class="query-banner">
-        <span class="query-label">PROMPT</span>
-        <span class="query-text">メーティスとアテナとメデューサの関係性について洞察してください。</span>
-        <span class="query-meta">Thinking: High | 2026-10-14</span>
-      </div>
+      <!-- Query prompt banner (Collapsible on mobile) -->
+      <details class="query-banner" id="queryBanner">
+        <summary class="query-summary">
+          <span class="query-label">PROMPT</span>
+          <span class="query-text">メーティスとアテナとメデューサの関係性について洞察してください。</span>
+          <span class="query-toggle-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+          <span class="query-meta">Thinking: High | 2026-10-14</span>
+        </summary>
+        <div class="query-expand-content">
+          モデル：Gemini 4 Argon / 思考レベル：高値 / パーソナライズありとなしの出力比較サンプル
+        </div>
+      </details>
     </header>
 
     <!-- Main Dual Panes -->
@@ -903,20 +1102,46 @@
 
     // View Switcher (Split, Personal Only, Neutral Only)
     const viewButtons = [btnSplit, btnPersonal, btnNeutral];
+    let isMobile = window.innerWidth <= 768;
+    let desktopLastView = 'split';
 
     function setView(viewMode) {
       viewButtons.forEach(btn => btn.classList.remove('active'));
       panesContainer.classList.remove('view-personal-only', 'view-neutral-only');
 
       if (viewMode === 'split') {
+        desktopLastView = 'split';
         btnSplit.classList.add('active');
       } else if (viewMode === 'personal') {
+        if (!isMobile) desktopLastView = 'personal';
         btnPersonal.classList.add('active');
         panesContainer.classList.add('view-personal-only');
       } else if (viewMode === 'neutral') {
+        if (!isMobile) desktopLastView = 'neutral';
         btnNeutral.classList.add('active');
         panesContainer.classList.add('view-neutral-only');
       }
+    }
+
+    function checkResponsiveView() {
+      const currentMobile = window.innerWidth <= 768;
+      if (currentMobile !== isMobile) {
+        isMobile = currentMobile;
+        if (isMobile) {
+          if (btnSplit.classList.contains('active')) {
+            setView('personal');
+          }
+        } else {
+          setView(desktopLastView);
+        }
+      }
+    }
+
+    window.addEventListener('resize', checkResponsiveView);
+
+    // Initial responsive check
+    if (isMobile) {
+      setView('personal');
     }
 
     btnSplit.addEventListener('click', () => setView('split'));
