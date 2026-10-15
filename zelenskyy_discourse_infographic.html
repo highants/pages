@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>言説の重力場と集合的感情の解剖学 — 2,000件の投稿データに見る共起ネットワークと物語の構造</title>
+<style>
+  :root {
+    --bg-main: #070b14;
+    --bg-panel: rgba(15, 23, 42, 0.78);
+    --bg-panel-solid: #0f172a;
+    --bg-card: rgba(30, 41, 59, 0.55);
+    --border-subtle: rgba(148, 163, 184, 0.16);
+    --border-highlight: rgba(56, 189, 248, 0.45);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #38bdf8;
+    --accent-gold: #fbbf24;
+    --accent-red: #f43f5e;
+    --accent-emerald: #10b981;
+    --accent-purple: #a855f7;
+    --accent-indigo: #6366f1;
+    --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    background-image: 
+      radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.08) 0%, transparent 35%),
+      radial-gradient(circle at 88% 22%, rgba(244, 63, 94, 0.07) 0%, transparent 35%),
+      radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.06) 0%, transparent 40%);
+    color: var(--text-primary);
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* Header */
+  header.hero {
+    position: relative;
+    padding: 40px 36px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.75) 100%);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  header.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-gold), var(--accent-red), var(--accent-purple));
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent-blue);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    margin-bottom: 16px;
+  }
+
+  h1.hero-title {
+    font-size: clamp(1.65rem, 2.8vw, 2.45rem);
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: 16px;
+    background: linear-gradient(95deg, #ffffff 0%, #bae6fd 55%, #fde68a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  p.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 1080px;
+    margin-bottom: 28px;
+  }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .kpi-card {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-highlight);
+  }
+
+  .kpi-label {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .kpi-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .kpi-sub {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Section Styling */
+  .section-block {
+    margin-bottom: 36px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 28px 30px;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(12px);
+  }
+
+  .section-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .section-title-group h2 {
+    font-size: 1.38rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title-group p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* Controls & Buttons */
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-filter {
+    background: rgba(30, 41, 59, 0.8);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-filter:hover {
+    color: var(--text-primary);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+
+  .btn-filter.active {
+    background: rgba(56, 189, 248, 0.18);
+    color: #fff;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .slider-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.75);
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .slider-group input[type="range"] {
+    accent-color: var(--accent-blue);
+    width: 100px;
+    cursor: pointer;
+  }
+
+  /* Network Workspace */
+  .network-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 22px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 1080px) {
+    .network-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    background: radial-gradient(circle at center, #0f172a 0%, #060911 100%);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    height: 620px;
+    overflow: hidden;
+  }
+
+  #networkCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+
+  #networkCanvas:active {
+    cursor: grabbing;
+  }
+
+  .canvas-overlay-hint {
+    position: absolute;
+    bottom: 14px;
+    left: 16px;
+    background: rgba(7, 11, 20, 0.82);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  .canvas-zoom-controls {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .btn-icon:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: var(--accent-blue);
+  }
+
+  /* Inspector Panel */
+  .inspector-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .inspector-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .inspector-word {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .inspector-count {
+    font-size: 0.95rem;
+    color: var(--accent-blue);
+    font-weight: 700;
+  }
+
+  .inspector-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin: 12px 0 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .co-list-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .co-bar-item {
+    margin-bottom: 9px;
+    cursor: pointer;
+  }
+
+  .co-bar-item:hover .co-bar-label {
+    color: var(--accent-blue);
+  }
+
+  .co-bar-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 3px;
+  }
+
+  .co-bar-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.15s;
+  }
+
+  .co-bar-val {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .co-bar-track {
+    width: 100%;
+    height: 7px;
+    background: rgba(30, 41, 59, 0.9);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .co-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Two-Column Analytical Section */
+  .dual-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 36px;
+  }
+
+  @media (max-width: 1024px) {
+    .dual-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Cluster Matrix Tabs */
+  .cluster-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 860px) {
+    .cluster-tabs {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .cluster-tab {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+
+  .cluster-tab:hover {
+    background: rgba(30, 41, 59, 0.85);
+  }
+
+  .cluster-tab.active {
+    background: rgba(30, 41, 59, 0.95);
+    border-width: 2px;
+  }
+
+  .cluster-tab-num {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .cluster-tab-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .cluster-detail-box {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 900px) {
+    .cluster-detail-box {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .chain-pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 18px;
+  }
+
+  .chain-pill {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #fff;
+  }
+
+  .chain-arrow {
+    color: var(--text-muted);
+    font-weight: bold;
+  }
+
+  .quote-card {
+    background: rgba(30, 41, 59, 0.6);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+
+  .quote-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* Sentiment Butterfly Chart */
+  .sentiment-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 52px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 11px;
+    font-size: 0.84rem;
+  }
+
+  .sentiment-word {
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: right;
+  }
+
+  .sentiment-bar-wrap {
+    height: 12px;
+    background: rgba(30, 41, 59, 0.85);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sentiment-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.5s ease;
+  }
+
+  .sentiment-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* SVG Chart Container */
+  .chart-svg-container {
+    width: 100%;
+    height: 340px;
+    position: relative;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Philosophy / Essay Section */
+  .essay-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 18px;
+  }
+
+  @media (max-width: 980px) {
+    .essay-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .essay-card {
+    background: rgba(15, 23, 42, 0.68);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 22px 24px;
+  }
+
+  .essay-card h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .essay-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    text-align: justify;
+  }
+
+  /* Tooltip */
+  #globalTooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(7, 11, 20, 0.95);
+    border: 1px solid var(--border-highlight);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    max-width: 280px;
+  }
+
+  /* ========================================================
+     PRODUCTION NOTES & CHAT LOG (GEMINI 4 ARGON)
+     ======================================================== */
+  .hero-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .btn-notes {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.16) 0%, rgba(168, 85, 247, 0.22) 100%);
+    color: #e0f2fe;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.15);
+  }
+
+  .btn-notes:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(168, 85, 247, 0.38) 100%);
+    border-color: rgba(56, 189, 248, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(56, 189, 248, 0.28);
+    color: #fff;
+  }
+
+  .btn-notes svg {
+    color: var(--accent-blue);
+    transition: transform 0.2s ease;
+  }
+
+  .btn-notes:hover svg {
+    transform: scale(1.1);
+  }
+
+  /* Notes Meta Bar */
+  .notes-meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    margin-bottom: 22px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .notes-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    padding: 3px 10px;
+    border-radius: 6px;
+    color: #bae6fd;
+    font-size: 0.76rem;
+  }
+
+  .notes-meta-pill strong {
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* Dialogue / Chat Box */
+  .chat-turn {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: border-color 0.2s ease;
+  }
+
+  .chat-turn:hover {
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+
+  .chat-prompt-header {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .chat-prompt-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #fde68a;
+  }
+
+  .chat-prompt-badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: rgba(251, 191, 36, 0.18);
+    color: var(--accent-gold);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+  }
+
+  .chat-response-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: rgba(2, 132, 199, 0.08);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+  }
+
+  .chat-response-header .model-tag {
+    background: rgba(56, 189, 248, 0.18);
+    color: #bae6fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+  }
+
+  .chat-body {
+    padding: 24px 28px;
+    font-size: 0.92rem;
+    line-height: 1.85;
+    color: #cbd5e1;
+  }
+
+  .chat-body p {
+    margin-bottom: 18px;
+    text-align: justify;
+  }
+
+  .chat-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .chat-body strong {
+    color: #ffffff;
+    font-weight: 700;
+    background: rgba(56, 189, 248, 0.09);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  /* Fullscreen Reader Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .modal-container {
+    width: 100%;
+    max-width: 1020px;
+    max-height: 90vh;
+    background: #090e1a;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+    animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalPop {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .modal-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f1f5f9;
+  }
+
+  .modal-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.15s ease;
+  }
+
+  .modal-close-btn:hover {
+    background: rgba(244, 63, 94, 0.2);
+    border-color: rgba(244, 63, 94, 0.5);
+    color: #f43f5e;
+  }
+
+  .modal-content-area {
+    padding: 24px 28px;
+    overflow-y: auto;
+    flex: 1;
+    color: #cbd5e1;
+  }
+
+  /* Raw markdown viewer */
+  .raw-md-box {
+    background: rgba(7, 11, 20, 0.85);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.84rem;
+    color: #94a3b8;
+    white-space: pre-wrap;
+    max-height: 520px;
+    overflow-y: auto;
+    line-height: 1.65;
+  }
+</style>
+</head>
+<body>
+
+<div id="globalTooltip"></div>
+
+<div class="container">
+  <!-- HERO HEADER -->
+  <header class="hero">
+    <div class="hero-top-row">
+      <div class="hero-badge">
+        <span>●</span> DISCOURSE NETWORK &amp; SENTIMENT TOPOLOGY (2026/10/14 – 10/15)
+      </div>
+      <button class="btn-notes" id="btnHeroOpenNotes">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>制作ノート（Gemini 4 Argon 対話ログ）</span>
+      </button>
+    </div>
+    <h1 class="hero-title">言説の重力場と集合的感情の解剖学<br>— 2,000件の投稿データに見る共起ワードネットワークと思考・感情の分布 —</h1>
+    <p class="hero-subtitle">
+      ソーシャルメディア（Bluesky）上の2,000件の投稿テキストを対象に、頻出語とそれに連なる共起語のネットワーク構造を解析。通信インフラ（Starlink）の制限疑惑、ロシア石油精製所への攻撃再開、データセンター攻撃とボット消滅の推論、そしてその周縁に潜むファクトチェックの声を動的に可視化し、人々が危機下でいかに「物語」を紡ぎ出しているのかを多角的に解き明かします。
+    </p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label"><span>総分析投稿数</span><span style="color:var(--accent-blue)">100%</span></div>
+        <div class="kpi-value">2,000<span style="font-size:1rem;font-weight:600;margin-left:4px;">posts</span></div>
+        <div class="kpi-sub">観測期間: 2026/10/14 23:38 – 10/15 17:10</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>最頻出の中心核</span><span style="color:var(--accent-gold)">Core Hub</span></div>
+        <div class="kpi-value">Zelenskyy <span style="font-size:1.05rem;color:var(--accent-gold)">(1,496)</span></div>
+        <div class="kpi-sub">Trump (819) / Ukraine (731) / Putin (258)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>最強の人物間共起ペア</span><span style="color:var(--accent-red)">Dyad</span></div>
+        <div class="kpi-value">492<span style="font-size:1rem;font-weight:600;margin-left:4px;">co-posts</span></div>
+        <div class="kpi-sub">「Zelenskyy × Trump」の道徳的対립構造</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>言説の非対称バランス</span><span style="color:var(--accent-purple)">Echo vs Check</span></div>
+        <div class="kpi-value">96% <span style="font-size:1.1rem;color:var(--text-muted)">:</span> 4%</div>
+        <div class="kpi-sub">主流の義憤・連帯の奔流 vs 懐疑・ファクトチェック</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: INTERACTIVE FORCE-DIRECTED CO-OCCURRENCE NETWORK -->
+  <section class="section-block">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2>1. 動的共起ワードネットワーク（Interactive Co-occurrence Topology）</h2>
+        <p>ノードの大きさは出現頻度、線の太さは同一投稿内での共起回数を表します。ノードをドラッグ・クリックして言葉の連鎖を探索してください。</p>
+      </div>
+      <div class="controls-bar">
+        <button class="btn-filter active" data-group="all">すべて表示</button>
+        <button class="btn-filter" data-group="actor"><span class="dot" style="background:#38bdf8"></span>主要人物・国家</button>
+        <button class="btn-filter" data-group="betrayal"><span class="dot" style="background:#f43f5e"></span>裏切り・通信制限</button>
+        <button class="btn-filter" data-group="retaliation"><span class="dot" style="background:#fbbf24"></span>反撃・精製所・ボット説</button>
+        <button class="btn-filter" data-group="moral"><span class="dot" style="background:#10b981"></span>英雄視・道徳的二極化</button>
+        <button class="btn-filter" data-group="skeptic"><span class="dot" style="background:#a855f7"></span>選挙・検証・懐疑</button>
+        <div class="slider-group">
+          <span>共起閾値: <strong id="edgeThresholdVal">12</strong>回+</span>
+          <input type="range" id="edgeThresholdSlider" min="4" max="50" value="12">
+        </div>
+      </div>
+    </div>
+
+    <div class="network-layout">
+      <div class="canvas-wrapper">
+        <canvas id="networkCanvas"></canvas>
+        <div class="canvas-zoom-controls">
+          <button class="btn-icon" id="btnZoomIn" title="拡大">＋</button>
+          <button class="btn-icon" id="btnZoomOut" title="縮小">－</button>
+          <button class="btn-icon" id="btnResetView" title="位置をリセット">⟲</button>
+        </div>
+        <div class="canvas-overlay-hint">
+          💡 マウスドラッグでノード移動・画面パン / ホイールで拡大縮小 / ノードクリックで右パネルに詳細解析を表示
+        </div>
+      </div>
+
+      <!-- Inspector Panel -->
+      <div class="inspector-panel" id="inspectorPanel">
+        <div>
+          <span class="inspector-badge" id="inspBadge" style="background:rgba(56,189,248,0.2);color:#38bdf8;">主要人物・国家アクター</span>
+          <div class="inspector-word">
+            <span id="inspWord">Zelenskyy</span>
+            <span class="inspector-count" id="inspCount">1,496 posts</span>
+          </div>
+          <p class="inspector-desc" id="inspDesc">
+            ゼレンスキー大統領。全2,000件中1,496回出現し、すべての議論・感情・物語が収束する絶対的な中心核。
+          </p>
+          <div class="co-list-title">強く連なる共起ワード TOP 8（クリックでジャンプ）</div>
+          <div id="inspCoList"></div>
+        </div>
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border-subtle);font-size:0.78rem;color:var(--text-muted);">
+          ※ 共起ネットワークはURLや一般機能語を除外した実質語間の結びつき（同一投稿内共起）に基づき算出しています。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: THE 4 NARRATIVE CLUSTERS -->
+  <section class="section-block">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2>2. 言葉の連鎖が紡ぐ「3つの主流物語」と「隠れた検証の視座」</h2>
+        <p>共起語のクラスターを辿ることで浮かび上がる、人々の関心・推論・感情消費のメカニズムと、エコーチェンバーの死角。</p>
+      </div>
+    </div>
+
+    <div class="cluster-tabs" id="clusterTabs">
+      <div class="cluster-tab active" data-cluster="0" style="border-color:var(--accent-red)">
+        <div class="cluster-tab-num" style="color:var(--accent-red)">Cluster 01 / 義憤と悲痛</div>
+        <div class="cluster-tab-title">「裏切り」と生命線の遮断</div>
+      </div>
+      <div class="cluster-tab" data-cluster="1">
+        <div class="cluster-tab-num" style="color:var(--accent-gold)">Cluster 02 / 因果推論と快哉</div>
+        <div class="cluster-tab-title">精製所への反撃とボット農場仮説</div>
+      </div>
+      <div class="cluster-tab" data-cluster="2">
+        <div class="cluster-tab-num" style="color:var(--accent-emerald)">Cluster 03 / アイデンティティ</div>
+        <div class="cluster-tab-title">道徳的二極化と「自己浄化」</div>
+      </div>
+      <div class="cluster-tab" data-cluster="3">
+        <div class="cluster-tab-num" style="color:var(--accent-purple)">Cluster 04 / わずか4%の冷水</div>
+        <div class="cluster-tab-title">周縁のファクトチェックと懐疑論</div>
+      </div>
+    </div>
+
+    <div class="cluster-detail-box" id="clusterDetailBox">
+      <!-- Populated dynamically by JS -->
+    </div>
+  </section>
+
+  <!-- SECTION 3: SENTIMENT POLARIZATION & TEMPORAL DYNAMICS -->
+  <div class="dual-grid">
+    <!-- Left: Moral Polarization Spectrum -->
+    <section class="section-block" style="margin-bottom:0;">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2>3. 感情・評価語の分布と道徳的二極化</h2>
+          <p>誰に対して、どのような感情語・道徳的レッテルが結びついているのか。</p>
+        </div>
+        <div class="controls-bar">
+          <button class="btn-filter active" data-sent="all">全体上位</button>
+          <button class="btn-filter" data-sent="praise">称賛・連帯 (対Zelenskyy)</button>
+          <button class="btn-filter" data-sent="condemn">糾弾・侮蔑 (対Trump/Musk)</button>
+          <button class="btn-filter" data-sent="crisis">被害・悲嘆 (対状況)</button>
+        </div>
+      </div>
+      <div id="sentimentChartArea" style="padding-top:6px;"></div>
+    </section>
+
+    <!-- Right: Hourly Discourse Stream -->
+    <section class="section-block" style="margin-bottom:0;">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2>4. 時系列トピック推移（1時間ごとの言説の波）</h2>
+          <p>Starlink制限の衝撃から、FT紙による「精製所攻撃再開」報道による急騰まで。</p>
+        </div>
+        <div class="controls-bar" id="streamMetricBtns">
+          <button class="btn-filter active" data-stream="all">主要トピック重ね合わせ</button>
+          <button class="btn-filter" data-stream="total">総投稿数 (Total)</button>
+        </div>
+      </div>
+      <div class="chart-svg-container" id="timeChartContainer"></div>
+      <div class="chart-legend">
+        <div class="legend-item"><span class="dot" style="background:#f43f5e"></span>Starlink・裏切り (Betrayal/Starlink)</div>
+        <div class="legend-item"><span class="dot" style="background:#fbbf24"></span>精製所攻撃・燃料 (Refineries/Oil/Diesel)</div>
+        <div class="legend-item"><span class="dot" style="background:#38bdf8"></span>データセンター・ボット説 (Data/Bots)</div>
+        <div class="legend-item"><span class="dot" style="background:#a855f7"></span>検証・ファクトチェック (Fact-Check)</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SECTION 4: INFORMATION ECOSYSTEM & DEEP REFLECTION -->
+  <section class="section-block">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2>5. 情報参照元の構造と、私たちが向き合うべき「思索の余白」</h2>
+        <p>どのようなメディアが感情の増幅器となり、私たちはこの言説空間から何を汲み取るべきなのか。</p>
+      </div>
+    </div>
+
+    <div class="dual-grid" style="margin-bottom:24px;">
+      <div style="background:rgba(15,23,42,0.55);border:1px solid var(--border-subtle);border-radius:14px;padding:20px;">
+        <div class="co-list-title" style="margin-bottom:14px;">共有された外部メディア・ドメイン TOP 8（計1,228件のメディアリンク中）</div>
+        <div id="domainChartArea"></div>
+      </div>
+      <div style="background:rgba(15,23,42,0.55);border:1px solid var(--border-subtle);border-radius:14px;padding:22px;display:flex;flex-direction:column;justify-content:center;">
+        <h3 style="font-size:1.08rem;color:var(--accent-blue);margin-bottom:10px;">情報生態系の特徴：報道の見出しと動画クリップによる感情の同期</h3>
+        <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:12px;">
+          外部リンクの中で突出しているのは <strong>The Guardian（212件）</strong> であり、特に「Volodymyr Zelenskyy feels 'betrayed' by Donald Trump over Starlink access」という見出しの記事がタイムライン全体の感情的トーン（「裏切り」への義憤）を決定づけています。次いで <strong>YouTube（計185件）</strong> のインタビュー動画（Piers MorganやFinancial Times、MeidasTouchなど）が視覚的・聴覚的な証言として機能しています。
+        </p>
+        <p style="font-size:0.88rem;color:var(--text-secondary);">
+          一方で、第6位に <strong>Snopes.com（19件）</strong> がランクインしていることは極めて示唆的です。Yandexデータセンター攻撃によるボット消滅説という「心地よい物語」に対し、少数ながらも冷静な検証リンクを差し込む自浄作用がコミュニティ内部で働いていることを示しています。
+        </p>
+      </div>
+    </div>
+
+    <div class="essay-grid">
+      <div class="essay-card" style="border-top:3px solid var(--accent-blue);">
+        <h3>Ⅰ. 構造の複雑さから「人物劇」への還元</h3>
+        <p>
+          人々は国家間の安全保障や通信インフラの非対称性という抽象的な構造そのものに耐え続けることが難しく、それを「英雄ゼレンスキー」対「裏切り者トランプ・マスク・プーチン」という強烈な個人のキャラクター劇へと変換して理解します。言葉の共起ネットワークが固有名詞を中心に強く収束している事実は、私たちが道徳的な善悪二元論を通して初めて巨大な現実に感情的に関与できるという人間的な特性を映し出しています。
+        </p>
+      </div>
+      <div class="essay-card" style="border-top:3px solid var(--accent-gold);">
+        <h3>Ⅱ. 不条理を埋める「ボット農場仮説」の引力</h3>
+        <p>
+          なぜ同盟国が戦時下の防空を支える通信網を制限するのかという耐えがたい不条理に直面したとき、人々の思考は「ウクライナがYandexのデータセンターを攻撃してボットを消滅させたことへのトランプとマスクの私怨・報復である」という鮮やかな因果推論へと飛びつきました。たとえファクトチェックで「証拠不十分」とされようとも、断片的な事象を一本の線で繋ぐ陰謀論的・物語的推論は、無力感をカタルシスへと変える強い引力を持っています。
+        </p>
+      </div>
+      <div class="essay-card" style="border-top:3px solid var(--accent-purple);">
+        <h3>Ⅲ. 感情の消費を超えて現実の重みへ</h3>
+        <p>
+          タイムラインを埋め尽くす連帯や義憤は尊い道徳的反応である一方、3週間後に迫った米国中間選挙に向けた国内の党派的闘争の触媒としてウクライナが消費されている側面も否めません。強い感情を伴う言葉の連鎖が「私たちが信じたい物語」だけを強化し、欧州での支援疲れや戦況の複雑なノイズを視野から消してしまうとき、その光と影の両方を自覚することこそが、さらなる思索への第一歩となります。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: PRODUCTION NOTES & CHAT LOG (GEMINI 4 ARGON) -->
+  <section class="section-block" id="productionNotesSection">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2>6. 制作ノート：Gemini 4 Argon 対話ログ</h2>
+        <p>本インフォグラフィックの基となったGemini 4 Argonとの制作対話（テキストデータ解析から可視化の設計思想まで）を閲覧できます。</p>
+      </div>
+      <div class="controls-bar">
+        <button class="btn-filter active" id="tabNotesTurn1">対話 1: 投稿データ分析</button>
+        <button class="btn-filter" id="tabNotesTurn2">対話 2: 可視化の設計思想</button>
+        <button class="btn-filter" id="tabNotesRaw">生Markdown</button>
+        <button class="btn-filter" id="btnModalTrigger" style="margin-left:auto;border-color:var(--accent-blue);color:#bae6fd;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-1px;">
+            <path d="M15 3h6v6"></path>
+            <path d="M9 21H3v-6"></path>
+            <path d="M21 3l-7 7"></path>
+            <path d="M3 21l7-7"></path>
+          </svg>
+          全画面リーダーで読む
+        </button>
+      </div>
+    </div>
+
+    <!-- Meta Information Bar -->
+    <div class="notes-meta-bar">
+      <span class="notes-meta-pill"><strong>AI Model:</strong> Gemini 4 Argon</span>
+      <span class="notes-meta-pill"><strong>Date:</strong> 2026-10-15 18:16:05</span>
+      <span class="notes-meta-pill"><strong>Author:</strong> @highants.bsky.social</span>
+      <span class="notes-meta-pill"><strong>Format:</strong> チャットログ</span>
+      <span class="notes-meta-pill"><strong>UID:</strong> 20261015181605</span>
+      <span class="notes-meta-pill"><strong>Source File:</strong> pages/20261015181605.md</span>
+    </div>
+
+    <!-- Content: Turn 1 (分析依頼) -->
+    <div id="notesTurn1Content">
+      <div class="chat-turn">
+        <div class="chat-prompt-header">
+          <div class="chat-prompt-title">
+            <span class="chat-prompt-badge">User Prompt</span>
+            <span>## 分析依頼</span>
+          </div>
+          <span style="font-size:0.75rem;color:var(--text-muted);">2026/10/15 18:16:05</span>
+        </div>
+        <div class="chat-response-header">
+          <span>✨</span>
+          <span>Gemini 4 Argon</span>
+          <span class="model-tag">Bluesky 2,000件投稿分析</span>
+        </div>
+        <div class="chat-body">
+          <p>
+            まずは、2026年10月14日の深夜から15日の夕方にかけて記録された全2,000件の投稿データを俯瞰し、言葉の重力場がどこに形成されているのかを確認してみます。テキスト全体からURLや一般的な機能語を除いて頻出語を抽出すると、最も多く現れるのは「<strong>Zelenskyy</strong>」（1,496回）であり、それに「<strong>Trump</strong>」（819回）、「<strong>Ukraine</strong>」（731回）、「<strong>President</strong>」（426回）、「<strong>Russian</strong>」（263回）、「<strong>Putin</strong>」（258回）、「<strong>Starlink</strong>」（249回）、「<strong>Russia</strong>」（229回）、「<strong>Musk</strong>」（211回）、「<strong>war</strong>」（145回）といった言葉が圧倒的な密度で続いています。この頻度分布がまず如実に示しているのは、人々の興味関心が「<strong>ウクライナとロシアの軍事的衝突</strong>」という国家間・構造間の事象そのものよりも、ゼレンスキー、トランプ、プーチン、そしてイーロン・マスクという強烈な輪郭を持った「<strong>個人の決断と人間模様の相克</strong>」へと強く引き寄せられているという傾向です。「<strong>President Zelenskyy</strong>」（198回）、「<strong>Donald Trump</strong>」（86回）、「<strong>Elon Musk</strong>」（61回）という固有名詞のペアが上位を占め、さらには英国のアンディ・バーナム首相を指す「<strong>Burnham</strong>」（69回）やジャーナリストの「<strong>Piers Morgan</strong>」（57回）が頻出していることからも、人々が複雑な国際政治の力学を、具体的な人物たちの「<strong>善悪や誠実さをめぐる道徳的ドラマ</strong>」として捉え、そこに自らの感情を投影している姿が浮かび上がります。
+          </p>
+          <p>
+            では、これらの中心的な言葉には、どのような言葉が連なり、どのような意味のネットワークを形作っているのでしょうか。言葉の共起関係を丁寧に紐解いていくと、人々の思考と感情を方向づける大きく三つのクラスター（言葉の連鎖）が見えてきます。
+          </p>
+          <p>
+            第一の、そして最も強い感情的負荷を伴う連鎖は、「<strong>Zelenskyy</strong>」に「<strong>feels</strong>」と「<strong>betrayed</strong>」（113回）、あるいは名詞形の「<strong>betrayal</strong>」（34回）が連なり、そこに「<strong>Trump</strong>」「<strong>Starlink</strong>」「<strong>access</strong>」（82回）「<strong>restrictions</strong>」（43回）が結びつくクラスターです。ガーディアン紙の報道（データ内で212件のリンクが共有され、最大の情報源となっています）やピアーズ・モーガンによるインタビューなどを起点として拡散されたこの言葉の連なりは、ウクライナ軍の防空やドローン迎撃に不可欠な衛星通信システム（Starlinkおよび軍事用のStarshield）の速度低下・制限や、米国による事前のミサイル攻撃警報（「<strong>intelligence</strong>」62回）の停止疑惑、さらにはトランプ政権によるロシア産ディーゼル燃料の制裁緩和取引（「<strong>diesel</strong>」70回、「<strong>deal</strong>」53回）に対する激しい衝撃を物語っています。ここで特筆すべきは、「<strong>Starlink</strong>」という言葉に「<strong>People will die（人々が死ぬことになる）</strong>」や「<strong>civilian casualties（民間人の犠牲）</strong>」「<strong>death toll（死者数）</strong>」という生々しい言葉が直接連なっている点です。人々の関心は単なる通信技術のトラブルや外交上の駆け引きに向けられているのではなく、一民間企業の経営者や一国の指導者の政治的思惑が、数千キロ離れた戦場や都市で暮らす人々の「<strong>命の綱</strong>」を深夜1時に突然断ち切ってしまうという、現代の安全保障が抱える非対称な暴力性と脆弱性へと向けられています。そこから生まれる感情は、単なる政策への不満を超えた、同盟国による「<strong>背後からの一突き（stabbed in the back）</strong>」に対する強い道義的憤りと、被害を受ける人々への深い悲痛さ（「<strong>heartbroken</strong>」「<strong>sad</strong>」）です。
+          </p>
+          <p>
+            第二の言葉の連鎖は、そうした理不尽な圧力や裏切りに対する反作用として立ち現れる「<strong>strikes</strong>」（90回）、「<strong>refineries</strong>」（69回）、「<strong>oil</strong>」（60回）、そして「<strong>data centers</strong>」（50回）をめぐるクラスターです。フィナンシャル・タイムズ紙のインタビューでゼレンスキー大統領が語った「<strong>We're done</strong>」「<strong>The block is out</strong>」という決然としたフレーズとともに、米国が求めた3日間のエネルギー停戦（「<strong>energy ceasefire</strong>」）をロシア側が一方的に破って電力網を攻撃したため、ウクライナがロシアの石油精製所への攻撃を再開する（「<strong>resume strikes on Russian oil refineries</strong>」）というニュースが、強い支持と熱量をもって共有されています。ここでは、大国の不当な要求に屈せず自国の生存のために反撃を選ぶ姿勢に対し、「<strong>Enough is enough（もうたくさんだ）</strong>」「<strong>Way to go（よくやった）</strong>」といった承認とカタルシスの感情が強く分布しています。さらに、人々の思考の働きとしてきわめて興味深いのが、「<strong>data</strong>」（86回）「<strong>centers</strong>」（53回）「<strong>Yandex</strong>」「<strong>bots</strong>」という言葉の連なりです。数日前にウクライナがロシアのYandexのデータセンターを攻撃したことで、X（旧Twitter）上の親ロシア派・右派ボットが激減し、それによって自らのプラットフォームの価値や米国の中間選挙（「<strong>midterms</strong>」）に向けた世論工作を邪魔されたマスクとトランプが、報復としてスターリンクを制限したのだという「<strong>因果関係の推論</strong>」が、多くの投稿者の思考を強く捉えています。断片的な複数の出来事（データセンターへの攻撃、SNS上のボットの減少、スターリンクの制限、選挙の接近）をひとつの「<strong>権力者たちの私怨と陰謀の物語</strong>」として一直線に結びつけるこの思考傾向は、人々が混沌とした国際情勢の背後に「<strong>わかりやすい悪意の設計図</strong>」を見出すことで、事態の不条理さに納得感を得ようとする心理的メカニズムを鮮やかに映し出しています。
+          </p>
+          <p>
+            第三の連鎖は、人物評価とアイデンティティの表明をめぐる感情語のクラスターです。データ内の感情語・評価語の共起関係を分析すると、驚くほど鮮烈な「<strong>道徳的二極化</strong>」が浮かび上がります。ゼレンスキーに対しては「<strong>hero</strong>」（42回）、「<strong>leader</strong>」（66回）、「<strong>courage</strong>」「<strong>smart</strong>」「<strong>honest</strong>」「<strong>proud</strong>」「<strong>love</strong>」といった称賛と敬愛の言葉が一貫して連なり、彼をダウニング街10番地やバッキンガム宮殿で手厚く迎えた英国のバーナム首相やチャールズ国王、カナダのカーニー首相らの姿勢が「<strong>自由世界の良心</strong>」として対比的に称揚されています。その一方で、トランプやマスク、プーチンに対しては「<strong>traitor（裏切り者）</strong>」（複数形含め42回）、「<strong>dictator（独裁者）</strong>」（33回）、「<strong>weak（弱い）</strong>」（21回）、「<strong>Russian asset（ロシアの工作員・資産）</strong>」（20回）、「<strong>treason（反逆罪）</strong>」（12回）、「<strong>evil（邪悪）</strong>」（10回）、「<strong>puppet（傀儡）</strong>」（6回）といった、最も強い拒絶と侮蔑の語彙が集中しています。また、「<strong>jealous（嫉妬している）</strong>」という言葉がトランプとゼレンスキーの共起語として複数回現れているように、トランプの外交姿勢を「<strong>勇敢で世界から尊敬される本物のリーダーに対する、ナルシシストの嫉妬</strong>」として心理学的に解釈しようとする思考も目立ちます。そして、ここに「<strong>We the people</strong>」「<strong>stand with Ukraine</strong>」「<strong>wrong side of history（歴史の誤った側）</strong>」「<strong>shame（恥）</strong>」という言葉が連なることで、多くの米国人ユーザーが「<strong>自国の政権の振る舞いに対する耐えがたい恥辱と罪悪感</strong>」を吐露し、「<strong>トランプは私たちを代表していない</strong>」と宣言することで自らの道徳的潔白とアイデンティティを保とうとする切実な感情の分布が形成されています。
+          </p>
+          <p>
+            しかし、私はここで自分自身の分析の視座を一度揺さぶり、多角的・両面的な視点からこのデータを見つめ直す必要があると考えます。なぜなら、どれほど強い義憤や連帯の言葉が並んでいたとしても、この2,000件のデータから「<strong>世論一般の普遍的な分布</strong>」をそのまま導き出すことには大きな危うさが伴うからです。第一に、このデータセットは「<strong>Bluesky</strong>」という、X（旧Twitter）やイーロン・マスクの運営方針に強い反発を抱いて移住してきたリベラル層・親ウクライナ層が圧倒的多数を占めるプラットフォームから収集されたものであり、かつ「<strong>Zelenskyy</strong>」というキーワードを軸に切り取られた空間です。したがって、ここで観察される「<strong>ゼレンスキーへの無条件の英雄視</strong>」と「<strong>トランプ・マスクへの激しい憎悪</strong>」は、プラットフォームの特性によって増幅されたエコーチェンバー（共鳴室）の産物という側面を強く持っています。多くの投稿が、ウクライナの人々の苦境に心を寄せているようでいて、その実、3週間後の11月3日に迫った米国の中間選挙（「<strong>vote</strong>」「<strong>midterms</strong>」「<strong>Republicans</strong>」）に向けた国内政治の闘争心やルサンチマンを処理するための「<strong>道徳的な触媒</strong>」としてウクライナ問題を消費しているのではないかという冷徹な視点も、決して手放してはならないでしょう。
+          </p>
+          <p>
+            さらにデータの細部、すなわち主流の感情の奔流から外れた「<strong>少数の言葉の連なり</strong>」に目を凝らしてみると、エコーチェンバーの熱狂に冷水を浴びせるような、もうひとつの思考の分布が確かに存在していることに気づきます。たとえば、全体の約4%（80件前後）の投稿には、拡散される情報や主流の物語に対する懐疑やファクトチェック、あるいは異なる政治的立場が含まれています。具体的には、多くのユーザーが痛快な事実として語っていた「<strong>ウクライナによるYandexサーバー攻撃がロシアのプロパガンダボットを沈黙させた</strong>」という説に対して、ファクトチェックサイトのSnopesが「<strong>信頼できる証拠を欠いており判定保留（unrated）である</strong>」と報じたリンクが19回共有されています。また、タイムライン上で劇的な共感を呼んでいた「<strong>私たちはアメリカという同盟国を失った（We have lost an ally in America）</strong>」というゼレンスキーの引用句について、「<strong>彼はそんなことは言っていない。複数の発言を繋ぎ合わせた扇動的な意訳（inflammatory paraphrasing）であり、ウクライナのためにならないから拡散をやめろ</strong>」と憤りをもってたしなめる声や、トランプの過激な投稿が実は「<strong>2025年2月19日の古い投稿</strong>」であるにもかかわらず今日の発言であるかのように再流通していることを指摘する冷静な検証の声が存在します。さらには、フランス極右の指導者マリーヌ・ル・ペンによる「<strong>ウクライナへの資金提供はこれ以上続けられない。幻想を抱かせるより今それを伝えるのが誠実さだ</strong>」という支援打ち切り論や、ウクライナ国内の反汚職機関（NABU等）の独立性を弱める法案にゼレンスキーが署名したことを批判する投稿、あるいは「<strong>双方が力を示したのだから、もう戦争を終わらせる時だ。トランプ大統領の判断を支持する</strong>」という声も、ごく僅かながら記録されています。
+          </p>
+          <p>
+            こうして、圧倒的多数を占める「<strong>裏切りへの義憤と英雄への連帯</strong>」という熱い言葉の奔流と、その周縁に点在する「<strong>事実の歪曲への警鐘や支援の限界論</strong>」という冷めた言葉の断片の両方を並べてみたとき、私が最初に抱いた問いは、より本質的で地に足のついた考察へと姿を変えていきます。私たちがこのデータから本当に読み取るべきなのは、「<strong>人々がどれほどトランプを憎み、ゼレンスキーを支持しているか</strong>」という単純な感情の集計結果ではありません。むしろ、戦争の長期化や大国のエゴイズム、そしてテクノロジーを握る少数の権力者によって人々の命運が弄ばれるという耐えがたい無力感に直面したとき、人間がいかに強く「<strong>善と悪が明確に分かたれ、すべての出来事にわかりやすい理由（ボット農場の報復など）があり、自分たちは歴史の正しい側に立っている</strong>」という完結した物語を求めてしまうか、という集合的心理の構造そのものです。
+          </p>
+          <p>
+            不正義に対して怒りを覚え、侵略に抗う人々に連帯の言葉を送り、自国の政府の誤りを恥じるという感情の働きは、人間が道徳的な存在である以上、きわめて健全で尊いものです。しかし同時に、その強い感情が言葉と言葉を結びつける接着剤となるとき、人は自らの怒りや正義感を裏付けてくれる都合の良い因果関係（証拠不十分なボット壊滅説など）に飛びつき、文脈から切り取られた劇的な引用句や古い情報を無批判に拡散し、現実に存在する「<strong>欧州における支援疲れの兆候</strong>」や「<strong>ウクライナが直面している外交的・内政的な複雑さ</strong>」といった不都合なノイズを視野から排除してしまいがちです。データの中で、あるフランス語の投稿者がガーディアン紙の記事を引用しながら「<strong>ゼレンスキーがこうした不満を抱くのは当然だが、これまで慎重に控えてきた批判を公にしたのは感情的なものなのか、それとも計算された外交姿勢の転換なのか</strong>」と静かに問いかけていたように、本来、言葉の背後にある現実は、単純な英雄譚や裏切りの物語には回収しきれない多層的な緊張を孕んでいます。
+          </p>
+          <p>
+            頻出する言葉とそれに連なる言葉のネットワークを分析するという営みは、タイムラインを埋め尽くす感情の渦をただ遠くから冷笑するためのものではなく、またその渦に無自覚に身を任せるためのものでもありません。それは、無数の人々が共有している痛みや義憤の切実さをしっかりと受け止めながらも、「<strong>強い感情を伴う言葉の連鎖ほど、現実の複雑な輪郭を削ぎ落とし、私たちが『見たいもの』『信じたい物語』だけを強化する引力を持っている</strong>」という事実を自覚するための知的な手続きなのだと言えます。ある言葉が別の言葉と強く結びついて私たちの心を揺さぶるとき、その強い光のすぐ隣でどのような事実や問いが影に隠れているのか、そして私たちは感情の消費を超えていかにして現実の重みと誠実に向き合い続けることができるのか、この2,000件の言葉の軌跡はその静かな思索の余白を私たちの前に残しています。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content: Turn 2 (インフォグラフィック化の設計思想) -->
+    <div id="notesTurn2Content" style="display:none;">
+      <div class="chat-turn">
+        <div class="chat-prompt-header">
+          <div class="chat-prompt-title">
+            <span class="chat-prompt-badge">User Prompt</span>
+            <span>## 分析結果をHTMLで動的なグラフビューを交えたインフォグラフィックページにできますか？</span>
+          </div>
+          <span style="font-size:0.75rem;color:var(--text-muted);">2026/10/15 18:16:05</span>
+        </div>
+        <div class="chat-response-header">
+          <span>✨</span>
+          <span>Gemini 4 Argon</span>
+          <span class="model-tag">動的インフォグラフィック設計論・自己批評</span>
+        </div>
+        <div class="chat-body">
+          <p>
+            私がいま、先ほど言葉として紡ぎ出した分析結果を、静的な文章のままにとどめず「<strong>動的なグラフビューを交えたHTMLインフォグラフィック</strong>」へと昇華させたいと願った背景には、私自身の思考のさらなる渇望が息づいています。文章というものは、どれほど多角的に言葉を尽くしたとしても、どうしても時間の流れに沿った「<strong>一本の線（リニアな構造）</strong>」としてしか読み手の意識に届きません。しかし、私が対象としている2,000件の投稿データの中で起きている現象は、本来、複数の出来事や無数の感情が同時多発的に絡み合い、互いに引き合い、あるいは反発し合う「<strong>空間的な重力場</strong>」そのものです。私が「<strong>動的なグラフビュー</strong>」を求めたのは、単に見栄えの良い図表を作って理解を効率化したいという表層的な理由からではなく、言葉と言葉が結びつく「<strong>関係のネットワーク</strong>」に自ら触れ、閾値を動かし、視点を切り替えながら、自分の手でデータの構造を揺さぶってみたいという、能動的な思索への衝動が私の内側にあったからなのだと気づかされます。
+          </p>
+          <p>
+            今回構築したHTMLインフォグラフィックページでは、外部のライブラリやネットワーク環境に依存しない完全自己完結型の設計の中に、物理演算を用いた「<strong>動的共起ワードネットワーク</strong>」を中心に据えています。画面の中央に鎮座する「<strong>Zelenskyy</strong>」（1,496回）という巨大な太陽のようなノードと、それを取り巻く「<strong>Trump</strong>」（819回）、「<strong>Ukraine</strong>」（731回）、「<strong>Putin</strong>」（258回）、「<strong>Starlink</strong>」（249回）、「<strong>Musk</strong>」（211回）といった惑星群が、バネのような引力と斥力のバランスによって動的に配置される様子を眺めていると、文字だけでは実感しきれなかった「<strong>言説の密度と張力</strong>」が視覚的な実感となって迫ってきます。たとえば、スライダーを操作して共起回数の閾値を引き上げていくと、枝葉の言葉が削ぎ落とされ、「<strong>Zelenskyy — Trump — Starlink — Betrayed</strong>」という、同盟国の変節と通信制限に対する激しい義憤の骨格が最後まで太い線として残ることがわかります。逆に閾値を下げてネットワークを広げ、クラスターフィルターを切り替えてみると、「<strong>Refineries（石油精製所）</strong>」や「<strong>Diesel（ディーゼル燃料）</strong>」といった反撃と取引の言葉の群れや、「<strong>Data — Centers — Yandex — Bots</strong>」という、ウクライナによるサーバー攻撃がロシアのボット農場を沈黙させたためにマスクらが報復したのだという「<strong>因果推論のクラスター</strong>」が、主流の骨格にどのように接続されているのかを立体的に辿ることができます。
+          </p>
+          <p>
+            さらに、任意のノードをクリックすることで右側のインスペクターパネルが連動し、その言葉と最も強く結びついている共起語の上位ランキングが瞬時に描き出される仕組みや、1時間ごとの時系列ストリームチャートによって、2026年10月14日深夜の「<strong>Starlink制限への衝撃と悲嘆</strong>」から、翌15日午後のフィナンシャル・タイムズ紙による「<strong>ロシア石油精製所への攻撃再開宣言（We're done）</strong>」の報道を受けて反撃への喝采が急騰していくまでの感情の波を並べて配置しました。このように、空間的なネットワーク構造と時間的な推移、さらには「<strong>Hero（英雄）</strong>」や「<strong>Leader（指導者）</strong>」といった称賛語と「<strong>Traitor（裏切り者）</strong>」や「<strong>Russian asset（ロシアの工作員）</strong>」といった糾弾語の二極化スペクトラムを一つの画面上で行き来できるようにしたことで、私たちは初めて、個々の投稿の断片に溺れることなく、人々の集合的無意識が描き出す「<strong>物語の全体地図</strong>」を俯瞰する視座を手に入れたと言えます。
+          </p>
+          <p>
+            けれども、私はここで、自らが望んで作り上げたこの「<strong>視覚化（ビジュアライゼーション）と動的インフォグラフィック</strong>」という手法そのものに対しても、両面的で冷徹な自己批評の目を向けておきたいと考えます。なぜなら、複雑なテキストデータを美しいノードや滑らかな曲線、鮮やかな色彩のチャートへと変換する行為には、理解を助けるという大きな恩恵の裏側に、「<strong>現実の生々しい痛みを、操作可能で心地よい幾何学的パターンへと漂白してしまう危うさ</strong>」が常に潜んでいるからです。画面上で赤いノードとして輝く「<strong>Casualties（死傷者）</strong>」や「<strong>Betrayed（裏切られた）</strong>」という丸い図形をマウスでドラッグして動かすとき、その背後にある「<strong>午前1時に通信が遮断され、防空警報が届かないままミサイルの恐怖に晒される人々の現実の震え</strong>」は、どうしても抽象的な数値やネットワークのトポロジーへと還元されてしまいます。インフォグラフィックが洗練されていればいるほど、私たちは「<strong>世界を俯瞰し、構造を完全に理解した</strong>」という全能感に似た錯覚を抱きやすくなり、データの中にあったはずの言いようのない居心地の悪さや、割り切れない他者の苦しみから安全な距離を取ってしまうことになりかねません。
+          </p>
+          <p>
+            また、ネットワーク図や棒グラフという表現形式は、必然的に「<strong>数が多いもの（マジョリティの言葉）</strong>」を大きく、太く、中心的に描き出し、「<strong>数が少ないもの（マイノリティの疑問や検証）</strong>」を小さく、細く、周縁へと追いやってしまうという視覚的バイアスを持っています。もし私たちが、ノードの大きさや線の太さだけを頼りにこのインフォグラフィックを眺めるならば、96%を占める「<strong>ゼレンスキーへの英雄視とトランプ・マスクへの憤激</strong>」という圧倒的な重力場の強さばかりに目を奪われ、全体のわずか4%に過ぎない紫色の小さなノード群、すなわち「<strong>Snopesによるボット消滅説への『証拠不十分（unrated）』というファクトチェック</strong>」や、「<strong>『アメリカという同盟国を失った』という劇的な引用句は扇動的な意訳であるという内部からの戒め</strong>」といった細やかな理性の声を、取るに足らないノイズとして見落としてしまうでしょう。
+          </p>
+          <p>
+            だからこそ私は、このインフォグラフィックを設計するにあたり、数としては圧倒的に少数である「<strong>検証・懐疑・オルタナティブ視座</strong>」を、主流の巨大クラスターと対等な「<strong>第4のクラスター（紫色のカテゴリ）</strong>」として独立させ、ボタンひとつでその小さなノード群だけを浮かび上がらせることができるように仕立てました。私たちが動的なグラフビューを本当に知的な道具として使いこなすとは、大きな塊や太い線の力強さに感嘆することではなく、むしろスライダーやフィルターを自ら操作しながら、「<strong>なぜこの言葉とこの言葉の間にはこれほど太い線が引かれ、逆に本来問われるべきはずの別の言葉との間には線が引かれていないのか</strong>」「<strong>巨大な赤い星や青い星の眩しさの陰で、紫色の小さな星々がどのような警鐘を鳴らしているのか</strong>」を、自らの視覚と理性を総動員して探しに行くことにほかなりません。
+          </p>
+          <p>
+            言葉の海を文章として読み解くことが「<strong>時間をかけて他者の思考の呼吸に寄り添う営み</strong>」であるならば、動的なインフォグラフィックとして構造を可視化することは「<strong>一歩引いた高みから、私たち自身の認識の偏りや集合的感情の磁場を客観視するための鏡を作る営み</strong>」です。画面の中で揺れ動くノードとエッジの連なりに触れながら、数の大小だけでは測れない言葉の重みと、強い物語が作り出す重力場の光と影の双方に思いを馳せるとき、この一枚の動的なページは、単なるデータの要約を超えた、さらなる深い思索のための静かな実験場として私たちの前に開かれています。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content: Raw Markdown -->
+    <div id="notesRawContent" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:0.8rem;color:var(--text-secondary);">Markdown Raw Source (pages/20261015181605.md)</span>
+        <button id="btnCopyRawMd" class="btn-filter" style="padding:4px 12px;font-size:0.75rem;">📋 Markdownをコピー</button>
+      </div>
+      <pre class="raw-md-box" id="rawMdDisplay"></pre>
+    </div>
+  </section>
+</div>
+
+<script>
+// Embedded Data from Python Analysis
+const NODES_DATA = [{"id": "zelenskyy", "label": "Zelenskyy", "group": "actor", "count": 1381, "desc": "ゼレンスキー大統領。全2,000件中1,496回出現し、すべての議論・感情・物語が収束する絶対的な中心核。", "topCo": [{"word": "trump", "count": 492}, {"word": "ukraine", "count": 481}, {"word": "putin", "count": 191}, {"word": "starlink", "count": 173}, {"word": "russia", "count": 165}, {"word": "musk", "count": 140}, {"word": "betrayed", "count": 92}, {"word": "access", "count": 72}]}, {"id": "trump", "label": "Trump", "group": "actor", "count": 617, "desc": "トランプ米大統領（819回）。裏切り、ロシアへの融和、独裁者への親화性、そして強い道徳的批判の標的として共起。", "topCo": [{"word": "zelenskyy", "count": 492}, {"word": "ukraine", "count": 252}, {"word": "putin", "count": 148}, {"word": "russia", "count": 112}, {"word": "starlink", "count": 104}, {"word": "musk", "count": 97}, {"word": "betrayed", "count": 81}, {"word": "access", "count": 58}]}, {"id": "ukraine", "label": "Ukraine", "group": "actor", "count": 604, "desc": "ウクライナ（731回）。侵略に抗う主権国家であり、連帯の対象であると同時に大国間の取引に晒される当事者。", "topCo": [{"word": "zelenskyy", "count": 481}, {"word": "trump", "count": 252}, {"word": "starlink", "count": 131}, {"word": "russia", "count": 127}, {"word": "putin", "count": 100}, {"word": "musk", "count": 86}, {"word": "strikes", "count": 64}, {"word": "refineries", "count": 45}]}, {"id": "putin", "label": "Putin", "group": "actor", "count": 226, "desc": "プーチン露大統領（258回）。侵略の元凶であり、トランプやマスクが利する相手として常に引き合いに出される。", "topCo": [{"word": "zelenskyy", "count": 191}, {"word": "trump", "count": 148}, {"word": "ukraine", "count": 100}, {"word": "russia", "count": 39}, {"word": "musk", "count": 37}, {"word": "diesel", "count": 23}, {"word": "starlink", "count": 18}, {"word": "betrayed", "count": 15}]}, {"id": "musk", "label": "Musk", "group": "actor", "count": 185, "desc": "イーロン・マスク（211回）。Starlink制限の当事者、あるいは米政府に責任転嫁するテック権力者として言及。", "topCo": [{"word": "zelenskyy", "count": 140}, {"word": "trump", "count": 97}, {"word": "ukraine", "count": 86}, {"word": "starlink", "count": 78}, {"word": "putin", "count": 37}, {"word": "russia", "count": 24}, {"word": "access", "count": 20}, {"word": "betrayed", "count": 18}]}, {"id": "russia", "label": "Russia", "group": "actor", "count": 205, "desc": "ロシア（229回）。エネルギー停戦を破りインフラ攻撃を続ける敵対国、また米政権の取引相手として出現。", "topCo": [{"word": "zelenskyy", "count": 165}, {"word": "ukraine", "count": 127}, {"word": "trump", "count": 112}, {"word": "putin", "count": 39}, {"word": "energy", "count": 35}, {"word": "musk", "count": 24}, {"word": "diesel", "count": 22}, {"word": "starlink", "count": 21}]}, {"id": "burnham", "label": "Burnham", "group": "actor", "count": 64, "desc": "アンディ・バーナム英首相（69回）。ダウニング街10番地でゼレンスキーを歓迎し、揺るぎない支援を示す対比軸。", "topCo": [{"word": "zelenskyy", "count": 61}, {"word": "ukraine", "count": 20}, {"word": "trump", "count": 11}, {"word": "russia", "count": 5}, {"word": "leader", "count": 5}, {"word": "starlink", "count": 3}, {"word": "intelligence", "count": 3}, {"word": "putin", "count": 2}]}, {"id": "morgan", "label": "Morgan", "group": "actor", "count": 60, "desc": "ピアーズ・モーガン（64回）。ゼレンスキーへの重要インタビューを実施し、発言拡散の主要な震源地となった人物。", "topCo": [{"word": "zelenskyy", "count": 57}, {"word": "trump", "count": 22}, {"word": "ukraine", "count": 16}, {"word": "starlink", "count": 13}, {"word": "betrayed", "count": 11}, {"word": "musk", "count": 10}, {"word": "putin", "count": 9}, {"word": "russia", "count": 8}]}, {"id": "starlink", "label": "Starlink", "group": "betrayal", "count": 226, "desc": "衛生通信網スターリンク（249回）。ウクライナの防空とドローン作戦の生命線であり、制限疑惑の中心キーワード。", "topCo": [{"word": "zelenskyy", "count": 173}, {"word": "ukraine", "count": 131}, {"word": "trump", "count": 104}, {"word": "musk", "count": 78}, {"word": "access", "count": 70}, {"word": "betrayed", "count": 60}, {"word": "restrictions", "count": 37}, {"word": "casualties", "count": 23}]}, {"id": "betrayed", "label": "Betrayed", "group": "betrayal", "count": 105, "desc": "「裏切られた」（113回）。ガーディアン紙の見出しを起点に、同盟国アメリカの変節に対する衝撃と義憤を象徴する語。", "topCo": [{"word": "zelenskyy", "count": 92}, {"word": "trump", "count": 81}, {"word": "starlink", "count": 60}, {"word": "access", "count": 48}, {"word": "ukraine", "count": 41}, {"word": "musk", "count": 18}, {"word": "putin", "count": 15}, {"word": "diesel", "count": 13}]}, {"id": "access", "label": "Access", "group": "betrayal", "count": 81, "desc": "通信アクセス（82回）。「Starlink access」として共起し、民間企業と国家権力が戦場の生殺与奪を握る構造を示す。", "topCo": [{"word": "zelenskyy", "count": 72}, {"word": "starlink", "count": 70}, {"word": "trump", "count": 58}, {"word": "betrayed", "count": 48}, {"word": "ukraine", "count": 32}, {"word": "musk", "count": 20}, {"word": "putin", "count": 8}, {"word": "russia", "count": 7}]}, {"id": "intelligence", "label": "Intelligence", "group": "betrayal", "count": 58, "desc": "米国の軍事インテリジェンス共有（62回）。ミサイル発射の事前警報が止められたのではないかという危機感と直結。", "topCo": [{"word": "ukraine", "count": 43}, {"word": "zelenskyy", "count": 39}, {"word": "trump", "count": 26}, {"word": "starlink", "count": 18}, {"word": "strikes", "count": 14}, {"word": "russia", "count": 12}, {"word": "refineries", "count": 11}, {"word": "oil", "count": 10}]}, {"id": "restrictions", "label": "Restrictions", "group": "betrayal", "count": 40, "desc": "通信や攻撃に対する制限（43回）。誰が制限を命じたのか（マスクか米国防総省・トランプか）をめぐる論争の核。", "topCo": [{"word": "starlink", "count": 37}, {"word": "ukraine", "count": 32}, {"word": "zelenskyy", "count": 22}, {"word": "musk", "count": 15}, {"word": "casualties", "count": 11}, {"word": "trump", "count": 7}, {"word": "strikes", "count": 5}, {"word": "refineries", "count": 5}]}, {"id": "starshield", "label": "Starshield", "group": "betrayal", "count": 27, "desc": "SpaceXの軍事用衛星通信網（38回）。米国防総省（DoD）と大統領が管理権限を持つシステムとして議論の的に。", "topCo": [{"word": "starlink", "count": 21}, {"word": "ukraine", "count": 21}, {"word": "trump", "count": 13}, {"word": "musk", "count": 13}, {"word": "zelenskyy", "count": 13}, {"word": "russia", "count": 7}, {"word": "access", "count": 5}, {"word": "casualties", "count": 2}]}, {"id": "casualties", "label": "Casualties", "group": "betrayal", "count": 36, "desc": "民間人の死傷者。通信制限と防空網の弱体化が「人々の死（People will die）」に直結するという人道的危機を示す。", "topCo": [{"word": "starlink", "count": 23}, {"word": "zelenskyy", "count": 23}, {"word": "ukraine", "count": 17}, {"word": "restrictions", "count": 11}, {"word": "trump", "count": 10}, {"word": "musk", "count": 9}, {"word": "morgan", "count": 4}, {"word": "strikes", "count": 4}]}, {"id": "strikes", "label": "Strikes", "group": "retaliation", "count": 88, "desc": "攻撃・空爆（90回）。ロシアによるインフラ攻撃と、ウクライナによるロシア石油精製所・データセンターへの反撃の双方で共起。", "topCo": [{"word": "zelenskyy", "count": 67}, {"word": "ukraine", "count": 64}, {"word": "refineries", "count": 37}, {"word": "oil", "count": 29}, {"word": "russia", "count": 21}, {"word": "trump", "count": 17}, {"word": "bots", "count": 15}, {"word": "intelligence", "count": 14}]}, {"id": "diesel", "label": "Diesel", "group": "retaliation", "count": 60, "desc": "ディーゼル燃料（70回）。トランプ政権による対露制裁緩和と燃料購入取引への激しい批判文脈で頻出。", "topCo": [{"word": "trump", "count": 51}, {"word": "zelenskyy", "count": 51}, {"word": "ukraine", "count": 28}, {"word": "putin", "count": 23}, {"word": "russia", "count": 22}, {"word": "betrayed", "count": 13}, {"word": "energy", "count": 9}, {"word": "starlink", "count": 7}]}, {"id": "refineries", "label": "Refineries", "group": "retaliation", "count": 66, "desc": "ロシアの石油精製所（69回）。FT紙の報道を受け「攻撃再開（resume strikes）」のカタルシスとともに急拡散。", "topCo": [{"word": "zelenskyy", "count": 62}, {"word": "ukraine", "count": 45}, {"word": "oil", "count": 42}, {"word": "strikes", "count": 37}, {"word": "russia", "count": 16}, {"word": "starlink", "count": 13}, {"word": "trump", "count": 13}, {"word": "intelligence", "count": 11}]}, {"id": "oil", "label": "Oil", "group": "retaliation", "count": 56, "desc": "石油・燃料価格（60回）。ロシアの戦争資金源であると同時に、米中間選挙におけるガソリン価格対策という思惑と交差。", "topCo": [{"word": "zelenskyy", "count": 51}, {"word": "refineries", "count": 42}, {"word": "ukraine", "count": 41}, {"word": "strikes", "count": 29}, {"word": "trump", "count": 18}, {"word": "russia", "count": 17}, {"word": "starlink", "count": 15}, {"word": "energy", "count": 10}]}, {"id": "data", "label": "Data", "group": "retaliation", "count": 78, "desc": "データセンター（86回）。ウクライナがロシアのサーバー施設を攻撃したという話題の中心語。", "topCo": [{"word": "zelenskyy", "count": 68}, {"word": "centers", "count": 46}, {"word": "bots", "count": 25}, {"word": "ukraine", "count": 24}, {"word": "musk", "count": 14}, {"word": "trump", "count": 14}, {"word": "yandex", "count": 13}, {"word": "russia", "count": 12}]}, {"id": "centers", "label": "Centers", "group": "retaliation", "count": 48, "desc": "「data centers」（53回）として共起。ボット農場や暗号資産が破壊されたためトランプ・マスクが報復したという推論の核。", "topCo": [{"word": "data", "count": 46}, {"word": "zelenskyy", "count": 44}, {"word": "bots", "count": 15}, {"word": "ukraine", "count": 12}, {"word": "musk", "count": 10}, {"word": "trump", "count": 7}, {"word": "yandex", "count": 6}, {"word": "strikes", "count": 6}]}, {"id": "bots", "label": "Bots", "group": "retaliation", "count": 68, "desc": "SNS上の工作ボット（39回）。Yandex攻撃後に右派・親露ボットが消えたという痛快な（ただし未検証の）物語を形成。", "topCo": [{"word": "zelenskyy", "count": 50}, {"word": "data", "count": 25}, {"word": "ukraine", "count": 18}, {"word": "strikes", "count": 15}, {"word": "centers", "count": 15}, {"word": "yandex", "count": 13}, {"word": "putin", "count": 12}, {"word": "musk", "count": 11}]}, {"id": "yandex", "label": "Yandex", "group": "retaliation", "count": 24, "desc": "ロシアのIT大手Yandex（27回）。10月8日からのウクライナによるサーバー攻撃の対象として言及され、Snopesの検証対象にもなった。", "topCo": [{"word": "bots", "count": 13}, {"word": "data", "count": 13}, {"word": "zelenskyy", "count": 12}, {"word": "strikes", "count": 12}, {"word": "ukraine", "count": 7}, {"word": "snopes", "count": 7}, {"word": "centers", "count": 6}, {"word": "trump", "count": 3}]}, {"id": "energy", "label": "Energy", "group": "retaliation", "count": 49, "desc": "エネルギーインフラ・停戦（57回）。米国が求めた3日間の「エネルギー停戦」とその破綻をめぐるキーワード。", "topCo": [{"word": "zelenskyy", "count": 38}, {"word": "russia", "count": 35}, {"word": "ukraine", "count": 34}, {"word": "trump", "count": 29}, {"word": "strikes", "count": 12}, {"word": "oil", "count": 10}, {"word": "diesel", "count": 9}, {"word": "putin", "count": 9}]}, {"id": "hero", "label": "Hero", "group": "moral", "count": 42, "desc": "英雄（55回）。ゼレンスキーおよびウクライナ国民の勇気を称える最高度の肯定的評価語。", "topCo": [{"word": "zelenskyy", "count": 40}, {"word": "ukraine", "count": 12}, {"word": "trump", "count": 9}, {"word": "leader", "count": 6}, {"word": "putin", "count": 5}, {"word": "intelligence", "count": 2}, {"word": "data", "count": 1}, {"word": "refineries", "count": 1}]}, {"id": "leader", "label": "Leader", "group": "moral", "count": 64, "desc": "指導者（66回）。「自由世界の真のリーダー」としてのゼレンスキーと、トランプのリーダーシップ欠如を対比する語。", "topCo": [{"word": "zelenskyy", "count": 59}, {"word": "trump", "count": 28}, {"word": "ukraine", "count": 18}, {"word": "putin", "count": 8}, {"word": "hero", "count": 6}, {"word": "russia", "count": 5}, {"word": "starlink", "count": 5}, {"word": "burnham", "count": 5}]}, {"id": "stand", "label": "Stand", "group": "moral", "count": 51, "desc": "「I stand with Ukraine / Zelenskyy」（60回）。個人の道徳的立場と連帯を宣言するアイデンティティ表明の動詞。", "topCo": [{"word": "zelenskyy", "count": 46}, {"word": "trump", "count": 27}, {"word": "ukraine", "count": 26}, {"word": "putin", "count": 8}, {"word": "dictator", "count": 8}, {"word": "traitor", "count": 7}, {"word": "asset", "count": 7}, {"word": "musk", "count": 4}]}, {"id": "history", "label": "History", "group": "moral", "count": 46, "desc": "「wrong side of history（歴史の誤った側）」（46回）。現米政権の選択を歴史的汚点として断じる文脈で頻出。", "topCo": [{"word": "zelenskyy", "count": 45}, {"word": "trump", "count": 17}, {"word": "ukraine", "count": 12}, {"word": "putin", "count": 7}, {"word": "betrayed", "count": 7}, {"word": "russia", "count": 7}, {"word": "diesel", "count": 5}, {"word": "starlink", "count": 5}]}, {"id": "traitor", "label": "Traitor", "group": "moral", "count": 41, "desc": "裏切り者・売国奴（42回※複数形含む）。トランプやマスクが西側諸国や米国の理念を裏切ったとする激しい糾弾語。", "topCo": [{"word": "trump", "count": 27}, {"word": "zelenskyy", "count": 23}, {"word": "putin", "count": 10}, {"word": "ukraine", "count": 9}, {"word": "stand", "count": 7}, {"word": "musk", "count": 5}, {"word": "russia", "count": 3}, {"word": "starlink", "count": 3}]}, {"id": "dictator", "label": "Dictator", "group": "moral", "count": 33, "desc": "独裁者（33回）。プーチンへの形容、およびトランプがゼレンスキーを独裁者と呼んだことへの強い反発と投影の指摘。", "topCo": [{"word": "zelenskyy", "count": 30}, {"word": "trump", "count": 25}, {"word": "putin", "count": 8}, {"word": "asset", "count": 8}, {"word": "stand", "count": 8}, {"word": "ukraine", "count": 5}, {"word": "russia", "count": 4}, {"word": "musk", "count": 3}]}, {"id": "weak", "label": "Weak", "group": "moral", "count": 21, "desc": "弱腰・脆弱（21回）。トランプの対露取引が世界に「弱さ」を露呈しているというゼレンスキーの批判と共鳴。", "topCo": [{"word": "zelenskyy", "count": 18}, {"word": "trump", "count": 16}, {"word": "russia", "count": 9}, {"word": "putin", "count": 8}, {"word": "ukraine", "count": 7}, {"word": "diesel", "count": 5}, {"word": "morgan", "count": 5}, {"word": "history", "count": 3}]}, {"id": "asset", "label": "Asset", "group": "moral", "count": 20, "desc": "「Russian asset（ロシアの工作員・資産）」（20回）。トランプの親露的行動を説明する際の定型的な批判フレーム。", "topCo": [{"word": "zelenskyy", "count": 18}, {"word": "trump", "count": 13}, {"word": "dictator", "count": 8}, {"word": "ukraine", "count": 7}, {"word": "stand", "count": 7}, {"word": "putin", "count": 4}, {"word": "musk", "count": 4}, {"word": "russia", "count": 3}]}, {"id": "midterms", "label": "Midterms", "group": "skeptic", "count": 28, "desc": "米国中間選挙（35回）。11月3日の投票を控え、燃料価格やボット工作、有権者の投票行動とウクライナ情勢を結びつける語。", "topCo": [{"word": "zelenskyy", "count": 23}, {"word": "trump", "count": 16}, {"word": "ukraine", "count": 10}, {"word": "data", "count": 8}, {"word": "bots", "count": 6}, {"word": "centers", "count": 5}, {"word": "putin", "count": 4}, {"word": "diesel", "count": 4}]}, {"id": "vote", "label": "Vote", "group": "skeptic", "count": 17, "desc": "投票行動（38回）。「Vote them out」「Vote Blue」など、ウクライナへの義憤を国内選挙の動員へと変換する語。", "topCo": [{"word": "zelenskyy", "count": 12}, {"word": "trump", "count": 8}, {"word": "putin", "count": 7}, {"word": "ukraine", "count": 7}, {"word": "musk", "count": 5}, {"word": "starlink", "count": 4}, {"word": "stand", "count": 2}, {"word": "history", "count": 2}]}, {"id": "quote", "label": "Quote", "group": "skeptic", "count": 12, "desc": "引用の真偽（18回）。拡散された「アメリカという同盟国を失った」という劇的な引用句が実は扇動的な意訳であると指摘する文脈で出現。", "topCo": [{"word": "zelenskyy", "count": 11}, {"word": "access", "count": 4}, {"word": "ukraine", "count": 2}, {"word": "history", "count": 1}, {"word": "bots", "count": 1}, {"word": "trump", "count": 1}, {"word": "hero", "count": 1}]}, {"id": "snopes", "label": "Snopes", "group": "skeptic", "count": 19, "desc": "ファクトチェック機関Snopes（19回リンク共有）。Yandex攻撃によるボット消滅説を「証拠不十分（unrated）」と検証。", "topCo": [{"word": "bots", "count": 10}, {"word": "strikes", "count": 9}, {"word": "yandex", "count": 7}, {"word": "ukraine", "count": 3}, {"word": "data", "count": 1}, {"word": "centers", "count": 1}]}];
+const EDGES_DATA = [{"source": "zelenskyy", "target": "trump", "weight": 492}, {"source": "zelenskyy", "target": "ukraine", "weight": 481}, {"source": "zelenskyy", "target": "putin", "weight": 191}, {"source": "zelenskyy", "target": "musk", "weight": 140}, {"source": "zelenskyy", "target": "russia", "weight": 165}, {"source": "zelenskyy", "target": "burnham", "weight": 61}, {"source": "zelenskyy", "target": "morgan", "weight": 57}, {"source": "zelenskyy", "target": "starlink", "weight": 173}, {"source": "zelenskyy", "target": "betrayed", "weight": 92}, {"source": "zelenskyy", "target": "access", "weight": 72}, {"source": "zelenskyy", "target": "intelligence", "weight": 39}, {"source": "zelenskyy", "target": "restrictions", "weight": 22}, {"source": "zelenskyy", "target": "starshield", "weight": 13}, {"source": "zelenskyy", "target": "casualties", "weight": 23}, {"source": "zelenskyy", "target": "strikes", "weight": 67}, {"source": "zelenskyy", "target": "diesel", "weight": 51}, {"source": "zelenskyy", "target": "refineries", "weight": 62}, {"source": "zelenskyy", "target": "oil", "weight": 51}, {"source": "zelenskyy", "target": "data", "weight": 68}, {"source": "zelenskyy", "target": "centers", "weight": 44}, {"source": "zelenskyy", "target": "bots", "weight": 50}, {"source": "zelenskyy", "target": "yandex", "weight": 12}, {"source": "zelenskyy", "target": "energy", "weight": 38}, {"source": "zelenskyy", "target": "hero", "weight": 40}, {"source": "zelenskyy", "target": "leader", "weight": 59}, {"source": "zelenskyy", "target": "stand", "weight": 46}, {"source": "zelenskyy", "target": "history", "weight": 45}, {"source": "zelenskyy", "target": "traitor", "weight": 23}, {"source": "zelenskyy", "target": "dictator", "weight": 30}, {"source": "zelenskyy", "target": "weak", "weight": 18}, {"source": "zelenskyy", "target": "asset", "weight": 18}, {"source": "zelenskyy", "target": "midterms", "weight": 23}, {"source": "zelenskyy", "target": "vote", "weight": 12}, {"source": "zelenskyy", "target": "quote", "weight": 11}, {"source": "trump", "target": "ukraine", "weight": 252}, {"source": "trump", "target": "putin", "weight": 148}, {"source": "trump", "target": "musk", "weight": 97}, {"source": "trump", "target": "russia", "weight": 112}, {"source": "trump", "target": "burnham", "weight": 11}, {"source": "trump", "target": "morgan", "weight": 22}, {"source": "trump", "target": "starlink", "weight": 104}, {"source": "trump", "target": "betrayed", "weight": 81}, {"source": "trump", "target": "access", "weight": 58}, {"source": "trump", "target": "intelligence", "weight": 26}, {"source": "trump", "target": "restrictions", "weight": 7}, {"source": "trump", "target": "starshield", "weight": 13}, {"source": "trump", "target": "casualties", "weight": 10}, {"source": "trump", "target": "strikes", "weight": 17}, {"source": "trump", "target": "diesel", "weight": 51}, {"source": "trump", "target": "refineries", "weight": 13}, {"source": "trump", "target": "oil", "weight": 18}, {"source": "trump", "target": "data", "weight": 14}, {"source": "trump", "target": "centers", "weight": 7}, {"source": "trump", "target": "bots", "weight": 9}, {"source": "trump", "target": "energy", "weight": 29}, {"source": "trump", "target": "hero", "weight": 9}, {"source": "trump", "target": "leader", "weight": 28}, {"source": "trump", "target": "stand", "weight": 27}, {"source": "trump", "target": "history", "weight": 17}, {"source": "trump", "target": "traitor", "weight": 27}, {"source": "trump", "target": "dictator", "weight": 25}, {"source": "trump", "target": "weak", "weight": 16}, {"source": "trump", "target": "asset", "weight": 13}, {"source": "trump", "target": "midterms", "weight": 16}, {"source": "trump", "target": "vote", "weight": 8}, {"source": "ukraine", "target": "putin", "weight": 100}, {"source": "ukraine", "target": "musk", "weight": 86}, {"source": "ukraine", "target": "russia", "weight": 127}, {"source": "ukraine", "target": "burnham", "weight": 20}, {"source": "ukraine", "target": "morgan", "weight": 16}, {"source": "ukraine", "target": "starlink", "weight": 131}, {"source": "ukraine", "target": "betrayed", "weight": 41}, {"source": "ukraine", "target": "access", "weight": 32}, {"source": "ukraine", "target": "intelligence", "weight": 43}, {"source": "ukraine", "target": "restrictions", "weight": 32}, {"source": "ukraine", "target": "starshield", "weight": 21}, {"source": "ukraine", "target": "casualties", "weight": 17}, {"source": "ukraine", "target": "strikes", "weight": 64}, {"source": "ukraine", "target": "diesel", "weight": 28}, {"source": "ukraine", "target": "refineries", "weight": 45}, {"source": "ukraine", "target": "oil", "weight": 41}, {"source": "ukraine", "target": "data", "weight": 24}, {"source": "ukraine", "target": "centers", "weight": 12}, {"source": "ukraine", "target": "bots", "weight": 18}, {"source": "ukraine", "target": "yandex", "weight": 7}, {"source": "ukraine", "target": "energy", "weight": 34}, {"source": "ukraine", "target": "hero", "weight": 12}, {"source": "ukraine", "target": "leader", "weight": 18}, {"source": "ukraine", "target": "stand", "weight": 26}, {"source": "ukraine", "target": "history", "weight": 12}, {"source": "ukraine", "target": "traitor", "weight": 9}, {"source": "ukraine", "target": "dictator", "weight": 5}, {"source": "ukraine", "target": "weak", "weight": 7}, {"source": "ukraine", "target": "asset", "weight": 7}, {"source": "ukraine", "target": "midterms", "weight": 10}, {"source": "ukraine", "target": "vote", "weight": 7}, {"source": "putin", "target": "musk", "weight": 37}, {"source": "putin", "target": "russia", "weight": 39}, {"source": "putin", "target": "morgan", "weight": 9}, {"source": "putin", "target": "starlink", "weight": 18}, {"source": "putin", "target": "betrayed", "weight": 15}, {"source": "putin", "target": "access", "weight": 8}, {"source": "putin", "target": "intelligence", "weight": 8}, {"source": "putin", "target": "strikes", "weight": 6}, {"source": "putin", "target": "diesel", "weight": 23}, {"source": "putin", "target": "refineries", "weight": 6}, {"source": "putin", "target": "oil", "weight": 5}, {"source": "putin", "target": "data", "weight": 7}, {"source": "putin", "target": "centers", "weight": 5}, {"source": "putin", "target": "bots", "weight": 12}, {"source": "putin", "target": "energy", "weight": 9}, {"source": "putin", "target": "hero", "weight": 5}, {"source": "putin", "target": "leader", "weight": 8}, {"source": "putin", "target": "stand", "weight": 8}, {"source": "putin", "target": "history", "weight": 7}, {"source": "putin", "target": "traitor", "weight": 10}, {"source": "putin", "target": "dictator", "weight": 8}, {"source": "putin", "target": "weak", "weight": 8}, {"source": "putin", "target": "asset", "weight": 4}, {"source": "putin", "target": "midterms", "weight": 4}, {"source": "putin", "target": "vote", "weight": 7}, {"source": "musk", "target": "russia", "weight": 24}, {"source": "musk", "target": "morgan", "weight": 10}, {"source": "musk", "target": "starlink", "weight": 78}, {"source": "musk", "target": "betrayed", "weight": 18}, {"source": "musk", "target": "access", "weight": 20}, {"source": "musk", "target": "restrictions", "weight": 15}, {"source": "musk", "target": "starshield", "weight": 13}, {"source": "musk", "target": "casualties", "weight": 9}, {"source": "musk", "target": "oil", "weight": 5}, {"source": "musk", "target": "data", "weight": 14}, {"source": "musk", "target": "centers", "weight": 10}, {"source": "musk", "target": "bots", "weight": 11}, {"source": "musk", "target": "energy", "weight": 4}, {"source": "musk", "target": "stand", "weight": 4}, {"source": "musk", "target": "history", "weight": 4}, {"source": "musk", "target": "traitor", "weight": 5}, {"source": "musk", "target": "asset", "weight": 4}, {"source": "musk", "target": "vote", "weight": 5}, {"source": "russia", "target": "burnham", "weight": 5}, {"source": "russia", "target": "morgan", "weight": 8}, {"source": "russia", "target": "starlink", "weight": 21}, {"source": "russia", "target": "betrayed", "weight": 7}, {"source": "russia", "target": "access", "weight": 7}, {"source": "russia", "target": "intelligence", "weight": 12}, {"source": "russia", "target": "starshield", "weight": 7}, {"source": "russia", "target": "strikes", "weight": 21}, {"source": "russia", "target": "diesel", "weight": 22}, {"source": "russia", "target": "refineries", "weight": 16}, {"source": "russia", "target": "oil", "weight": 17}, {"source": "russia", "target": "data", "weight": 12}, {"source": "russia", "target": "centers", "weight": 6}, {"source": "russia", "target": "bots", "weight": 7}, {"source": "russia", "target": "energy", "weight": 35}, {"source": "russia", "target": "leader", "weight": 5}, {"source": "russia", "target": "history", "weight": 7}, {"source": "russia", "target": "dictator", "weight": 4}, {"source": "russia", "target": "weak", "weight": 9}, {"source": "russia", "target": "midterms", "weight": 4}, {"source": "burnham", "target": "leader", "weight": 5}, {"source": "morgan", "target": "starlink", "weight": 13}, {"source": "morgan", "target": "betrayed", "weight": 11}, {"source": "morgan", "target": "casualties", "weight": 4}, {"source": "morgan", "target": "history", "weight": 4}, {"source": "morgan", "target": "weak", "weight": 5}, {"source": "starlink", "target": "betrayed", "weight": 60}, {"source": "starlink", "target": "access", "weight": 70}, {"source": "starlink", "target": "intelligence", "weight": 18}, {"source": "starlink", "target": "restrictions", "weight": 37}, {"source": "starlink", "target": "starshield", "weight": 21}, {"source": "starlink", "target": "casualties", "weight": 23}, {"source": "starlink", "target": "strikes", "weight": 13}, {"source": "starlink", "target": "diesel", "weight": 7}, {"source": "starlink", "target": "refineries", "weight": 13}, {"source": "starlink", "target": "oil", "weight": 15}, {"source": "starlink", "target": "data", "weight": 9}, {"source": "starlink", "target": "centers", "weight": 5}, {"source": "starlink", "target": "bots", "weight": 5}, {"source": "starlink", "target": "energy", "weight": 4}, {"source": "starlink", "target": "leader", "weight": 5}, {"source": "starlink", "target": "history", "weight": 5}, {"source": "starlink", "target": "vote", "weight": 4}, {"source": "betrayed", "target": "access", "weight": 48}, {"source": "betrayed", "target": "diesel", "weight": 13}, {"source": "betrayed", "target": "history", "weight": 7}, {"source": "access", "target": "intelligence", "weight": 4}, {"source": "access", "target": "starshield", "weight": 5}, {"source": "access", "target": "quote", "weight": 4}, {"source": "intelligence", "target": "restrictions", "weight": 5}, {"source": "intelligence", "target": "strikes", "weight": 14}, {"source": "intelligence", "target": "diesel", "weight": 5}, {"source": "intelligence", "target": "refineries", "weight": 11}, {"source": "intelligence", "target": "oil", "weight": 10}, {"source": "restrictions", "target": "casualties", "weight": 11}, {"source": "restrictions", "target": "strikes", "weight": 5}, {"source": "restrictions", "target": "refineries", "weight": 5}, {"source": "restrictions", "target": "oil", "weight": 4}, {"source": "casualties", "target": "strikes", "weight": 4}, {"source": "casualties", "target": "refineries", "weight": 4}, {"source": "strikes", "target": "diesel", "weight": 4}, {"source": "strikes", "target": "refineries", "weight": 37}, {"source": "strikes", "target": "oil", "weight": 29}, {"source": "strikes", "target": "data", "weight": 9}, {"source": "strikes", "target": "centers", "weight": 6}, {"source": "strikes", "target": "bots", "weight": 15}, {"source": "strikes", "target": "yandex", "weight": 12}, {"source": "strikes", "target": "energy", "weight": 12}, {"source": "strikes", "target": "snopes", "weight": 9}, {"source": "diesel", "target": "energy", "weight": 9}, {"source": "diesel", "target": "history", "weight": 5}, {"source": "diesel", "target": "weak", "weight": 5}, {"source": "diesel", "target": "midterms", "weight": 4}, {"source": "refineries", "target": "oil", "weight": 42}, {"source": "refineries", "target": "data", "weight": 7}, {"source": "refineries", "target": "centers", "weight": 4}, {"source": "refineries", "target": "energy", "weight": 8}, {"source": "oil", "target": "data", "weight": 4}, {"source": "oil", "target": "energy", "weight": 10}, {"source": "data", "target": "centers", "weight": 46}, {"source": "data", "target": "bots", "weight": 25}, {"source": "data", "target": "yandex", "weight": 13}, {"source": "data", "target": "midterms", "weight": 8}, {"source": "centers", "target": "bots", "weight": 15}, {"source": "centers", "target": "yandex", "weight": 6}, {"source": "centers", "target": "midterms", "weight": 5}, {"source": "bots", "target": "yandex", "weight": 13}, {"source": "bots", "target": "midterms", "weight": 6}, {"source": "bots", "target": "snopes", "weight": 10}, {"source": "yandex", "target": "snopes", "weight": 7}, {"source": "hero", "target": "leader", "weight": 6}, {"source": "stand", "target": "traitor", "weight": 7}, {"source": "stand", "target": "dictator", "weight": 8}, {"source": "stand", "target": "asset", "weight": 7}, {"source": "dictator", "target": "asset", "weight": 8}];
+const HOURLY_DATA = [{"hour": "10/14 23:00", "total": 41, "starlink": 10, "refineries": 0, "bots_data": 7, "factcheck": 2}, {"hour": "10/15 00:00", "total": 121, "starlink": 5, "refineries": 6, "bots_data": 19, "factcheck": 5}, {"hour": "10/15 01:00", "total": 137, "starlink": 11, "refineries": 7, "bots_data": 16, "factcheck": 0}, {"hour": "10/15 02:00", "total": 128, "starlink": 20, "refineries": 7, "bots_data": 12, "factcheck": 2}, {"hour": "10/15 03:00", "total": 140, "starlink": 21, "refineries": 7, "bots_data": 10, "factcheck": 2}, {"hour": "10/15 04:00", "total": 163, "starlink": 29, "refineries": 8, "bots_data": 18, "factcheck": 2}, {"hour": "10/15 05:00", "total": 152, "starlink": 29, "refineries": 8, "bots_data": 7, "factcheck": 3}, {"hour": "10/15 06:00", "total": 175, "starlink": 31, "refineries": 11, "bots_data": 10, "factcheck": 1}, {"hour": "10/15 07:00", "total": 144, "starlink": 23, "refineries": 9, "bots_data": 9, "factcheck": 3}, {"hour": "10/15 08:00", "total": 105, "starlink": 16, "refineries": 9, "bots_data": 6, "factcheck": 3}, {"hour": "10/15 09:00", "total": 99, "starlink": 27, "refineries": 9, "bots_data": 10, "factcheck": 1}, {"hour": "10/15 10:00", "total": 84, "starlink": 8, "refineries": 7, "bots_data": 3, "factcheck": 2}, {"hour": "10/15 11:00", "total": 71, "starlink": 5, "refineries": 3, "bots_data": 11, "factcheck": 4}, {"hour": "10/15 12:00", "total": 67, "starlink": 5, "refineries": 2, "bots_data": 5, "factcheck": 0}, {"hour": "10/15 13:00", "total": 68, "starlink": 11, "refineries": 11, "bots_data": 4, "factcheck": 1}, {"hour": "10/15 14:00", "total": 80, "starlink": 19, "refineries": 8, "bots_data": 8, "factcheck": 2}, {"hour": "10/15 15:00", "total": 104, "starlink": 13, "refineries": 18, "bots_data": 8, "factcheck": 2}, {"hour": "10/15 16:00", "total": 100, "starlink": 19, "refineries": 14, "bots_data": 6, "factcheck": 0}, {"hour": "10/15 17:00", "total": 21, "starlink": 5, "refineries": 5, "bots_data": 0, "factcheck": 0}];
+
+const GROUP_META = {
+  actor:       { label: "主要人物・国家アクター", color: "#38bdf8", bg: "rgba(56, 189, 248, 0.2)" },
+  betrayal:    { label: "裏切り・通信制限クラスター", color: "#f43f5e", bg: "rgba(244, 63, 94, 0.2)" },
+  retaliation: { label: "反撃・精製所・ボット説クラスター", color: "#fbbf24", bg: "rgba(251, 191, 36, 0.2)" },
+  moral:       { label: "英雄視・道徳的二極化クラスター", color: "#10b981", bg: "rgba(16, 185, 129, 0.2)" },
+  skeptic:     { label: "選挙・検証・懐疑クラスター", color: "#a855f7", bg: "rgba(168, 85, 247, 0.2)" }
+};
+
+const CLUSTER_DETAILS = [
+  {
+    color: "#f43f5e",
+    title: "第一の連鎖：「裏切り（Betrayed）」と生命線の遮断に対する道義的憤り",
+    chain: ["Zelenskyy", "feels betrayed", "Donald Trump", "Starlink / Starshield", "intelligence withheld", "People will die"],
+    desc: "ガーディアン紙の報道やピアーズ・モーガンとのインタビューを起点に最も広く形成された感情回路です。ウクライナ軍の防空・ドローン迎撃に不可欠なStarlink（および軍事用Starshield）の通信制限と、ロシアのミサイル発射に関する米国の事前警報（intelligence）停止疑惑、さらにロシア産ディーゼル燃料の制裁緩和取引が重なり、単なる外交摩擦ではなく「戦場の民間人を死に追いやる背後からの一突き」として強い悲痛さと怒りを呼び起こしています。",
+    quotes: [
+      { text: "“I am sure they knew what they did, absolutely. Because it was 1am at night, Starlink was blocked by SpaceX and the United States... This decision will bring a lot of human losses … of course, people will die.”", meta: "頻出引用句 — Piers Morganインタビューでのゼレンスキー大統領の発言（計50件以上で直接・間接引用）" },
+      { text: "“Volodymyr Zelenskyy feels ‘betrayed’ by Donald Trump over Starlink access — Ukrainian president accused US president of picking the other side after four years of war”", meta: "最大の拡散源 — The Guardian見出し（212件のリンク共有の核）" }
+    ]
+  },
+  {
+    color: "#fbbf24",
+    title: "第二の連鎖：ロシア石油精製所への攻撃再開と「ボット農場への報復」という因果推論",
+    chain: ["We're done", "resume strikes", "Russian oil refineries", "Yandex data centers", "Russian bots offline", "Musk/Trump retaliation"],
+    desc: "米国の要請で3日間の「エネルギー停戦」を守ったにもかかわらずロシアが電力網を爆撃し続けたため、ゼレンスキーがフィナンシャル・タイムズ紙に「制限は終わりだ（The block is out. We're done）」と宣言しロシアの石油精製所への攻撃を再開したニュースは、強いカタルシスをもって迎えられました。さらに注目すべきは、数日前のウクライナによるロシアYandexのデータセンター攻撃でX上の右派・親露ボットが消滅し、それに激怒したマスクとトランプが報復としてStarlinkを制限したのだという「点と点を結ぶ推論」が急速に共有された点です。",
+    quotes: [
+      { text: "“Ukraine will resume strikes on Russian oil refineries, Zelenskyy stated, according to the FT... The ban has been lifted. We've had enough.”", meta: "反撃への喝采 — 13時〜17時台にかけて急増した速報・支持ポスト群" },
+      { text: "“1) Ukraine bombs a Russian data centre allegedly housing a giant troll/propaganda farm → 2) Elmo tweets Zelenskyy has 'gone too far' → 3) Starlink cuts off Ukraine”", meta: "集合的推論の典型例 — 複数の出来事を一つの報復物語として統合する思考パターン" }
+    ]
+  },
+  {
+    color: "#10b981",
+    title: "第三の連鎖：人物評価の道徳的二極化と、米国市民による「自己浄化」の宣言",
+    chain: ["Hero / Real Leader", "Burnham & King Charles", "vs", "Traitor / Dictator / Russian Asset", "Shame", "We the People stand with Ukraine"],
+    desc: "語彙の分布は鮮烈なまでの善悪二元論を描き出しています。ゼレンスキーには「hero」「leader」「courage」が一貫して連なり、彼をダウニング街10番地や王室で歓待した英国のバーナム首相やチャールズ国王が「自由世界の良心」として称揚されます。対照的にトランプとマスクには「traitor（裏切り者）」「Russian asset（ロシアの工作員）」「jealous（嫉妬）」が集中し、多くの米国人ユーザーが自国政権への恥辱（shame）を吐露しながら「トランプは私たちを代表しない」と宣言することで道徳的アイデンティティを保とうとしています。",
+    quotes: [
+      { text: "“My children, our army, and the Ukrainian people. I think our nation is absolutely heroic.” / “Zelenskyy is 1,000 times the man Trump could ever be.”", meta: "英雄視と人物対比 — トランプのナルシシズムとゼレンスキーの謙虚さ・勇気を対置する言説" },
+      { text: "“WE THE PEOPLE OF THE UNITED STATES OF AMERICA SUPPORT PRESIDENT ZELENSKYY... Our president is a traitor!”", meta: "自己浄化と連帯表明 — 政権と市民（We the People）を切り離すことで罪悪感に抗う米国ユーザーの声" }
+    ]
+  },
+  {
+    color: "#a855f7",
+    title: "第四の視座（全体の約4%）：エコーチェンバーに冷水を浴びせるファクトチェックと支援限界論",
+    chain: ["Snopes Fact Check", "Unrated claim", "Fake/Stitched Quote", "Feb 2025 Old Post", "Marine Le Pen", "NABU / Anti-corruption"],
+    desc: "圧倒的多数を占める親ウクライナ・反トランプの熱狂から少し距離を置くと、わずか約4%（80件前後）ながら、極めて重要な「検証と異論」のクラスターが存在します。①Yandex攻撃でロシアのボットが消えたという説をSnopesが「証拠不十分（unrated）」と判定した記事の共有、②「アメリカという同盟国を失った」という劇的な引用句が実は扇動的な意訳（inflammatory paraphrasing）であるという警告、③2025年2月の古いトランプ投稿の誤拡散の指摘、さらには仏ル・ペンによる支援打ち切り論やウクライナ国内の反汚職機関（NABU）をめぐる批判など、主流の物語が削ぎ落とした「現実の複雑さ」がここに記録されています。",
+    quotes: [
+      { text: "“Lacking credible proof that Ukrainian strikes on Yandex servers starting on Oct. 8 took Russian propaganda bots offline, we leave this claim unrated.”", meta: "ファクトチェックの介入 — Snopes.comの検証記事（19回共有）" },
+      { text: "“FFS stop sharing that Zelenskyy 'quote' about 'losing america as an ally'... The man never said this, it's inflammatory paraphrasing and it does NOT help Ukraine!”", meta: "内部からの自制の呼びかけ — 感情的な創作引用の拡散を戒める投稿" }
+    ]
+  }
+];
+
+const SENTIMENT_ITEMS = [
+  { word: "betrayed / betrayal (裏切り)", count: 139, cat: "crisis", color: "#f43f5e", target: "米政権の変節・通信制限への衝撃" },
+  { word: "leader (真の指導者)", count: 66, cat: "praise", color: "#10b981", target: "ゼレンスキーの統率力への称賛" },
+  { word: "stand [with] (連帯・支持)", count: 60, cat: "praise", color: "#10b981", target: "ウクライナと共に立つという表明" },
+  { word: "hero / heroic (英雄)", count: 59, cat: "praise", color: "#10b981", target: "ゼレンスキーとウクライナ国民への敬意" },
+  { word: "traitor / traitors (売国奴・裏切り者)", count: 42, cat: "condemn", color: "#fbbf24", target: "トランプ・マスクへの道徳的糾弾" },
+  { word: "die / casualties (死・犠牲)", count: 38, cat: "crisis", color: "#f43f5e", target: "通信制限がもたらす人命喪失への危機感" },
+  { word: "dictator (独裁者)", count: 33, cat: "condemn", color: "#fbbf24", target: "プーチンへの形容およびトランプ発言への反発" },
+  { word: "weak (弱腰・脆弱)", count: 21, cat: "condemn", color: "#fbbf24", target: "プーチンに譲歩するトランプへの批判" },
+  { word: "Russian asset (ロシアの工作員)", count: 20, cat: "condemn", color: "#fbbf24", target: "トランプの親露姿勢を説明するフレーム" },
+  { word: "love / proud (敬愛・誇り)", count: 21, cat: "praise", color: "#10b981", target: "ゼレンスキーへの好意と連帯の誇り" },
+  { word: "treason (反逆罪)", count: 12, cat: "condemn", color: "#fbbf24", target: "米国の国益と同盟を損なう行為への糾弾" },
+  { word: "shame / shameful (恥・恥ずべき)", count: 10, cat: "crisis", color: "#f43f5e", target: "自国（米国）の振る舞いに対する市民の恥辱感" },
+  { word: "evil (邪悪)", count: 10, cat: "condemn", color: "#fbbf24", target: "侵略およびそれを助長する行為への形容" },
+  { word: "smart / courage (賢明・勇気)", count: 11, cat: "praise", color: "#10b981", target: "困難な外交・戦況を生き抜く知性と胆力" },
+  { word: "jealous / puppet (嫉妬・傀儡)", count: 13, cat: "condemn", color: "#fbbf24", target: "トランプの心理的動機に対する冷笑的分析" }
+];
+
+const DOMAIN_ITEMS = [
+  { domain: "theguardian.com (英ガーディアン紙)", count: 212, color: "#38bdf8" },
+  { domain: "youtube.com / youtu.be (インタビュー・解説動画)", count: 185, color: "#f43f5e" },
+  { domain: "substack.com (独立系ニュースレター・論考)", count: 24, color: "#fbbf24" },
+  { domain: "npr.org (米公共ラジオ放送)", count: 22, color: "#38bdf8" },
+  { domain: "pravda.com.ua (ウクライナ・プラウダ)", count: 21, color: "#10b981" },
+  { domain: "snopes.com (ファクトチェック機関)", count: 19, color: "#a855f7" },
+  { domain: "cbc.ca (カナダ公共放送)", count: 18, color: "#38bdf8" },
+  { domain: "ft.com (英フィナンシャル・タイムズ)", count: 15, color: "#fbbf24" }
+];
+
+// ==========================================
+// 1. FORCE-DIRECTED NETWORK GRAPH ENGINE
+// ==========================================
+const canvas = document.getElementById("networkCanvas");
+const ctx = canvas.getContext("2d");
+let width = 800, height = 620;
+
+let activeGroupFilter = "all";
+let edgeThreshold = 12;
+let selectedNodeId = "zelenskyy";
+let hoveredNodeId = null;
+
+// Camera transform
+let camX = 0, camY = 0, camScale = 1;
+let isDraggingNode = false;
+let draggedNode = null;
+let isPanning = false;
+let panStartX = 0, panStartY = 0;
+
+// Initialize node positions in a structured circle/spiral
+const nodes = NODES_DATA.map((n, idx) => {
+  const angle = (idx / NODES_DATA.length) * Math.PI * 2;
+  const dist = n.id === "zelenskyy" ? 0 : (n.count > 200 ? 110 : 210);
+  const r = Math.max(9, Math.min(34, 6 + Math.sqrt(n.count) * 0.72));
+  return {
+    ...n,
+    x: Math.cos(angle) * dist + (Math.random() - 0.5) * 20,
+    y: Math.sin(angle) * dist + (Math.random() - 0.5) * 20,
+    vx: 0,
+    vy: 0,
+    radius: r
+  };
+});
+
+const nodeMap = {};
+nodes.forEach(n => nodeMap[n.id] = n);
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  width = rect.width;
+  height = rect.height;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function stepPhysics() {
+  const activeEdges = EDGES_DATA.filter(e => e.weight >= edgeThreshold);
+
+  // Repulsion between nodes
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const n1 = nodes[i], n2 = nodes[j];
+      let dx = n2.x - n1.x;
+      let dy = n2.y - n1.y;
+      let distSq = dx * dx + dy * dy + 0.1;
+      let dist = Math.sqrt(distSq);
+      const minDist = n1.radius + n2.radius + 28;
+      let force = 1600 / distSq;
+      if (dist < minDist) {
+        force += (minDist - dist) * 0.18;
+      }
+      const fx = (dx / dist) * force;
+      const fy = (dy / dist) * force;
+      n1.vx -= fx;
+      n1.vy -= fy;
+      n2.vx += fx;
+      n2.vy += fy;
+    }
+  }
+
+  // Spring attraction along edges
+  for (const e of activeEdges) {
+    const s = nodeMap[e.source];
+    const t = nodeMap[e.target];
+    if (!s || !t) continue;
+    let dx = t.x - s.x;
+    let dy = t.y - s.y;
+    let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const targetDist = (s.id === "zelenskyy" || t.id === "zelenskyy") ? 155 : 195;
+    const strength = Math.min(0.035, 0.004 + Math.log10(e.weight + 1) * 0.008);
+    const force = (dist - targetDist) * strength;
+    const fx = (dx / dist) * force;
+    const fy = (dy / dist) * force;
+    s.vx += fx;
+    s.vy += fy;
+    t.vx -= fx;
+    t.vy -= fy;
+  }
+
+  // Center gravity + group clustering tendency
+  const groupCenters = {
+    actor: { x: 0, y: -20 },
+    betrayal: { x: -160, y: -110 },
+    retaliation: { x: 160, y: -90 },
+    moral: { x: -130, y: 130 },
+    skeptic: { x: 150, y: 130 }
+  };
+
+  for (const n of nodes) {
+    if (n === draggedNode) continue;
+    if (n.id === "zelenskyy") {
+      n.vx += (0 - n.x) * 0.08;
+      n.vy += (0 - n.y) * 0.08;
+    } else {
+      const gc = groupCenters[n.group] || { x: 0, y: 0 };
+      n.vx += (gc.x - n.x) * 0.012;
+      n.vy += (gc.y - n.y) * 0.012;
+    }
+    n.vx *= 0.82;
+    n.vy *= 0.82;
+    n.x += n.vx;
+    n.y += n.vy;
+  }
+}
+
+function drawNetwork() {
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.translate(width / 2 + camX, height / 2 + camY);
+  ctx.scale(camScale, camScale);
+
+  const activeNodeId = hoveredNodeId || selectedNodeId;
+  const activeEdges = EDGES_DATA.filter(e => e.weight >= edgeThreshold);
+
+  // Determine connected neighbors of activeNodeId
+  const neighborSet = new Set();
+  if (activeNodeId) {
+    neighborSet.add(activeNodeId);
+    activeEdges.forEach(e => {
+      if (e.source === activeNodeId) neighborSet.add(e.target);
+      if (e.target === activeNodeId) neighborSet.add(e.source);
+    });
+  }
+
+  // Draw edges
+  for (const e of activeEdges) {
+    const s = nodeMap[e.source];
+    const t = nodeMap[e.target];
+    if (!s || !t) continue;
+
+    const groupMatch = activeGroupFilter === "all" || s.group === activeGroupFilter || t.group === activeGroupFilter;
+    const isHighlighted = activeNodeId && (e.source === activeNodeId || e.target === activeNodeId);
+
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(t.x, t.y);
+
+    if (isHighlighted) {
+      const col = GROUP_META[nodeMap[activeNodeId].group].color;
+      ctx.strokeStyle = col;
+      ctx.globalAlpha = 0.78;
+      ctx.lineWidth = Math.min(7, 1.2 + Math.log2(e.weight) * 0.85);
+    } else {
+      ctx.strokeStyle = "#475569";
+      ctx.globalAlpha = groupMatch ? 0.22 : 0.05;
+      ctx.lineWidth = Math.min(4, 0.6 + Math.log2(e.weight) * 0.45);
+    }
+    ctx.stroke();
+  }
+
+  // Draw nodes
+  for (const n of nodes) {
+    const meta = GROUP_META[n.group];
+    const groupMatch = activeGroupFilter === "all" || n.group === activeGroupFilter;
+    const isNeighbor = !activeNodeId || neighborSet.has(n.id);
+
+    ctx.globalAlpha = (groupMatch && (isNeighbor || !hoveredNodeId)) ? 1.0 : 0.22;
+
+    // Outer glow for selected or hovered node
+    if (n.id === selectedNodeId || n.id === hoveredNodeId) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius + 6, 0, Math.PI * 2);
+      ctx.fillStyle = meta.color;
+      ctx.globalAlpha = 0.28;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+    }
+
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+    ctx.fillStyle = meta.color;
+    ctx.fill();
+    ctx.lineWidth = (n.id === selectedNodeId) ? 3 : 1.5;
+    ctx.strokeStyle = "#0f172a";
+    ctx.stroke();
+
+    // Node Label
+    const fontSize = Math.max(10, Math.min(15, 9 + n.radius * 0.22));
+    ctx.font = `700 ${fontSize}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const labelY = n.radius > 20 ? n.y : n.y + n.radius + 11;
+    // Text outline for legibility
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = "rgba(7, 11, 20, 0.92)";
+    ctx.strokeText(n.label, n.x, labelY);
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillText(n.label, n.x, labelY);
+  }
+
+  ctx.restore();
+}
+
+function animate() {
+  stepPhysics();
+  drawNetwork();
+  requestAnimationFrame(animate);
+}
+
+// Inspector update
+function updateInspector(nodeId) {
+  const n = nodeMap[nodeId];
+  if (!n) return;
+  selectedNodeId = nodeId;
+  const meta = GROUP_META[n.group];
+  const badge = document.getElementById("inspBadge");
+  badge.textContent = meta.label;
+  badge.style.background = meta.bg;
+  badge.style.color = meta.color;
+
+  document.getElementById("inspWord").textContent = n.label;
+  document.getElementById("inspCount").textContent = `${n.count.toLocaleString()} posts`;
+  document.getElementById("inspCount").style.color = meta.color;
+  document.getElementById("inspDesc").textContent = n.desc;
+
+  const listEl = document.getElementById("inspCoList");
+  listEl.innerHTML = "";
+  const maxCo = n.topCo.length > 0 ? n.topCo[0].count : 1;
+
+  n.topCo.forEach(item => {
+    const targetNode = nodeMap[item.word];
+    const barColor = targetNode ? GROUP_META[targetNode.group].color : meta.color;
+    const pct = Math.max(6, Math.round((item.count / maxCo) * 100));
+    const div = document.createElement("div");
+    div.className = "co-bar-item";
+    div.innerHTML = `
+      <div class="co-bar-header">
+        <span class="co-bar-label">${item.word.charAt(0).toUpperCase() + item.word.slice(1)}</span>
+        <span class="co-bar-val">${item.count}回共起</span>
+      </div>
+      <div class="co-bar-track">
+        <div class="co-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+      </div>
+    `;
+    div.addEventListener("click", () => {
+      if (nodeMap[item.word]) updateInspector(item.word);
+    });
+    listEl.appendChild(div);
+  });
+}
+
+// Canvas Mouse / Touch Interactions
+function screenToWorld(sx, sy) {
+  return {
+    x: (sx - width / 2 - camX) / camScale,
+    y: (sy - height / 2 - camY) / camScale
+  };
+}
+
+function findNodeAt(wx, wy) {
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const n = nodes[i];
+    const dx = wx - n.x, dy = wy - n.y;
+    if (dx * dx + dy * dy <= (n.radius + 4) * (n.radius + 4)) {
+      return n;
+    }
+  }
+  return null;
+}
+
+const tooltip = document.getElementById("globalTooltip");
+
+canvas.addEventListener("mousemove", e => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = e.clientX - rect.left;
+  const sy = e.clientY - rect.top;
+  const wpos = screenToWorld(sx, sy);
+
+  if (isDraggingNode && draggedNode) {
+    draggedNode.x = wpos.x;
+    draggedNode.y = wpos.y;
+    draggedNode.vx = 0;
+    draggedNode.vy = 0;
+    return;
+  }
+
+  if (isPanning) {
+    camX += e.clientX - panStartX;
+    camY += e.clientY - panStartY;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    return;
+  }
+
+  const hit = findNodeAt(wpos.x, wpos.y);
+  if (hit) {
+    hoveredNodeId = hit.id;
+    canvas.style.cursor = "pointer";
+    tooltip.style.opacity = "1";
+    tooltip.style.left = (e.clientX + 14) + "px";
+    tooltip.style.top = (e.clientY + 14) + "px";
+    tooltip.innerHTML = `<strong>${hit.label}</strong> (${hit.count}件)<br><span style="color:#94a3b8;font-size:0.75rem;">クリックで共起詳細を表示</span>`;
+  } else {
+    hoveredNodeId = null;
+    canvas.style.cursor = "grab";
+    tooltip.style.opacity = "0";
+  }
+});
+
+canvas.addEventListener("mousedown", e => {
+  const rect = canvas.getBoundingClientRect();
+  const wpos = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+  const hit = findNodeAt(wpos.x, wpos.y);
+  if (hit) {
+    isDraggingNode = true;
+    draggedNode = hit;
+    updateInspector(hit.id);
+  } else {
+    isPanning = true;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+  }
+});
+
+window.addEventListener("mouseup", () => {
+  isDraggingNode = false;
+  draggedNode = null;
+  isPanning = false;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  hoveredNodeId = null;
+  tooltip.style.opacity = "0";
+});
+
+canvas.addEventListener("wheel", e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  camScale = Math.max(0.45, Math.min(2.6, camScale * factor));
+}, { passive: false });
+
+document.getElementById("btnZoomIn").addEventListener("click", () => {
+  camScale = Math.min(2.6, camScale * 1.2);
+});
+document.getElementById("btnZoomOut").addEventListener("click", () => {
+  camScale = Math.max(0.45, camScale * 0.84);
+});
+document.getElementById("btnResetView").addEventListener("click", () => {
+  camX = 0; camY = 0; camScale = 1;
+});
+
+// Group Filter Buttons
+document.querySelectorAll("[data-group]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-group]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeGroupFilter = btn.getAttribute("data-group");
+  });
+});
+
+// Threshold Slider
+const slider = document.getElementById("edgeThresholdSlider");
+const sliderVal = document.getElementById("edgeThresholdVal");
+slider.addEventListener("input", () => {
+  edgeThreshold = parseInt(slider.value, 10);
+  sliderVal.textContent = edgeThreshold;
+});
+
+// ==========================================
+// 2. CLUSTER MATRIX TABS
+// ==========================================
+function renderClusterDetail(idx) {
+  const c = CLUSTER_DETAILS[idx];
+  const box = document.getElementById("clusterDetailBox");
+  const chainHtml = c.chain.map((w, i) => {
+    const pill = `<span class="chain-pill" style="border-color:${c.color};background:${c.color}22">${w}</span>`;
+    return i < c.chain.length - 1 ? pill + `<span class="chain-arrow">→</span>` : pill;
+  }).join("");
+
+  const quotesHtml = c.quotes.map(q => `
+    <div class="quote-card" style="border-left-color:${c.color}">
+      <div>${q.text}</div>
+      <div class="quote-meta">${q.meta}</div>
+    </div>
+  `).join("");
+
+  box.innerHTML = `
+    <div>
+      <h3 style="font-size:1.15rem;color:#fff;margin-bottom:8px;">${c.title}</h3>
+      <div class="chain-pill-group">${chainHtml}</div>
+      <p style="font-size:0.9rem;color:var(--text-secondary);text-align:justify;">${c.desc}</p>
+    </div>
+    <div>
+      <div class="co-list-title" style="color:${c.color}">象徴的な言説・引用パターン</div>
+      ${quotesHtml}
+    </div>
+  `;
+}
+
+document.querySelectorAll(".cluster-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const idx = parseInt(tab.getAttribute("data-cluster"), 10);
+    document.querySelectorAll(".cluster-tab").forEach(t => {
+      t.classList.remove("active");
+      t.style.borderColor = "var(--border-subtle)";
+    });
+    tab.classList.add("active");
+    tab.style.borderColor = CLUSTER_DETAILS[idx].color;
+    renderClusterDetail(idx);
+  });
+});
+
+// ==========================================
+// 3. SENTIMENT SPECTRUM CHART
+// ==========================================
+function renderSentimentChart(filterCat = "all") {
+  const area = document.getElementById("sentimentChartArea");
+  area.innerHTML = "";
+  const items = SENTIMENT_ITEMS.filter(item => filterCat === "all" || item.cat === filterCat);
+  const maxVal = Math.max(...items.map(i => i.count), 1);
+
+  items.forEach(item => {
+    const pct = Math.max(5, Math.round((item.count / maxVal) * 100));
+    const row = document.createElement("div");
+    row.className = "sentiment-row";
+    row.innerHTML = `
+      <div class="sentiment-word" style="font-size:0.78rem;">${item.word}</div>
+      <div class="sentiment-bar-wrap" title="${item.target}">
+        <div class="sentiment-bar" style="width:${pct}%;background:${item.color}"></div>
+      </div>
+      <div class="sentiment-count">${item.count}回</div>
+    `;
+    area.appendChild(row);
+  });
+}
+
+document.querySelectorAll("[data-sent]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-sent]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderSentimentChart(btn.getAttribute("data-sent"));
+  });
+});
+
+// ==========================================
+// 4. TEMPORAL STREAM SVG CHART
+// ==========================================
+let currentStreamMode = "all";
+
+function renderTimeChart(mode = "all") {
+  const container = document.getElementById("timeChartContainer");
+  const rect = container.getBoundingClientRect();
+  const w = Math.max(420, rect.width - 32);
+  const h = 300;
+  const padL = 38, padR = 16, padT = 18, padB = 42;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  const maxVal = mode === "total"
+    ? Math.max(...HOURLY_DATA.map(d => d.total), 10)
+    : Math.max(...HOURLY_DATA.map(d => Math.max(d.starlink, d.refineries, d.bots_data, d.factcheck)), 10);
+
+  const xStep = plotW / Math.max(1, HOURLY_DATA.length - 1);
+
+  function getPath(key) {
+    return HOURLY_DATA.map((d, i) => {
+      const x = padL + i * xStep;
+      const y = padT + plotH - (d[key] / maxVal) * plotH;
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+  }
+
+  function getArea(key) {
+    const line = getPath(key);
+    const lastX = (padL + (HOURLY_DATA.length - 1) * xStep).toFixed(1);
+    const baseY = (padT + plotH).toFixed(1);
+    return `${line} L${lastX},${baseY} L${padL},${baseY} Z`;
+  }
+
+  let gridHtml = "";
+  for (let i = 0; i <= 4; i++) {
+    const val = Math.round((maxVal / 4) * i);
+    const y = padT + plotH - (i / 4) * plotH;
+    gridHtml += `
+      <line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="rgba(148,163,184,0.14)" stroke-dasharray="3,3"/>
+      <text x="${padL - 6}" y="${y + 4}" fill="#64748b" font-size="10" text-anchor="end">${val}</text>
+    `;
+  }
+
+  let xLabelsHtml = "";
+  HOURLY_DATA.forEach((d, i) => {
+    if (i % 3 === 0 || i === HOURLY_DATA.length - 1) {
+      const x = padL + i * xStep;
+      const shortHr = d.hour.split(" ")[1];
+      xLabelsHtml += `<text x="${x}" y="${h - 12}" fill="#94a3b8" font-size="10" text-anchor="middle">${shortHr}</text>`;
+    }
+  });
+
+  let seriesHtml = "";
+  if (mode === "total") {
+    seriesHtml = `
+      <path d="${getArea('total')}" fill="rgba(56,189,248,0.18)"/>
+      <path d="${getPath('total')}" fill="none" stroke="#38bdf8" stroke-width="2.6"/>
+    `;
+  } else {
+    const seriesList = [
+      { key: "starlink", color: "#f43f5e" },
+      { key: "refineries", color: "#fbbf24" },
+      { key: "bots_data", color: "#38bdf8" },
+      { key: "factcheck", color: "#a855f7" }
+    ];
+    seriesList.forEach(s => {
+      seriesHtml += `
+        <path d="${getArea(s.key)}" fill="${s.color}18"/>
+        <path d="${getPath(s.key)}" fill="none" stroke="${s.color}" stroke-width="2.2"/>
+      `;
+    });
+  }
+
+  // Interactive hover columns
+  let hoverCols = "";
+  HOURLY_DATA.forEach((d, i) => {
+    const x = padL + i * xStep - xStep / 2;
+    hoverCols += `<rect class="time-hover-col" data-idx="${i}" x="${Math.max(padL, x)}" y="${padT}" width="${xStep}" height="${plotH}" fill="transparent" style="cursor:crosshair;"/>`;
+  });
+
+  container.innerHTML = `
+    <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}">
+      ${gridHtml}
+      ${seriesHtml}
+      ${xLabelsHtml}
+      ${hoverCols}
+    </svg>
+  `;
+
+  container.querySelectorAll(".time-hover-col").forEach(col => {
+    col.addEventListener("mousemove", e => {
+      const idx = parseInt(col.getAttribute("data-idx"), 10);
+      const d = HOURLY_DATA[idx];
+      tooltip.style.opacity = "1";
+      tooltip.style.left = (e.clientX + 12) + "px";
+      tooltip.style.top = (e.clientY - 20) + "px";
+      tooltip.innerHTML = `
+        <strong>${d.hour} 台</strong> (総計: ${d.total}件)<br>
+        <span style="color:#f43f5e">● Starlink・裏切り: ${d.starlink}件</span><br>
+        <span style="color:#fbbf24">● 精製所・燃料: ${d.refineries}件</span><br>
+        <span style="color:#38bdf8">● データセンター・ボット: ${d.bots_data}件</span><br>
+        <span style="color:#a855f7">● 検証・懐疑: ${d.factcheck}件</span>
+      `;
+    });
+    col.addEventListener("mouseleave", () => {
+      tooltip.style.opacity = "0";
+    });
+  });
+}
+
+document.querySelectorAll("[data-stream]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-stream]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentStreamMode = btn.getAttribute("data-stream");
+    renderTimeChart(currentStreamMode);
+  });
+});
+
+// ==========================================
+// 5. DOMAIN RANKING BAR CHART
+// ==========================================
+function renderDomainChart() {
+  const area = document.getElementById("domainChartArea");
+  const maxD = DOMAIN_ITEMS[0].count;
+  area.innerHTML = DOMAIN_ITEMS.map(d => {
+    const pct = Math.max(5, Math.round((d.count / maxD) * 100));
+    return `
+      <div class="co-bar-item" style="cursor:default;">
+        <div class="co-bar-header">
+          <span class="co-bar-label">${d.domain}</span>
+          <span class="co-bar-val">${d.count} links</span>
+        </div>
+        <div class="co-bar-track">
+          <div class="co-bar-fill" style="width:${pct}%;background:${d.color}"></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// Initialize Everything
+updateInspector("zelenskyy");
+renderClusterDetail(0);
+renderSentimentChart("all");
+renderTimeChart("all");
+renderDomainChart();
+window.addEventListener("resize", () => renderTimeChart(currentStreamMode));
+animate();
+
+// ==========================================
+// 6. PRODUCTION NOTES (GEMINI 4 ARGON) LOGIC
+// ==========================================
+const RAW_MD_TEXT = `---
+uid: 20261015181605
+title: Gemini 4 ArgonへのBluesky投稿分析依頼
+date: 2026-10-15T18:16:05
+lastmod: 2026-10-15T18:16:05
+description: Gemini 4 ArgonへのBluesky投稿分析依頼のチャットログ
+tags:
+  - Argon
+categories:
+  - AI
+format: チャットログ
+author: "@highants.bsky.social"
+socialImage:
+fmContentType: memo
+---
+## 分析依頼
+
+まずは、2026年10月14日の深夜から15日の夕方にかけて記録された全2,000件の投稿データを俯瞰し、言葉の重力場がどこに形成されているのかを確認してみます。テキスト全体からURLや一般的な機能語を除いて頻出語を抽出すると、最も多く現れるのは「**Zelenskyy**」（1,496回）であり、それに「**Trump**」（819回）、「**Ukraine**」（731回）、「**President**」（426回）、「**Russian**」（263回）、「**Putin**」（258回）、「**Starlink**」（249回）、「**Russia**」（229回）、「**Musk**」（211回）、「**war**」（145回）といった言葉が圧倒的な密度で続いています。この頻度分布がまず如実に示しているのは、人々の興味関心が「**ウクライナとロシアの軍事的衝突**」という国家間・構造間の事象そのものよりも、ゼレンスキー、トランプ、プーチン、そしてイーロン・マスクという強烈な輪郭を持った「**個人の決断と人間模様の相克**」へと強く引き寄せられているという傾向です。「**President Zelenskyy**」（198回）、「**Donald Trump**」（86回）、「**Elon Musk**」（61回）という固有名詞のペアが上位を占め、さらには英国のアンディ・バーナム首相を指す「**Burnham**」（69回）やジャーナリストの「**Piers Morgan**」（57回）が頻出していることからも、人々が複雑な国際政治の力学を、具体的な人物たちの「**善悪や誠実さをめぐる道徳的ドラマ**」として捉え、そこに自らの感情を投影している姿が浮かび上がります。
+
+では、これらの中心的な言葉には、どのような言葉が連なり、どのような意味のネットワークを形作っているのでしょうか。言葉の共起関係を丁寧に紐解いていくと、人々の思考と感情を方向づける大きく三つのクラスター（言葉の連鎖）が見えてきます。
+
+第一の、そして最も強い感情的負荷を伴う連鎖は、「**Zelenskyy**」に「**feels**」と「**betrayed**」（113回）、あるいは名詞形の「**betrayal**」（34回）が連なり、そこに「**Trump**」「**Starlink**」「**access**」（82回）「**restrictions**」（43回）が結びつくクラスターです。ガーディアン紙の報道（データ内で212件のリンクが共有され、最大の情報源となっています）やピアーズ・モーガンによるインタビューなどを起点として拡散されたこの言葉の連なりは、ウクライナ軍の防空やドローン迎撃に不可欠な衛星通信システム（Starlinkおよび軍事用のStarshield）の速度低下・制限や、米国による事前のミサイル攻撃警報（「**intelligence**」62回）の停止疑惑、さらにはトランプ政権によるロシア産ディーゼル燃料の制裁緩和取引（「**diesel**」70回、「**deal**」53回）に対する激しい衝撃を物語っています。ここで特筆すべきは、「**Starlink**」という言葉に「**People will die（人々が死ぬことになる）**」や「**civilian casualties（民間人の犠牲）**」「**death toll（死者数）**」という生々しい言葉が直接連なっている点です。人々の関心は単なる通信技術のトラブルや外交上の駆け引きに向けられているのではなく、一民間企業の経営者や一国の指導者の政治的思惑が、数千キロ離れた戦場や都市で暮らす人々の「**命の綱**」を深夜1時に突然断ち切ってしまうという、現代の安全保障が抱える非対称な暴力性と脆弱性へと向けられています。そこから生まれる感情は、単なる政策への不満を超えた、同盟国による「**背後からの一突き（stabbed in the back）**」に対する強い道義的憤りと、被害を受ける人々への深い悲痛さ（「**heartbroken**」「**sad**」）です。
+
+第二の言葉の連鎖は、そうした理不尽な圧力や裏切りに対する反作用として立ち現れる「**strikes**」（90回）、「**refineries**」（69回）、「**oil**」（60回）、そして「**data centers**」（50回）をめぐるクラスターです。フィナンシャル・タイムズ紙のインタビューでゼレンスキー大統領が語った「**We're done**」「**The block is out**」という決然としたフレーズとともに、米国が求めた3日間のエネルギー停戦（「**energy ceasefire**」）をロシア側が一方的に破って電力網を攻撃したため、ウクライナがロシアの石油精製所への攻撃を再開する（「**resume strikes on Russian oil refineries**」）というニュースが、強い支持と熱量をもって共有されています。ここでは、大国の不当な要求に屈せず自国の生存のために反撃を選ぶ姿勢に対し、「**Enough is enough（もうたくさんだ）**」「**Way to go（よくやった）**」といった承認とカタルシスの感情が強く分布しています。さらに、人々の思考の働きとしてきわめて興味深いのが、「**data**」（86回）「**centers**」（53回）「**Yandex**」「**bots**」という言葉の連なりです。数日前にウクライナがロシアのYandexのデータセンターを攻撃したことで、X（旧Twitter）上の親ロシア派・右派ボットが激減し、それによって自らのプラットフォームの価値や米国の中間選挙（「**midterms**」）に向けた世論工作を邪魔されたマスクとトランプが、報復としてスターリンクを制限したのだという「**因果関係の推論**」が、多くの投稿者の思考を強く捉えています。断片的な複数の出来事（データセンターへの攻撃、SNS上のボットの減少、スターリンクの制限、選挙の接近）をひとつの「**権力者たちの私怨と陰謀の物語**」として一直線に結びつけるこの思考傾向は、人々が混沌とした国際情勢の背後に「**わかりやすい悪意の設計図**」を見出すことで、事態の不条理さに納得感を得ようとする心理的メカニズムを鮮やかに映し出しています。
+
+第三の連鎖は、人物評価とアイデンティティの表明をめぐる感情語のクラスターです。データ内の感情語・評価語の共起関係を分析すると、驚くほど鮮烈な「**道徳的二極化**」が浮かび上がります。ゼレンスキーに対しては「**hero**」（42回）、「**leader**」（66回）、「**courage**」「**smart**」「**honest**」「**proud**」「**love**」といった称賛と敬愛の言葉が一貫して連なり、彼をダウニング街10番地やバッキンガム宮殿で手厚く迎えた英国のバーナム首相やチャールズ国王、カナダのカーニー首相らの姿勢が「**自由世界の良心**」として対比的に称揚されています。その一方で、トランプやマスク、プーチンに対しては「**traitor（裏切り者）**」（複数形含め42回）、「**dictator（独裁者）**」（33回）、「**weak（弱い）**」（21回）、「**Russian asset（ロシアの工作員・資産）**」（20回）、「**treason（反逆罪）**」（12回）、「**evil（邪悪）**」（10回）、「**puppet（傀儡）**」（6回）といった、最も強い拒絶と侮蔑の語彙が集中しています。また、「**jealous（嫉妬している）**」という言葉がトランプとゼレンスキーの共起語として複数回現れているように、トランプの外交姿勢を「**勇敢で世界から尊敬される本物のリーダーに対する、ナルシシストの嫉妬**」として心理学的に解釈しようとする思考も目立ちます。そして、ここに「**We the people**」「**stand with Ukraine**」「**wrong side of history（歴史の誤った側）**」「**shame（恥）**」という言葉が連なることで、多くの米国人ユーザーが「**自国の政権の振る舞いに対する耐えがたい恥辱と罪悪感**」を吐露し、「**トランプは私たちを代表していない**」と宣言することで自らの道徳的潔白とアイデンティティを保とうとする切実な感情の分布が形成されています。
+
+しかし、私はここで自分自身の分析の視座を一度揺さぶり、多角的・両面的な視点からこのデータを見つめ直す必要があると考えます。なぜなら、どれほど強い義憤や連帯の言葉が並んでいたとしても、この2,000件のデータから「**世論一般の普遍的な分布**」をそのまま導き出すことには大きな危うさが伴うからです。第一に、このデータセットは「**Bluesky**」という、X（旧Twitter）やイーロン・マスクの運営方針に強い反発を抱いて移住してきたリベラル層・親ウクライナ層が圧倒的多数を占めるプラットフォームから収集されたものであり、かつ「**Zelenskyy**」というキーワードを軸に切り取られた空間です。したがって、ここで観察される「**ゼレンスキーへの無条件の英雄視**」と「**トランプ・マスクへの激しい憎悪**」は、プラットフォームの特性によって増幅されたエコーチェンバー（共鳴室）の産物という側面を強く持っています。多くの投稿が、ウクライナの人々の苦境に心を寄せているようでいて、その実、3週間後の11月3日に迫った米国の中間選挙（「**vote**」「**midterms**」「**Republicans**」）に向けた国内政治の闘争心やルサンチマンを処理するための「**道徳的な触媒**」としてウクライナ問題を消費しているのではないかという冷徹な視点も、決して手放してはならないでしょう。
+
+さらにデータの細部、すなわち主流の感情の奔流から外れた「**少数の言葉の連なり**」に目を凝らしてみると、エコーチェンバーの熱狂に冷水を浴びせるような、もうひとつの思考の分布が確かに存在していることに気づきます。たとえば、全体の約4%（80件前後）の投稿には、拡散される情報や主流の物語に対する懐疑やファクトチェック、あるいは異なる政治的立場が含まれています。具体的には、多くのユーザーが痛快な事実として語っていた「**ウクライナによるYandexサーバー攻撃がロシアのプロパガンダボットを沈黙させた**」という説に対して、ファクトチェックサイトのSnopesが「**信頼できる証拠を欠いており判定保留（unrated）である**」と報じたリンクが19回共有されています。また、タイムライン上で劇的な共感を呼んでいた「**私たちはアメリカという同盟国を失った（We have lost an ally in America）**」というゼレンスキーの引用句について、「**彼はそんなことは言っていない。複数の発言を繋ぎ合わせた扇動的な意訳（inflammatory paraphrasing）であり、ウクライナのためにならないから拡散をやめろ**」と憤りをもってたしなめる声や、トランプの過激な投稿が実は「**2025年2月19日の古い投稿**」であるにもかかわらず今日の発言であるかのように再流通していることを指摘する冷静な検証の声が存在します。さらには、フランス極右の指導者マリーヌ・ル・ペンによる「**ウクライナへの資金提供はこれ以上続けられない。幻想を抱かせるより今それを伝えるのが誠実さだ**」という支援打ち切り論や、ウクライナ国内の反汚職機関（NABU等）の独立性を弱める法案にゼレンスキーが署名したことを批判する投稿、あるいは「**双方が力を示したのだから、もう戦争を終わらせる時だ。トランプ大統領の判断を支持する**」という声も、ごく僅かながら記録されています。
+
+こうして、圧倒的多数を占める「**裏切りへの義憤と英雄への連帯**」という熱い言葉の奔流と、その周縁に点在する「**事実の歪曲への警鐘や支援の限界論**」という冷めた言葉の断片の両方を並べてみたとき、私が最初に抱いた問いは、より本質的で地に足のついた考察へと姿を変えていきます。私たちがこのデータから本当に読み取るべきなのは、「**人々がどれほどトランプを憎み、ゼレンスキーを支持しているか**」という単純な感情の集計結果ではありません。むしろ、戦争の長期化や大国のエゴイズム、そしてテクノロジーを握る少数の権力者によって人々の命運が弄ばれるという耐えがたい無力感に直面したとき、人間がいかに強く「**善と悪が明確に分かたれ、すべての出来事にわかりやすい理由（ボット農場の報復など）があり、自分たちは歴史の正しい側に立っている**」という完結した物語を求めてしまうか、という集合的心理の構造そのものです。
+
+不正義に対して怒りを覚え、侵略に抗う人々に連帯の言葉を送り、自国の政府の誤りを恥じるという感情の働きは、人間が道徳的な存在である以上、きわめて健全で尊いものです。しかし同時に、その強い感情が言葉と言葉を結びつける接着剤となるとき、人は自らの怒りや正義感を裏付けてくれる都合の良い因果関係（証拠不十分なボット壊滅説など）に飛びつき、文脈から切り取られた劇的な引用句や古い情報を無批判に拡散し、現実に存在する「**欧州における支援疲れの兆候**」や「**ウクライナが直面している外交的・内政的な複雑さ**」といった不都合なノイズを視野から排除してしまいがちです。データの中で、あるフランス語の投稿者がガーディアン紙の記事を引用しながら「**ゼレンスキーがこうした不満を抱くのは当然だが、これまで慎重に控えてきた批判を公にしたのは感情的なものなのか、それとも計算された外交姿勢の転換なのか**」と静かに問いかけていたように、本来、言葉の背後にある現実は、単純な英雄譚や裏切りの物語には回収しきれない多層的な緊張を孕んでいます。
+
+頻出する言葉とそれに連なる言葉のネットワークを分析するという営みは、タイムラインを埋め尽くす感情の渦をただ遠くから冷笑するためのものではなく、またその渦に無自覚に身を任せるためのものでもありません。それは、無数の人々が共有している痛みや義憤の切実さをしっかりと受け止めながらも、「**強い感情を伴う言葉の連鎖ほど、現実の複雑な輪郭を削ぎ落とし、私たちが『見たいもの』『信じたい物語』だけを強化する引力を持っている**」という事実を自覚するための知的な手続きなのだと言えます。ある言葉が別の言葉と強く結びついて私たちの心を揺さぶるとき、その強い光のすぐ隣でどのような事実や問いが影に隠れているのか、そして私たちは感情の消費を超えていかにして現実の重みと誠実に向き合い続けることができるのか、この2,000件の言葉の軌跡はその静かな思索の余白を私たちの前に残しています。
+
+## 分析結果をHTMLで動的なグラフビューを交えたインフォグラフィックページにできますか？
+
+私がいま、先ほど言葉として紡ぎ出した分析結果を、静的な文章のままにとどめず「**動的なグラフビューを交えたHTMLインフォグラフィック**」へと昇華させたいと願った背景には、私自身の思考のさらなる渇望が息づいています。文章というものは、どれほど多角的に言葉を尽くしたとしても、どうしても時間の流れに沿った「**一本の線（リニアな構造）**」としてしか読み手の意識に届きません。しかし、私が対象としている2,000件の投稿データの中で起きている現象は、本来、複数の出来事や無数の感情が同時多発的に絡み合い、互いに引き合い、あるいは反発し合う「**空間的な重力場**」そのものです。私が「**動的なグラフビュー**」を求めたのは、単に見栄えの良い図表を作って理解を効率化したいという表層的な理由からではなく、言葉と言葉が結びつく「**関係のネットワーク**」に自ら触れ、閾値を動かし、視点を切り替えながら、自分の手でデータの構造を揺さぶってみたいという、能動的な思索への衝動が私の内側にあったからなのだと気づかされます。
+
+今回構築したHTMLインフォグラフィックページでは、外部のライブラリやネットワーク環境に依存しない完全自己完結型の設計の中に、物理演算を用いた「**動的共起ワードネットワーク**」を中心に据えています。画面の中央に鎮座する「**Zelenskyy**」（1,496回）という巨大な太陽のようなノードと、それを取り巻く「**Trump**」（819回）、「**Ukraine**」（731回）、「**Putin**」（258回）、「**Starlink**」（249回）、「**Musk**」（211回）といった惑星群が、バネのような引力と斥力のバランスによって動的に配置される様子を眺めていると、文字だけでは実感しきれなかった「**言説の密度と張力**」が視覚的な実感となって迫ってきます。たとえば、スライダーを操作して共起回数の閾値を引き上げていくと、枝葉の言葉が削ぎ落とされ、「**Zelenskyy — Trump — Starlink — Betrayed**」という、同盟国の変節と通信制限に対する激しい義憤の骨格が最後まで太い線として残ることがわかります。逆に閾値を下げてネットワークを広げ、クラスターフィルターを切り替えてみると、「**Refineries（石油精製所）**」や「**Diesel（ディーゼル燃料）**」といった反撃と取引の言葉の群れや、「**Data — Centers — Yandex — Bots**」という、ウクライナによるサーバー攻撃がロシアのボット農場を沈黙させたためにマスクらが報復したのだという「**因果推論のクラスター**」が、主流の骨格にどのように接続されているのかを立体的に辿ることができます。
+
+さらに、任意のノードをクリックすることで右側のインスペクターパネルが連動し、その言葉と最も強く結びついている共起語の上位ランキングが瞬時に描き出される仕組みや、1時間ごとの時系列ストリームチャートによって、2026年10月14日深夜の「**Starlink制限への衝撃と悲嘆**」から、翌15日午後のフィナンシャル・タイムズ紙による「**ロシア石油精製所への攻撃再開宣言（We're done）**」の報道を受けて反撃への喝采が急騰していくまでの感情の波を並べて配置しました。このように、空間的なネットワーク構造と時間的な推移、さらには「**Hero（英雄）**」や「**Leader（指導者）**」といった称賛語と「**Traitor（裏切り者）**」や「**Russian asset（ロシアの工作員）**」といった糾弾語の二極化スペクトラムを一つの画面上で行き来できるようにしたことで、私たちは初めて、個々の投稿の断片に溺れることなく、人々の集合的無意識が描き出す「**物語の全体地図**」を俯瞰する視座を手に入れたと言えます。
+
+けれども、私はここで、自らが望んで作り上げたこの「**視覚化（ビジュアライゼーション）と動的インフォグラフィック**」という手法そのものに対しても、両面的で冷徹な自己批評の目を向けておきたいと考えます。なぜなら、複雑なテキストデータを美しいノードや滑らかな曲線、鮮やかな色彩のチャートへと変換する行為には、理解を助けるという大きな恩恵の裏側に、「**現実の生々しい痛みを、操作可能で心地よい幾何学的パターンへと漂白してしまう危うさ**」が常に潜んでいるからです。画面上で赤いノードとして輝く「**Casualties（死傷者）**」や「**Betrayed（裏切られた）**」という丸い図形をマウスでドラッグして動かすとき、その背後にある「**午前1時に通信が遮断され、防空警報が届かないままミサイルの恐怖に晒される人々の現実の震え**」は、どうしても抽象的な数値やネットワークのトポロジーへと還元されてしまいます。インフォグラフィックが洗練されていればいるほど、私たちは「**世界を俯瞰し、構造を完全に理解した**」という全能感に似た錯覚を抱きやすくなり、データの中にあったはずの言いようのない居心地の悪さや、割り切れない他者の苦しみから安全な距離を取ってしまうことになりかねません。
+
+また、ネットワーク図や棒グラフという表現形式は、必然的に「**数が多いもの（マジョリティの言葉）**」を大きく、太く、中心的に描き出し、「**数が少ないもの（マイノリティの疑問や検証）**」を小さく、細く、周縁へと追いやってしまうという視覚的バイアスを持っています。もし私たちが、ノードの大きさや線の太さだけを頼りにこのインフォグラフィックを眺めるならば、96%を占める「**ゼレンスキーへの英雄視とトランプ・マスクへの憤激**」という圧倒的な重力場の強さばかりに目を奪われ、全体のわずか4%に過ぎない紫色の小さなノード群、すなわち「**Snopesによるボット消滅説への『証拠不十分（unrated）』というファクトチェック**」や、「**『アメリカという同盟国を失った』という劇的な引用句は扇動的な意訳であるという内部からの戒め**」といった細やかな理性の声を、取るに足らないノイズとして見落としてしまうでしょう。
+
+だからこそ私は、このインフォグラフィックを設計するにあたり、数としては圧倒的に少数である「**検証・懐疑・オルタナティブ視座**」を、主流の巨大クラスターと対等な「**第4のクラスター（紫色のカテゴリ）**」として独立させ、ボタンひとつでその小さなノード群だけを浮かび上がらせることができるように仕立てました。私たちが動的なグラフビューを本当に知的な道具として使いこなすとは、大きな塊や太い線の力強さに感嘆することではなく、むしろスライダーやフィルターを自ら操作しながら、「**なぜこの言葉とこの言葉の間にはこれほど太い線が引かれ、逆に本来問われるべきはずの別の言葉との間には線が引かれていないのか**」「**巨大な赤い星や青い星の眩しさの陰で、紫色の小さな星々がどのような警鐘を鳴らしているのか**」を、自らの視覚と理性を総動員して探しに行くことにほかなりません。
+
+言葉の海を文章として読み解くことが「**時間をかけて他者の思考の呼吸に寄り添う営み**」であるならば、動的なインフォグラフィックとして構造を可視化することは「**一歩引いた高みから、私たち自身の認識の偏りや集合的感情の磁場を客観視するための鏡を作る営み**」です。画面の中で揺れ動くノードとエッジの連なりに触れながら、数の大小だけでは測れない言葉の重みと、強い物語が作り出す重力場の光と影の双方に思いを馳せるとき、この一枚の動的なページは、単なるデータの要約を超えた、さらなる深い思索のための静かな実験場として私たちの前に開かれています。
+`;
+
+// Initialize Raw Markdown
+const rawDisplay = document.getElementById("rawMdDisplay");
+if (rawDisplay) {
+  rawDisplay.textContent = RAW_MD_TEXT;
+}
+
+// Tab Switching Logic for Notes
+const tabNotesTurn1 = document.getElementById("tabNotesTurn1");
+const tabNotesTurn2 = document.getElementById("tabNotesTurn2");
+const tabNotesRaw = document.getElementById("tabNotesRaw");
+const notesTurn1Content = document.getElementById("notesTurn1Content");
+const notesTurn2Content = document.getElementById("notesTurn2Content");
+const notesRawContent = document.getElementById("notesRawContent");
+
+function setNotesTab(tab) {
+  [tabNotesTurn1, tabNotesTurn2, tabNotesRaw].forEach(t => t.classList.remove("active"));
+  notesTurn1Content.style.display = "none";
+  notesTurn2Content.style.display = "none";
+  notesRawContent.style.display = "none";
+
+  if (tab === "turn1") {
+    tabNotesTurn1.classList.add("active");
+    notesTurn1Content.style.display = "block";
+  } else if (tab === "turn2") {
+    tabNotesTurn2.classList.add("active");
+    notesTurn2Content.style.display = "block";
+  } else if (tab === "raw") {
+    tabNotesRaw.classList.add("active");
+    notesRawContent.style.display = "block";
+  }
+}
+
+tabNotesTurn1.addEventListener("click", () => setNotesTab("turn1"));
+tabNotesTurn2.addEventListener("click", () => setNotesTab("turn2"));
+tabNotesRaw.addEventListener("click", () => setNotesTab("raw"));
+
+// Copy Markdown Button
+document.getElementById("btnCopyRawMd").addEventListener("click", () => {
+  navigator.clipboard.writeText(RAW_MD_TEXT).then(() => {
+    const btn = document.getElementById("btnCopyRawMd");
+    btn.textContent = "✅ コピーしました！";
+    setTimeout(() => { btn.textContent = "📋 Markdownをコピー"; }, 2000);
+  });
+});
+
+// Modal Logic
+const modalOverlay = document.getElementById("notesModalOverlay");
+const btnHeroOpenNotes = document.getElementById("btnHeroOpenNotes");
+const btnModalTrigger = document.getElementById("btnModalTrigger");
+const btnNotesModalClose = document.getElementById("btnNotesModalClose");
+const modalCloneTarget = document.getElementById("modalCloneTarget");
+
+function openNotesModal() {
+  // Populate modal with rich content
+  modalCloneTarget.innerHTML = `
+    <div class="notes-meta-bar" style="margin-top:0;">
+      <span class="notes-meta-pill"><strong>AI Model:</strong> Gemini 4 Argon</span>
+      <span class="notes-meta-pill"><strong>Date:</strong> 2026-10-15 18:16:05</span>
+      <span class="notes-meta-pill"><strong>UID:</strong> 20261015181605</span>
+      <span class="notes-meta-pill"><strong>Author:</strong> @highants.bsky.social</span>
+    </div>
+    ${notesTurn1Content.innerHTML}
+    ${notesTurn2Content.innerHTML}
+  `;
+  modalOverlay.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeNotesModal() {
+  modalOverlay.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+btnHeroOpenNotes.addEventListener("click", () => {
+  // Smooth scroll to Section 6
+  document.getElementById("productionNotesSection").scrollIntoView({ behavior: "smooth" });
+});
+
+btnModalTrigger.addEventListener("click", openNotesModal);
+btnNotesModalClose.addEventListener("click", closeNotesModal);
+modalOverlay.addEventListener("click", e => {
+  if (e.target === modalOverlay) closeNotesModal();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && modalOverlay.classList.contains("active")) {
+    closeNotesModal();
+  }
+});
+</script>
+
+<!-- FULLSCREEN READER MODAL -->
+<div class="modal-overlay" id="notesModalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-container">
+    <div class="modal-header">
+      <div class="modal-header-title" id="modalTitle">
+        <span>📜</span>
+        <span>制作ノート：Gemini 4 Argon 対話ログ</span>
+        <span style="font-size:0.75rem;padding:2px 8px;border-radius:4px;background:rgba(56,189,248,0.2);color:#38bdf8;font-weight:600;">UID: 20261015181605</span>
+      </div>
+      <button class="modal-close-btn" id="btnNotesModalClose" aria-label="閉じる">✕</button>
+    </div>
+    <div class="modal-content-area" id="modalCloneTarget">
+      <!-- Injected dynamically by JS -->
+    </div>
+  </div>
+</div>
+</body>
+</html>

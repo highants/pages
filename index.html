@@ -208,6 +208,13 @@
       --tag-color: #6d28d9;
     }
 
+    .card[data-theme="discourse"] {
+      --card-accent: #0891b2;
+      /* cyan / discourse & network analysis */
+      --tag-bg: #ecfeff;
+      --tag-color: #0e7490;
+    }
+
     .card-top {
       display: flex;
       align-items: center;
@@ -421,6 +428,38 @@
     </header>
 
     <main class="grid" id="page-grid">
+      <!-- Card: zelenskyy_discourse_infographic.html -->
+      <a href="zelenskyy_discourse_infographic.html" class="card" data-theme="discourse" id="card-discourse">
+        <div class="card-top">
+          <span class="tag">DATA JOURNALISM / NETWORK</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            Interactive Infographic
+          </span>
+        </div>
+        <h2 class="card-title">言説の重力場と集合的感情の解剖学</h2>
+        <div class="card-subtitle">2,000件の投稿データに見る共起ネットワークと物語の構造</div>
+        <p class="card-desc">
+          Bluesky上の投稿データ2,000件を対象に、共起語ネットワーク、物語クラスター、感情の二極化、時系列推移を多角的に動的解析・可視化したインタラクティブ・インフォグラフィック。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            インフォグラフィックを開く
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
       <!-- Card 1: hikari.html -->
       <a href="hikari.html" class="card" data-theme="hikari" id="card-hikari">
         <div class="card-top">
