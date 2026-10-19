@@ -1,3 +1,3 @@
-# testpage
+# pages
 
-来火(@highants.bsky.social)がAIに制作させたナレッジページの目録です。各カードから各ページへアクセスできます。
+来火(@highants.bsky.social)がAIに制作させたWEBページの目録です。各カードから各ページへアクセスできます。
