@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="porcelain" data-font="serif" data-size="medium">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="短編小説『蒼いサロンの茹で上がり』。料亭の生簀に揺らめく蒼い殺菌灯の光と、虚飾に塗れた男の陶酔を描く短編文学閲覧ページ。">
+  <title>蒼いサロンの茹で上がり | 来火</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;600;700;900&family=Shippori+Mincho:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Story System Common Stylesheet -->
+  <link rel="stylesheet" href="story-common.css">
+  <!-- Shared Story Reader Layout & Typography Stylesheet -->
+  <link rel="stylesheet" href="story-reader.css">
+</head>
+
+<body>
+  <!-- Ambient Light Backdrops -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="ambient-crimson-glow" aria-hidden="true"></div>
+  <div class="water-caustics" aria-hidden="true"></div>
+
+  <!-- Unified Fixed Header (リンクボタン・PROPERTIES//SETTINGS・インジケータ・進捗バーを統合) -->
+  <header class="app-header-fixed" id="appHeader" role="banner">
+    <div class="header-inner">
+      <!-- 1. リンクボタン (STORIES // 目録) -->
+      <a href="stories.html" class="nav-back-link" id="btn-back-stories" title="物語目録へ戻る">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>STORIES // 目録</span>
+      </a>
+
+      <!-- 2. PROPERTIES // SETTINGS 統合トリガーボタン -->
+      <button class="header-props-trigger" id="btnToggleFrontmatter" onclick="toggleFrontmatter()" aria-expanded="false"
+        aria-controls="documentFrontmatter" title="プロパティと設定メニューを開閉">
+        <div class="props-trigger-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>PROPERTIES // SETTINGS</span>
+        </div>
+        <div class="props-trigger-state">
+          <span id="frontmatterToggleText">表示</span>
+          <svg class="frontmatter-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </button>
+
+      <!-- 3. インジケータ (システムステータスバッジ) -->
+      <div class="nav-meta-badge" title="システムステータス">
+        <span class="status-pulse" aria-hidden="true"></span>
+        <span class="badge-text">STORY READER</span>
+      </div>
+    </div>
+
+    <!-- 読書進捗インジケータ (固定ヘッダーの下端にぴったり配置) -->
+    <div class="reading-progress-bar" id="readingProgress" aria-hidden="true"></div>
+
+    <!-- PROPERTIES // SETTINGS 統合ドロップダウンパネル -->
+    <div class="header-props-dropdown" id="documentFrontmatter" aria-label="文書プロパティと読書設定">
+      <div class="dropdown-inner">
+        <!-- 統合設定メニュー (THEME / FONT / SIZE) -->
+        <div class="integrated-reader-controls" aria-label="読書設定ツールバー">
+          <div class="control-group">
+            <span class="control-label">THEME:</span>
+            <button class="btn-toggle" id="btn-theme-midnight" onclick="setTheme('midnight')">蒼碧</button>
+            <button class="btn-toggle" id="btn-theme-washi" onclick="setTheme('washi')">和紙</button>
+            <button class="btn-toggle" id="btn-theme-obsidian" onclick="setTheme('obsidian')">漆黒</button>
+            <button class="btn-toggle active" id="btn-theme-porcelain" onclick="setTheme('porcelain')">白磁</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">FONT:</span>
+            <button class="btn-toggle active" id="btn-font-serif" onclick="setFontFamily('serif')">明朝体</button>
+            <button class="btn-toggle" id="btn-font-sans" onclick="setFontFamily('sans')">ゴシック</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">SIZE:</span>
+            <button class="btn-toggle" id="btn-size-small" onclick="setFontSize('small')">小</button>
+            <button class="btn-toggle active" id="btn-size-medium" onclick="setFontSize('medium')">中</button>
+            <button class="btn-toggle" id="btn-size-large" onclick="setFontSize('large')">大</button>
+          </div>
+        </div>
+
+        <!-- 統合プロパティ表示 (Grid / Raw タブ切り替え) -->
+        <div class="frontmatter-body-integrated" id="frontmatterBody">
+          <div class="frontmatter-toolbar">
+            <div class="frontmatter-actions">
+              <button class="tab-pill active" id="btnTabGrid" onclick="switchMetaTab('grid')">Property Grid</button>
+              <button class="tab-pill" id="btnTabRaw" onclick="switchMetaTab('raw')">Raw YAML</button>
+            </div>
+          </div>
+
+          <!-- 1. Grid Visual View -->
+          <div class="spec-grid" id="metaGridView">
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                date
+              </span>
+              <span class="spec-value" id="prop-date">2026-10-17T23:45:28</span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                author
+              </span>
+              <span class="spec-value" id="prop-author">
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                  <span
+                    style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></span>
+                  Gemini 4 Argon
+                </span>
+              </span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                categories
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge category-pill">AI</span>
+                <span class="meta-badge category-pill">物語</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                  </path>
+                </svg>
+                tags
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge">カニ</span>
+              </div>
+            </div>
+
+            <div class="spec-item spec-item-full spec-item-inline">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                description:
+              </span>
+              <span class="spec-value">ライティングシステムによって生成された物語</span>
+            </div>
+
+            <!-- Nested user_settings Property Card -->
+            <div class="user-settings-card">
+              <div class="settings-subhead">
+                <span style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="3"></circle>
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                  </svg>
+                  user_settings:
+                </span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">(Prompt &amp;
+                  Generation
+                  Directives)</span>
+              </div>
+
+              <div class="settings-badges">
+                <div class="setting-badge">
+                  <span class="badge-name">theme:</span>
+                  <span class="badge-val">"生簀の蟹"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">output_format:</span>
+                  <span class="badge-val">"ショートストーリー"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">word_count:</span>
+                  <span class="badge-val">"2000字程度"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">target_audience:</span>
+                  <span class="badge-val">"虚妄に取り憑かれた人間"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">desired_emotion:</span>
+                  <span class="badge-val">"快楽と堕落"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Raw YAML Block View -->
+          <pre class="yaml-raw-view" id="metaRawView"><code><span class="yaml-k">---</span>
+<span class="yaml-k">uid</span>: <span class="yaml-v">20261017234528</span>
+<span class="yaml-k">title</span>: <span class="yaml-s">『蒼いサロンの茹で上がり』</span>
+<span class="yaml-k">date</span>: <span class="yaml-v">2026-10-17T23:45:28</span>
+<span class="yaml-k">lastmod</span>: <span class="yaml-v">2026-10-17T23:45:28</span>
+<span class="yaml-k">description</span>: <span class="yaml-s">ライティングシステムによって生成された物語</span>
+<span class="yaml-k">tags</span>:
+  - <span class="yaml-s">カニ</span>
+<span class="yaml-k">categories</span>:
+  - <span class="yaml-s">AI</span>
+  - <span class="yaml-s">物語</span>
+<span class="yaml-k">format</span>: <span class="yaml-s">チャットログ</span>
+<span class="yaml-k">author</span>:
+  - <span class="yaml-s">Gemini 4 Argon</span>
+<span class="yaml-k">socialImage</span>:
+<span class="yaml-k">fmContentType</span>: <span class="yaml-s">memo</span>
+<span class="yaml-k">---</span>
+
+<span class="yaml-k">user_settings</span>:
+  <span class="yaml-k">theme</span>: <span class="yaml-s">"生簀の蟹"</span>
+  <span class="yaml-k">output_format</span>: <span class="yaml-s">"ショートストーリー"</span>
+  <span class="yaml-k">word_count</span>: <span class="yaml-s">"2000字程度"</span>
+  <span class="yaml-k">target_audience</span>: <span class="yaml-s">"虚妄に取り憑かれた人間"</span>
+  <span class="yaml-k">desired_emotion</span>: <span class="yaml-s">"快楽と堕落"</span></code></pre>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Story Container (本文のみスクロール) -->
+  <div class="app-container">
+    <!-- Story Article -->
+    <article class="story-article">
+      <header class="story-header">
+        <h1 class="story-title">蒼いサロンの茹で上がり</h1>
+        <div class="story-subtitle">The Blue Salon: Poached to Crimson</div>
+
+        <div class="reading-meta">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            読了目安：約4分
+          </span>
+          <span>／</span>
+          <span>約2,150文字</span>
+        </div>
+      </header>
+
+      <!-- Key Epigraph -->
+      <aside class="epigraph-box">
+        <blockquote class="epigraph-quote">
+          彼らのハサミに食い込む黄色い輪ゴムは、野蛮な労働と闘争から解放されたことを示す黄金のカフスボタンであり、口元から零れる白い泡は、処刑台という名のメインステージを待ち焦がれて漏らす甘い溜息のシャンパンだった。
+        </blockquote>
+      </aside>
+
+      <!-- Main Literary Text -->
+      <main class="story-content" id="storyContent">
+        <p class="opening-paragraph">
+          殺菌灯の蒼白い光が満たすアクリル水槽の底で、十数杯の蟹が緩慢なワルツを踊っていた。本来なら暗い日本海の泥を掴むための鋭い歩脚は、磨き上げられた透明な床の上で滑稽なほど軽やかに空転し、どこにも到達しないままカチカチと乾いた音を立てている。
+        </p>
+
+        <p>
+          久我はグラスの氷を指先で揺らしながら、ガラス一枚隔てたその青いサロンを眺めていた。彼の左手首には、限度額まで膨れ上がった三枚のクレジットカードを錬金術のように回して手に入れた、ピンクゴールドの機械式時計が食い込んでいる。その重みは、水槽の蟹たちの巨大なハサミを根元から縛り上げている、あの劣化した黄色い輪ゴムと驚くほどよく似ていた。
+        </p>
+
+        <p class="dialogue">
+          「まだ黒崎先生はお見えになりませんか」
+        </p>
+
+        <p>
+          仲居が静かに頭を下げる。久我は「構わないよ、仕事の構想を練っていたところだ」と、鏡の前で何百回も角度を測った微笑を返した。実態のない新規事業の企画書。架空の取引先。見栄のために借りた都心のオフィス。久我が築き上げた「時代の寵児」という城は、今夜、黒崎から引き出す三千万円の融資がなければ、明日の正午にはただの紙屑へと還元される手筈になっていた。もちろん、黒崎が差し出す金がまっとうな投資であるはずがない。それは久我の会社を闇の資金洗浄の器として買い叩き、最後にはすべての法的責任を久我ひとりに背負わせて沈めるための、前払いの葬儀代だった。
+        </p>
+
+        <p>
+          それでも久我は、この個室から逃げ出そうとは思わなかった。水槽のガラスに額を近づけると、一番手前に陣取った巨大なズワイガニと目が合った。そいつの脚には、特定の漁港で水揚げされたことを証明するプラスチックの青いタグが、誇らしげな勲章のように食い込んでいる。
+        </p>
+
+        <p>
+          久我にはわかった。この蟹たちは、ガラスを割って海へ帰りたいと願っているのではない。誰の目にも触れない深海の冷たい泥の中で、ただ餌を漁り、老いて、名もなき魚の腹に収まるだけの退屈な一生など、彼らはとっくに軽蔑しているのだ。<span
+            class="highlight-moment">彼らのハサミに食い込む黄色い輪ゴムは、野蛮な労働と闘争から解放されたことを示す黄金のカフスボタンであり、口元から零れる白い泡は、処刑台という名のメインステージを待ち焦がれて漏らす甘い溜息のシャンパンだった。</span>
+        </p>
+
+        <p>
+          見ろよ、と久我は心の中で呟いた。奥にいる小ぶりな個体が、少しでもガラスの正面――すなわち客の指先に最も近い「特等席」へ出ようとして、前の個体の甲羅に脚をかけ、そして滑り落ちている。誰もが自分を一番高値で落札されたがっていた。ハサミを封じられ、自力で餌を獲る能力を奪われたからこそ、彼らは「ただそこに存在するだけで数万円の価値がある選ばれた装飾品」へと昇華されたのだ。無力であることと、高貴であることは、この青い水の中では完全に同義だった。
+        </p>
+
+        <div class="scene-divider" aria-hidden="true">❖ ❖ ❖</div>
+
+        <p>
+          襖が滑り、強い香水の匂いとともに黒崎が入ってきた。仕立ての良いスーツの奥で、値踏みするような細い目が光っている。
+        </p>
+
+        <p class="dialogue">
+          「待たせたね、久我君。例の件、条件は呑んでもらえるんだろうね」
+        </p>
+
+        <p class="dialogue">
+          「ええ、もちろんです。私にしか回せないスキームですから」
+        </p>
+
+        <p>
+          久我の舌が、油を差した歯車のように滑らかに嘘を紡ぐ。黒崎は満足そうに頷くと、分厚い契約書を卓上に置き、それから水槽へと歩み寄った。脂ぎった人差し指が、アクリル板をコツ、コツと叩く。
+        </p>
+
+        <p class="dialogue">
+          「今夜はこいつにしよう。一番見栄えが良くて、身の詰まっていそうなやつだ」
+        </p>
+
+        <p>
+          指名されたのは、久我と目を合わせていたあの青いタグの蟹だった。板前がタモ網を水中に差し入れる。その瞬間、久我は息を呑んだ。周囲の蟹たちが水流に驚いて後ずさる中、その一杯だけは、まるでオペラハウスのスポットライトを浴びたプリマドンナのように、縛られた両のハサミを天へ向かって大きく掲げたのだ。
+        </p>
+
+        <p>
+          水飛沫を散らしながら網に掬い上げられた蟹の眼柄が、宙でぐるりと回り、久我の瞳を射抜いた。その黒い複眼には、恐怖のかけらもなかった。そこにあるのは、薄暗い水槽の底に取り残された同胞たちを見下す圧倒的な優越感と、これから自分の身を包み込むであろう沸騰した熱湯への、身震いするような陶酔だった。選ばれなかった者たちはただ冷たい水の中で腐っていくが、選ばれた自分だけは、これから劇的な熱の中で最も鮮やかな朱色に染め上げられ、惜しみない賞賛とともに咀嚼される。
+        </p>
+
+        <p class="dialogue">
+          「さあ、久我君。ここにサインを」
+        </p>
+
+        <p>
+          黒崎が差し出した万年筆の金のペン先が、照明を反射して鈍く光った。これに名前を書けば、久我はもう二度と、何者でもない平凡で安全な日常へは戻れない。黒崎という巨大な胃袋の中で消化されるだけの、期限付きの偶像になる。
+        </p>
+
+        <p>
+          厨房の奥から、大釜の湯が激しく沸き立つ音と、甲殻が焼ける甘く芳醇な匂いが廊下を伝って漂ってきた。死の匂いではなかった。それは、虚妄が本物の熱を帯びて完成する匂いだった。
+        </p>
+
+        <p>
+          久我は自分の両手首に、見えない黄色い輪ゴムがぎゅうっと食い込む快楽を感じていた。指先が甘く痺れ、背骨に沿って熱い泥のような悦びがせり上がってくる。自由などという安っぽい海を泳ぐくらいなら、この息の詰まるほど狭い箱の中で、最高級の値札を下げたまま真っ赤に茹で上がってしまいたい。
+        </p>
+
+        <p>
+          久我は口元から、白い泡のような熱い吐息をひとつ漏らした。そして、網の中で誇らしげに脚を広げていたあの蟹と同じ角度で胸を張り、差し出された契約書の署名欄へ、滑るように万年筆の穂先を突き立てた。
+        </p>
+      </main>
+    </article>
+
+    <!-- Appendix / Creative Insights Accordion -->
+    <aside class="appendix-section">
+      <div class="accordion-card" id="appendixCard">
+        <button class="accordion-header" onclick="toggleAppendix()" aria-expanded="false" aria-controls="appendixBody">
+          <div class="accordion-title-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>付録：創作メモと構造分析（概念の架橋）</span>
+          </div>
+          <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="accordion-body" id="appendixBody">
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 戦略：属性の強制移植</div>
+            <p>
+              「オートクチュールの社交界・待機室」が持つ属性（ベルベットの拘束、スポットライトの熱、指名されることへの嫉妬と陶酔）を抽出し、「料亭の生簀と蟹」へ移植。
+              ハサミを縛る黄色い輪ゴムをカフスボタンに、口元の白い泡をシャンパンの溜息に見立てることで、監禁状態を高貴な特権へと反転させています。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 概念の架橋</div>
+            <p>
+              「ヴェブレンの『誇示的消費（見せびらかしの消費）』および『自己犠牲的メシア願望』」×「高級料亭の個室で行われる破滅的な裏融資の契約」。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 物語構造</div>
+            <p>
+              虚飾の肩書きと借金で塗り固めた男が、パトロンに「食い物にされる契約」を結ぶ夜、個室の生簀にいる蟹と自己を同化させていく。
+              外の過酷で退屈な海（何者でもない現実）へ逃げるより、箱の中で最高級品のタグをつけられ、熱湯の中で鮮やかに染め上げられて消費されることに至上の快楽を見出すまでの堕落を描いています。
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+      <div class="footer-author-box">
+        <div class="author-avatar" style="background: linear-gradient(135deg, #a855f7, #38bdf8);">G4</div>
+        <span>Generated by <strong>Gemini 4 Argon</strong></span>
+        <span>•</span>
+        <span>Curated by 来火 <a class="footer-link" href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+            rel="noopener noreferrer">@highants.bsky.social</a></span>
+      </div>
+      <p style="font-size: 0.74rem; color: var(--text-faint);">
+        Pages Literary Archive // Generated 2026-10-17T23:45:28 (UID: 20261017234528)
+      </p>
+    </footer>
+  </div>
+
+  <!-- Client-side Logic (Shared Story Reader Engine) -->
+  <script src="story-reader.js"></script>
+</body>
+
+</html>

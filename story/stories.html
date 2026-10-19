@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="porcelain">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="来火(@highants.bsky.social)がAIと共に紡ぎ出した短編小説・ショートストーリーの収蔵庫「物語目録」。各物語の世界観や生成設定と共に読書体験を提供します。">
+  <title>物語目録 // STORIES ARCHIVE | 来火</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Story System Common Stylesheet -->
+  <link rel="stylesheet" href="story-common.css">
+
+  <style>
+    /* ==========================================================================
+       Catalog Specific Styles
+       ========================================================================== */
+    .catalog-container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 5.5rem 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    /* Hero Section (スタッツなしの洗練された導入) */
+    .hero-section {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.32rem 0.85rem;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      letter-spacing: 0.04em;
+      margin-bottom: 1.25rem;
+      transition: color 0.3s ease;
+    }
+
+    .hero-badge .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-primary);
+      animation: pulse 2.5s infinite;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+      }
+    }
+
+    .hero-title-group {
+      margin-bottom: 1rem;
+    }
+
+    .hero-title-en {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: 2.75rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text-title);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-lead {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.85;
+      max-width: 860px;
+    }
+
+    .hero-lead a {
+      color: var(--accent-primary);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      transition: var(--transition-smooth);
+    }
+
+    .hero-lead a:hover {
+      opacity: 0.8;
+    }
+
+    /* ==========================================================================
+       Filter & Search Controls
+       ========================================================================== */
+    .catalog-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.25rem;
+    }
+
+    .tag-filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .filter-chip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 0.38rem 0.85rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .filter-chip:hover {
+      color: var(--text-title);
+      border-color: var(--border-hover);
+    }
+
+    .filter-chip.active {
+      background: var(--badge-accent-bg);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 240px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 0.42rem 1rem 0.42rem 2.25rem;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      color: var(--text-title);
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      pointer-events: none;
+    }
+
+    /* Sort Control Actions */
+    .controls-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .sort-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+    }
+
+    .sort-label {
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .sort-label svg {
+      width: 13px;
+      height: 13px;
+      color: var(--text-faint);
+    }
+
+    .sort-btn-group {
+      display: inline-flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 2px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .sort-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .sort-btn:hover {
+      color: var(--text-title);
+    }
+
+    .sort-btn.active {
+      background: var(--badge-accent-bg);
+      color: var(--accent-primary);
+      font-weight: 600;
+      border: 1px solid var(--accent-primary);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ==========================================================================
+       Story Cards Grid
+       ========================================================================== */
+    .stories-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-bottom: 3.5rem;
+    }
+
+    /* Literary Story Card */
+    .story-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition-smooth);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .story-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent-primary) 0%, transparent 100%);
+      opacity: 0.85;
+      transition: var(--transition-smooth);
+    }
+
+    .story-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--card-hover-shadow);
+      transform: translateY(-3px);
+    }
+
+    .story-card:hover::before {
+      width: 6px;
+      opacity: 1;
+    }
+
+    /* Card Top Bar */
+    .story-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .story-serial-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--accent-primary);
+      background: var(--badge-accent-bg);
+      padding: 0.28rem 0.7rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .story-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .meta-point {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .author-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #a855f7;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+    }
+
+    /* Card Title */
+    .story-card-title {
+      font-family: var(--font-serif);
+      font-size: 1.95rem;
+      font-weight: 700;
+      color: var(--text-title);
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+      transition: color 0.25s ease;
+    }
+
+    .story-card:hover .story-card-title {
+      color: var(--accent-primary);
+    }
+
+    /* Key Quote Block in Card */
+    .story-quote-preview {
+      font-family: var(--font-serif);
+      font-size: 0.98rem;
+      line-height: 1.9;
+      color: var(--text-title);
+      padding: 1.1rem 1.4rem;
+      background: var(--bg-surface-elevated);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+      position: relative;
+    }
+
+    .story-quote-preview::before {
+      content: "“";
+      position: absolute;
+      top: -0.2rem;
+      left: 0.4rem;
+      font-size: 2.2rem;
+      color: var(--accent-primary);
+      opacity: 0.3;
+      font-family: serif;
+      pointer-events: none;
+    }
+
+    .story-desc {
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ==========================================================================
+       Metadata Section (tags & user_settings 統合枠)
+       ========================================================================== */
+    .story-meta-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+
+    .meta-group-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+    }
+
+    .meta-box-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      opacity: 0.8;
+      margin: 0.15rem 0;
+    }
+
+    .meta-group-label {
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 120px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .meta-group-label svg {
+      width: 13px;
+      height: 13px;
+      opacity: 0.75;
+      flex-shrink: 0;
+    }
+
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      flex: 1;
+    }
+
+    /* Tag Pill */
+    .meta-pill-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: transparent;
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-primary);
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-sm);
+      transition: var(--transition-smooth);
+    }
+
+    /* Directives / Parameters strip (user_settings) */
+    .directive-tag {
+      background: transparent;
+      border: 1px solid var(--accent-primary);
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: var(--transition-smooth);
+    }
+
+    .directive-tag b {
+      color: var(--text-title);
+      font-weight: 600;
+    }
+
+    /* Card Footer */
+    .story-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-top: 0.5rem;
+      border-top: none;
+    }
+
+    .card-footer-info {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-faint);
+    }
+
+    .read-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--btn-text);
+      background: var(--btn-bg);
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 14px var(--accent-glow);
+      transition: var(--transition-smooth);
+    }
+
+    .story-card:hover .read-action-btn {
+      background: var(--btn-hover);
+      box-shadow: 0 6px 20px var(--accent-glow);
+      transform: translateX(4px);
+    }
+
+    .read-action-btn svg {
+      transition: transform 0.2s ease;
+    }
+
+    .story-card:hover .read-action-btn svg {
+      transform: translateX(3px);
+    }
+
+    /* Upcoming / Slot Card */
+    .upcoming-card {
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1rem;
+      min-height: 220px;
+      position: relative;
+      transition: var(--transition-smooth);
+    }
+
+    .upcoming-card:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-surface-elevated);
+    }
+
+    .upcoming-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-faint);
+    }
+
+    .upcoming-title {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .upcoming-desc {
+      font-size: 0.88rem;
+      color: var(--text-faint);
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    .upcoming-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-full);
+      background: var(--bg-subtle);
+      color: var(--text-faint);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* ==========================================================================
+       Return to Knowledge Index Banner
+       ========================================================================== */
+    .hub-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .hub-banner-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .hub-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+      transition: color 0.3s ease;
+    }
+
+    .hub-banner-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-title);
+      margin-bottom: 0.2rem;
+    }
+
+    .hub-banner-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-title);
+      text-decoration: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      transition: var(--transition-smooth);
+    }
+
+    .hub-btn:hover {
+      border-color: var(--border-hover);
+      color: var(--accent-primary);
+      transform: translateX(2px);
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      padding: 2.25rem 1.5rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: var(--accent-primary);
+    }
+
+    @media (max-width: 768px) {
+      .catalog-container {
+        padding: 4.75rem 1.25rem 3rem;
+      }
+
+      .hero-title {
+        font-size: 2.1rem;
+      }
+
+      .story-card {
+        padding: 1.5rem;
+      }
+
+      .story-card-title {
+        font-size: 1.5rem;
+      }
+
+      .story-quote-preview {
+        font-size: 0.9rem;
+        padding: 0.9rem 1rem;
+      }
+
+      .catalog-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Ambient background glow (Theme-linked) -->
+  <div class="bg-ambient" aria-hidden="true">
+    <div class="ambient-glow-top"></div>
+    <div class="ambient-glow-bottom"></div>
+  </div>
+
+  <!-- Fixed Global Header -->
+  <header class="catalog-header-fixed">
+    <div class="header-inner">
+      <div class="nav-left">
+        <a href="../index.html" class="nav-back-link" title="メインリポジトリへ戻る">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          INDEX / REPOSITORY
+        </a>
+        <div class="nav-breadcrumbs" aria-hidden="true">
+          <span>/</span>
+          <span class="active">STORIES ARCHIVE</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Theme switcher (Midnight / Washi / Obsidian / Porcelain) -->
+        <div class="theme-switcher" role="radiogroup" aria-label="テーマ選択">
+          <button class="theme-btn" data-theme-val="midnight" title="Midnight Theme">
+            <span>蒼碧</span>
+          </button>
+          <button class="theme-btn" data-theme-val="washi" title="Washi Theme">
+            <span>和紙</span>
+          </button>
+          <button class="theme-btn" data-theme-val="obsidian" title="Obsidian Theme">
+            <span>漆黒</span>
+          </button>
+          <button class="theme-btn active" data-theme-val="porcelain" title="Porcelain Theme">
+            <span>白磁</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="catalog-container">
+    <!-- Hero Section (スタッツなしの洗練された導入) -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        <span>STORIES ARCHIVE</span>
+      </div>
+
+      <div class="hero-title-group">
+        <span class="hero-title-en">Synthesized Prose &amp; Formative Prompts</span>
+        <h1 class="hero-title">物語目録</h1>
+      </div>
+
+      <p class="hero-lead">
+        来火（<a href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+          rel="noopener noreferrer">@highants.bsky.social</a>）がプロンプトによって生成AI（Gemini 等）に出力させた物語の収蔵目録です。<br>
+        原本のメタデータ定義と生成時の設定指示（<code>user_settings</code>）のもと、物語作品を展示・公開しています。
+      </p>
+    </section>
+
+    <!-- Filter & Search Controls (原本のtagsに基づくフィルターと投稿日時ソート) -->
+    <section class="catalog-controls">
+      <div class="tag-filters" role="tablist">
+        <button class="filter-chip active" data-filter="all">すべて (ALL)</button>
+        <button class="filter-chip" data-filter="カニ">カニ</button>
+        <button class="filter-chip" data-filter="失恋">失恋</button>
+        <button class="filter-chip" data-filter="ドライポイント">ドライポイント</button>
+        <button class="filter-chip" data-filter="-60ｄｂ">-60ｄｂ</button>
+        <button class="filter-chip" data-filter="旅">旅</button>
+        <button class="filter-chip" data-filter="虚無と冷笑">虚無と冷笑</button>
+        <button class="filter-chip" data-filter="ぜーゲルシャフト">ぜーゲルシャフト</button>
+      </div>
+
+      <div class="controls-actions">
+        <!-- Sort Control (投稿日時順) -->
+        <div class="sort-control">
+          <span class="sort-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m3 16 4 4 4-4"></path>
+              <path d="M7 20V4"></path>
+              <path d="m21 8-4-4-4 4"></path>
+              <path d="M17 4v16"></path>
+            </svg>
+            日時:
+          </span>
+          <div class="sort-btn-group" role="group" aria-label="投稿日時順ソート">
+            <button class="sort-btn active" data-sort="newest" id="btnSortNewest" title="新しい順（最新順）">最新順</button>
+            <button class="sort-btn" data-sort="oldest" id="btnSortOldest" title="古い順">古い順</button>
+          </div>
+        </div>
+
+        <div class="search-box">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="storySearchInput" class="search-input" placeholder="タイトル・キーワードで検索..."
+            aria-label="物語を検索">
+        </div>
+      </div>
+    </section>
+
+    <!-- Story Cards Grid -->
+    <section class="stories-grid" id="storiesGrid">
+      <!-- Story 03: 継ぎ目の脱磁 (原本 20261019185845.md / 20261019185845.html に準拠) -->
+      <a href="20261019185845.html" class="story-card" data-date="2026-10-19T18:58:45"
+        data-tags="AI 物語 虚無と冷笑 ぜーゲルシャフト 旅 現代 ここではない何処かへの望郷の念 継ぎ目の脱磁" id="card-story-seam">
+        <div class="story-card-top">
+          <span class="story-serial-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            STORY // 03
+          </span>
+          <div class="story-meta-row">
+            <span class="meta-point">
+              <span class="author-indicator"></span>
+              Gemini 4 Argon
+            </span>
+            <span class="meta-point">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              2026-10-19
+            </span>
+            <span class="meta-point">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              読了目安 約5分 (約2,550字)
+            </span>
+          </div>
+        </div>
+
+        <h2 class="story-card-title">『継ぎ目の脱磁』</h2>
+
+        <div class="story-quote-preview">
+          僕たちが本当に恋しがっていたのは、地図の上のどこかにある特定の座標ではなく、「まだ自分たちが一度も見たことのない場所が、この世界のどこかに残されている」という途方もない余白そのものなのだ。
+        </div>
+
+        <p class="story-desc">
+          親指一本で地球の裏側まで消費され、冷笑が防具となった時代。地図アプリの継ぎ目に残された「十二年前の待合室と白い砂利道」を見つけた青年が、スマホをアルミホイルで遮蔽し、未知の余白と身体性を取り戻すために北へ向かう旅を描く短編小説。
+        </p>
+
+        <!-- tags と user_settings をまとめた統合メタデータ枠 -->
+        <div class="story-meta-box">
+          <!-- tags -->
+          <div class="meta-group-row">
+            <span class="meta-group-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                </path>
+              </svg>
+              tags:
+            </span>
+            <div class="pill-group">
+              <span class="meta-pill-tag">虚無と冷笑</span>
+              <span class="meta-pill-tag">ぜーゲルシャフト</span>
+              <span class="meta-pill-tag">旅</span>
+            </div>
+          </div>
+
+          <div class="meta-box-divider"></div>
+
+          <!-- user_settings -->
+          <div class="meta-group-row">
+            <span class="meta-group-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
+              user_settings:
+            </span>
+            <div class="pill-group">
+              <span class="directive-tag">theme: <b>"旅"</b></span>
+              <span class="directive-tag">format: <b>"ショートストーリー"</b></span>
+              <span class="directive-tag">word_count: <b>"2000字程度"</b></span>
+              <span class="directive-tag">worldview: <b>"虚無と冷笑が蔓延する現代"</b></span>
+              <span class="directive-tag">emotion: <b>"ここではない何処かへの望郷の念"</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card-footer">
+          <span class="card-footer-info">ライティングシステムプロンプトによって生成された旅の物語</span>
+          <span class="read-action-btn">
+            物語を読む
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Story 02: マイナス六〇デシベルの午後 (原本 20261018182128.md / 20261018182128.html に準拠) -->
+      <a href="20261018182128.html" class="story-card" data-date="2026-10-18T18:21:28"
+        data-tags="AI 物語 失恋 ドライポイント -60ｄｂ 別れ 失恋を経験したことのある大人 切ないが、どこか美しいと感じる静謐な余韻 マイナス六〇デシベルの午後"
+        id="card-story-minus60db">
+        <div class="story-card-top">
+          <span class="story-serial-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            STORY // 02
+          </span>
+          <div class="story-meta-row">
+            <span class="meta-point">
+              <span class="author-indicator"></span>
+              Gemini 4 Argon
+            </span>
+            <span class="meta-point">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              2026-10-18
+            </span>
+            <span class="meta-point">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              読了目安 約4分 (約2,350字)
+            </span>
+          </div>
+        </div>
+
+        <h2 class="story-card-title">『マイナス六〇デシベルの午後』</h2>
+
+        <div class="story-quote-preview">
+          別れという針が私たちの生活に引いた鋭い溝は、銅版画の「めくれ」のように、その傷口の縁にだけ最も濃密な記憶のインクを溜め込んでいた。
+        </div>
+
+        <p class="story-desc">
+          五年間暮らした部屋から布や家具が運び出され、空っぽになった空間に響く鍵の音。近すぎる二人の波形が互いを打ち消し合う「逆位相」に気づいた大人が、建築音響学の残響と銅版画の「めくれ」を通して見出す、不在によって完成する愛の輪郭。
+        </p>
+
+        <!-- tags と user_settings をまとめた統合メタデータ枠 -->
+        <div class="story-meta-box">
+          <!-- tags -->
+          <div class="meta-group-row">
+            <span class="meta-group-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                </path>
+              </svg>
+              tags:
+            </span>
+            <div class="pill-group">
+              <span class="meta-pill-tag">失恋</span>
+              <span class="meta-pill-tag">ドライポイント</span>
+              <span class="meta-pill-tag">-60ｄｂ</span>
+            </div>
+          </div>
+
+          <div class="meta-box-divider"></div>
+
+          <!-- user_settings -->
+          <div class="meta-group-row">
+            <span class="meta-group-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
+              user_settings:
+            </span>
+            <div class="pill-group">
+              <span class="directive-tag">theme: <b>"別れ"</b></span>
+              <span class="directive-tag">format: <b>"ショートストーリー"</b></span>
+              <span class="directive-tag">word_count: <b>"2000字程度"</b></span>
+              <span class="directive-tag">target: <b>"失恋を経験したことのある大人"</b></span>
+              <span class="directive-tag">emotion: <b>"切ないが、どこか美しいと感じる静謐な余韻"</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card-footer">
+          <span class="card-footer-info">ライティングシステムプロンプトによって生成された失恋の物語</span>
+          <span class="read-action-btn">
+            物語を読む
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Story 01: 蒼いサロンの茹で上がり (原本 kani.md / kani.html に準拠) -->
+      <a href="kani.html" class="story-card" data-date="2026-10-17T23:45:28" data-tags="AI 物語 カニ 生簀の蟹 虚妄に取り憑かれた人間 快楽と堕落"
+        id="card-story-kani">
+        <div class="story-card-top">
+          <span class="story-serial-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            STORY // 01
+          </span>
+          <div class="story-meta-row">
+            <span class="meta-point">
+              <span class="author-indicator"></span>
+              Gemini 4 Argon
+            </span>
+            <span class="meta-point">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              2026-10-18
+            </span>
+            <span class="meta-point">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              読了目安 約4分 (約2,150字)
+            </span>
+          </div>
+        </div>
+
+        <h2 class="story-card-title">『蒼いサロンの茹で上がり』</h2>
+
+        <div class="story-quote-preview">
+          彼らのハサミに食い込む黄色い輪ゴムは、野蛮な労働と闘争から解放されたことを示す黄金のカフスボタンであり、口元から零れる白い泡は、処刑台という名のメインステージを待ち焦がれて漏らす甘い溜息のシャンパンだった。
+        </div>
+
+        <p class="story-desc">
+          料亭の薄暗い生簀（いけす）を満たす蒼い殺菌灯の光。虚飾と借金で塗り固められた男・久我と、青いタグを誇らしげに掲げて熱湯へ選ばれゆく蟹の視線が交錯する。自由という名の冷たい泥濘を嫌悪し、最高級の偶像として茹で上がる破滅の陶酔を描いた短編小説。
+        </p>
+
+        <!-- tags と user_settings をまとめた統合メタデータ枠 -->
+        <div class="story-meta-box">
+          <!-- tags -->
+          <div class="meta-group-row">
+            <span class="meta-group-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                </path>
+              </svg>
+              tags:
+            </span>
+            <div class="pill-group">
+              <span class="meta-pill-tag">カニ</span>
+            </div>
+          </div>
+
+          <div class="meta-box-divider"></div>
+
+          <!-- user_settings -->
+          <div class="meta-group-row">
+            <span class="meta-group-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
+              user_settings:
+            </span>
+            <div class="pill-group">
+              <span class="directive-tag">theme: <b>"生簀の蟹"</b></span>
+              <span class="directive-tag">format: <b>"ショートストーリー"</b></span>
+              <span class="directive-tag">word_count: <b>"2000字程度"</b></span>
+              <span class="directive-tag">target: <b>"虚妄に取り憑かれた人間"</b></span>
+              <span class="directive-tag">emotion: <b>"快楽と堕落"</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card-footer">
+          <span class="card-footer-info">ライティングシステムによって生成された物語</span>
+          <span class="read-action-btn">
+            物語を読む
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Upcoming Slot Card (次なる物語スロット) -->
+      <div class="upcoming-card" id="card-upcoming">
+        <div class="upcoming-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+        </div>
+        <div class="upcoming-badge">NEXT CREATION // 構想枠</div>
+        <h3 class="upcoming-title">#04 次なる物語の生成準備中</h3>
+        <p class="upcoming-desc">
+          新たなプロンプトディレクティブと審美眼による短編作品を執筆・準備中です。制作が完了次第、本目録へと追加されます。
+        </p>
+      </div>
+    </section>
+
+    <!-- Return to Knowledge Index Banner -->
+    <section class="hub-banner" aria-label="メインポータルへの案内">
+      <div class="hub-banner-info">
+        <div class="hub-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+          </svg>
+        </div>
+        <div>
+          <div class="hub-banner-title">メインリポジトリ（ページ目録）へ</div>
+          <div class="hub-banner-desc">WEBページ一覧</div>
+        </div>
+      </div>
+      <a href="../index.html" class="hub-btn">
+        ページ目録を開く
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 来火 (@highants.bsky.social) // STORIES ARCHIVE. All rights reserved.</p>
+  </footer>
+
+  <!-- Interactive Search & Theme Logic -->
+  <script>
+    (function () {
+      // 1. Theme Switcher Logic
+      const themeBtns = document.querySelectorAll('.theme-btn');
+      const htmlEl = document.documentElement;
+
+      // Restore saved theme or default to porcelain (標準: 白磁)
+      const urlTheme = new URLSearchParams(window.location.search).get('theme');
+      const savedTheme = urlTheme || localStorage.getItem('story_theme') || localStorage.getItem('story_catalog_theme') || 'porcelain';
+      setTheme(savedTheme);
+
+      themeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = btn.getAttribute('data-theme-val');
+          setTheme(t);
+        });
+      });
+
+      function setTheme(theme) {
+        htmlEl.setAttribute('data-theme', theme);
+        try {
+          localStorage.setItem('story_theme', theme);
+          localStorage.setItem('story_catalog_theme', theme);
+        } catch (e) {
+          console.warn('localStorage access failed:', e);
+        }
+        themeBtns.forEach(b => {
+          if (b.getAttribute('data-theme-val') === theme) {
+            b.classList.add('active');
+          } else {
+            b.classList.remove('active');
+          }
+        });
+
+        // Automatically pass chosen theme to all story reading links
+        updateStoryLinks(theme);
+      }
+
+      function updateStoryLinks(theme) {
+        document.querySelectorAll('.story-card').forEach(a => {
+          const baseHref = a.getAttribute('href').split('?')[0];
+          a.setAttribute('href', `${baseHref}?theme=${encodeURIComponent(theme)}`);
+        });
+      }
+
+      // 2. Filter Chips Logic
+      const filterChips = document.querySelectorAll('.filter-chip');
+      const searchInput = document.getElementById('storySearchInput');
+      let currentFilter = 'all';
+
+      filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          filterChips.forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          currentFilter = chip.getAttribute('data-filter');
+          applyFilters();
+        });
+      });
+
+      // 3. Search Logic
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          applyFilters();
+        });
+      }
+
+      // 4. Sort Stories by Date Logic (投稿日時順ソート: デフォルト newest)
+      const sortBtns = document.querySelectorAll('.sort-btn');
+      const storiesGrid = document.getElementById('storiesGrid');
+      const upcomingCard = document.getElementById('card-upcoming');
+      let currentSort = 'newest';
+
+      function sortStories(sortOrder) {
+        currentSort = sortOrder;
+        const cards = Array.from(document.querySelectorAll('.story-card'));
+
+        cards.sort((a, b) => {
+          const dateA = a.getAttribute('data-date') || '';
+          const dateB = b.getAttribute('data-date') || '';
+          if (sortOrder === 'newest') {
+            return dateB.localeCompare(dateA);
+          } else {
+            return dateA.localeCompare(dateB);
+          }
+        });
+
+        // DOM再配置（upcomingCardの直前に挿入）
+        cards.forEach(card => {
+          storiesGrid.insertBefore(card, upcomingCard);
+        });
+
+        // ボタンのハイライト更新
+        sortBtns.forEach(btn => {
+          if (btn.getAttribute('data-sort') === sortOrder) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+
+      sortBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sortVal = btn.getAttribute('data-sort');
+          sortStories(sortVal);
+          applyFilters();
+        });
+      });
+
+      function applyFilters() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const storyCards = document.querySelectorAll('.story-card');
+
+        storyCards.forEach(card => {
+          const tags = card.getAttribute('data-tags') || '';
+          const cardText = card.innerText.toLowerCase();
+
+          const matchesTag = (currentFilter === 'all') || tags.includes(currentFilter);
+          const matchesQuery = !query || cardText.includes(query);
+
+          if (matchesTag && matchesQuery) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      // ページ読み込み時にデフォルトで最新順（降順）にソート
+      sortStories('newest');
+    })();
+  </script>
+</body>
+
+</html>

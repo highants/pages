@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="porcelain" data-font="serif" data-size="medium">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="短編小説『マイナス六〇デシベルの午後』。同棲を解消し、家具が消えた部屋で響く鍵の音。建築音響学の「残響時間」と銅版画の「めくれ」を通して描かれる、静謐で美しい別れの物語。">
+  <title>マイナス六〇デシベルの午後 | 来火</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;600;700;900&family=Shippori+Mincho:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Story System Common Stylesheet -->
+  <link rel="stylesheet" href="story-common.css">
+  <!-- Shared Story Reader Layout & Typography Stylesheet -->
+  <link rel="stylesheet" href="story-reader.css">
+</head>
+
+<body>
+  <!-- Ambient Light Backdrops -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="ambient-crimson-glow" aria-hidden="true"></div>
+  <div class="water-caustics" aria-hidden="true"></div>
+
+  <!-- Unified Fixed Header -->
+  <header class="app-header-fixed" id="appHeader" role="banner">
+    <div class="header-inner">
+      <!-- 1. リンクボタン (STORIES // 目録) -->
+      <a href="stories.html" class="nav-back-link" id="btn-back-stories" title="物語目録へ戻る">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>STORIES // 目録</span>
+      </a>
+
+      <!-- 2. PROPERTIES // SETTINGS 統合トリガーボタン -->
+      <button class="header-props-trigger" id="btnToggleFrontmatter" onclick="toggleFrontmatter()" aria-expanded="false"
+        aria-controls="documentFrontmatter" title="プロパティと設定メニューを開閉">
+        <div class="props-trigger-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>PROPERTIES // SETTINGS</span>
+        </div>
+        <div class="props-trigger-state">
+          <span id="frontmatterToggleText">表示</span>
+          <svg class="frontmatter-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </button>
+
+      <!-- 3. インジケータ (システムステータスバッジ) -->
+      <div class="nav-meta-badge" title="システムステータス">
+        <span class="status-pulse" aria-hidden="true"></span>
+        <span class="badge-text">STORY READER</span>
+      </div>
+    </div>
+
+    <!-- 読書進捗インジケータ -->
+    <div class="reading-progress-bar" id="readingProgress" aria-hidden="true"></div>
+
+    <!-- PROPERTIES // SETTINGS 統合ドロップダウンパネル -->
+    <div class="header-props-dropdown" id="documentFrontmatter" aria-label="文書プロパティと読書設定">
+      <div class="dropdown-inner">
+        <!-- 統合設定メニュー (THEME / FONT / SIZE) -->
+        <div class="integrated-reader-controls" aria-label="読書設定ツールバー">
+          <div class="control-group">
+            <span class="control-label">THEME:</span>
+            <button class="btn-toggle" id="btn-theme-midnight" onclick="setTheme('midnight')">蒼碧</button>
+            <button class="btn-toggle" id="btn-theme-washi" onclick="setTheme('washi')">和紙</button>
+            <button class="btn-toggle" id="btn-theme-obsidian" onclick="setTheme('obsidian')">漆黒</button>
+            <button class="btn-toggle active" id="btn-theme-porcelain" onclick="setTheme('porcelain')">白磁</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">FONT:</span>
+            <button class="btn-toggle active" id="btn-font-serif" onclick="setFontFamily('serif')">明朝体</button>
+            <button class="btn-toggle" id="btn-font-sans" onclick="setFontFamily('sans')">ゴシック</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">SIZE:</span>
+            <button class="btn-toggle" id="btn-size-small" onclick="setFontSize('small')">小</button>
+            <button class="btn-toggle active" id="btn-size-medium" onclick="setFontSize('medium')">中</button>
+            <button class="btn-toggle" id="btn-size-large" onclick="setFontSize('large')">大</button>
+          </div>
+        </div>
+
+        <!-- 統合プロパティ表示 (Grid / Raw タブ切り替え) -->
+        <div class="frontmatter-body-integrated" id="frontmatterBody">
+          <div class="frontmatter-toolbar">
+            <div class="frontmatter-actions">
+              <button class="tab-pill active" id="btnTabGrid" onclick="switchMetaTab('grid')">Property Grid</button>
+              <button class="tab-pill" id="btnTabRaw" onclick="switchMetaTab('raw')">Raw YAML</button>
+            </div>
+          </div>
+
+          <!-- 1. Grid Visual View -->
+          <div class="spec-grid" id="metaGridView">
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                date
+              </span>
+              <span class="spec-value" id="prop-date">2026-10-18T18:21:28</span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                author
+              </span>
+              <span class="spec-value" id="prop-author">
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                  <span
+                    style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></span>
+                  Gemini 4 Argon
+                </span>
+              </span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                categories
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge category-pill">AI</span>
+                <span class="meta-badge category-pill">物語</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                  </path>
+                </svg>
+                tags
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge">失恋</span>
+                <span class="meta-badge">ドライポイント</span>
+                <span class="meta-badge">-60ｄｂ</span>
+              </div>
+            </div>
+
+            <div class="spec-item spec-item-full spec-item-inline">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                description:
+              </span>
+              <span class="spec-value">ライティングシステムプロンプトによって生成された失恋の物語</span>
+            </div>
+
+            <!-- Nested user_settings Property Card -->
+            <div class="user-settings-card">
+              <div class="settings-subhead">
+                <span style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="3"></circle>
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                  </svg>
+                  user_settings:
+                </span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">(Prompt &amp; Generation Directives)</span>
+              </div>
+
+              <div class="settings-badges">
+                <div class="setting-badge">
+                  <span class="badge-name">theme:</span>
+                  <span class="badge-val">"別れ"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">output_format:</span>
+                  <span class="badge-val">"ショートストーリー"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">word_count:</span>
+                  <span class="badge-val">"2000字程度"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">target_audience:</span>
+                  <span class="badge-val">"失恋を経験したことのある大人"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">desired_emotion:</span>
+                  <span class="badge-val">"切ないが、どこか美しいと感じる静謐な余韻"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Raw YAML Block View -->
+          <pre class="yaml-raw-view" id="metaRawView"><code><span class="yaml-k">---</span>
+<span class="yaml-k">uid</span>: <span class="yaml-v">20261018182128</span>
+<span class="yaml-k">title</span>: <span class="yaml-s">『マイナス六〇デシベルの午後』</span>
+<span class="yaml-k">date</span>: <span class="yaml-v">2026-10-18T18:21:28</span>
+<span class="yaml-k">lastmod</span>: <span class="yaml-v">2026-10-18T18:21:28</span>
+<span class="yaml-k">description</span>: <span class="yaml-s">ライティングシステムプロンプトによって生成された失恋の物語</span>
+<span class="yaml-k">tags</span>:
+  - <span class="yaml-s">失恋</span>
+  - <span class="yaml-s">ドライポイント</span>
+  - <span class="yaml-s">-60ｄｂ</span>
+<span class="yaml-k">categories</span>:
+  - <span class="yaml-s">AI</span>
+  - <span class="yaml-s">物語</span>
+<span class="yaml-k">format</span>: <span class="yaml-s">チャットログ</span>
+<span class="yaml-k">author</span>:
+  - <span class="yaml-s">Gemini 4 Argon</span>
+<span class="yaml-k">socialImage</span>:
+<span class="yaml-k">fmContentType</span>: <span class="yaml-s">memo</span>
+<span class="yaml-k">---</span>
+
+<span class="yaml-k">user_settings</span>:
+  <span class="yaml-k">theme</span>: <span class="yaml-s">"別れ"</span>
+  <span class="yaml-k">output_format</span>: <span class="yaml-s">"ショートストーリー"</span>
+  <span class="yaml-k">word_count</span>: <span class="yaml-s">"2000字程度"</span>
+  <span class="yaml-k">target_audience</span>: <span class="yaml-s">"失恋を経験したことのある大人"</span>
+  <span class="yaml-k">desired_emotion</span>: <span class="yaml-s">"切ないが、どこか美しいと感じる静謐な余韻"</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Story Container -->
+  <div class="app-container">
+    <!-- Story Article -->
+    <article class="story-article">
+      <header class="story-header">
+        <h1 class="story-title">マイナス六〇デシベルの午後</h1>
+        <div class="story-subtitle">Minus 60 Decibels in the Afternoon: The Reverberation of Departure</div>
+
+        <div class="reading-meta">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            読了目安：約4分
+          </span>
+          <span>／</span>
+          <span>約2,350文字</span>
+        </div>
+      </header>
+
+      <!-- Key Epigraph -->
+      <aside class="epigraph-box">
+        <blockquote class="epigraph-quote">
+          別れという針が私たちの生活に引いた鋭い溝は、銅版画の「めくれ」のように、その傷口の縁にだけ最も濃密な記憶のインクを溜め込んでいた。
+        </blockquote>
+      </aside>
+
+      <!-- Main Literary Text -->
+      <main class="story-content" id="storyContent">
+        <p class="opening-paragraph">
+          部屋から布という布が運び出された瞬間、空気の密度が変わったことに気づいた。五年間、私たちの会話を吸い込み、生活の角を丸めていたカーテンやソファ、厚手のラグが引っ越し業者のトラックへと消えていくにつれ、十一月の乾いた午後の光が、剥き出しになったフローリングの床に硬い反射を作り始めた。靴下越しに伝わる床板の冷たさが、ここがもう私たちの巣ではなく、ただの四角いコンクリートの箱に戻りつつあることを静かに告げていた。
+        </p>
+
+        <p class="dialogue">
+          「ずいぶん響くようになったね」
+        </p>
+
+        <p>
+          窓際に立った彼が、ぽつりと言った。その声は、昨日の夜まで同じ部屋で聞いていた声とは別の楽器のように、白い壁紙にぶつかって微かな尾を引いた。
+        </p>
+
+        <p>
+          ホールの音響設計を仕事にしている彼は、かつてこの部屋に越してきた日、最初に空っぽの部屋の中央で手を叩いて音の跳ね返りを確かめていた。それから季節が巡り、家具が増え、本棚が埋まり、互いの衣類がクローゼットを満たしていくにつれて、部屋の残響は少しずつ短く、柔らかいものになっていった。それは私たちが積み重ねた親密さの証拠であると同時に、いつしか互いの発する固有の音を吸い尽くし、どんな言葉も曖昧なぬるま湯の中に溶かしてしまう吸音材でもあったのだと思う。
+        </p>
+
+        <p>
+          私たちの別れには、皿の割れるような鋭い破裂音も、誰かを責める激しい不協和音もなかった。ただ、二つの近すぎる音源が互いの波形を打ち消し合う「逆位相」のように、一緒にいればいるほど互いの輪郭が薄れ、言葉を飲み込む回数が増えていったのだ。相手を傷つけないために選んだ優しい沈黙が、目に見えない塵のように積もって部屋の酸素を薄くしていく。ある秋の夜、どちらからともなく「離れようか」と口にしたとき、悲しみよりも先に、張り詰めていた弦がふっと緩むような静かな安堵が訪れたのを、私は忘れることができない。嫌いになって終わるよりも、まだ相手のことを美しいと思えるうちに手を離すほうが、ずっと残酷で、ずっと誠実だった。
+        </p>
+
+        <div class="scene-divider" aria-hidden="true">❖ ❖ ❖</div>
+
+        <p>
+          私は床にしゃがみ込み、先ほどまでソファが置かれていた場所を指先でなぞった。そこには、五年間分の二人の重みを受け止めてきた四つの窪みが、小さなクレーターのように残っていた。
+        </p>
+
+        <p>
+          版画の技法に「ドライポイント」というものがある。銅板を鋭い針で直接引っ掻いて溝を彫るとき、その溝の両側に、めくれ上がった微細な金属のささくれが立ち上がる。インクを最も深く、濃密に抱き込むのは、彫られた溝そのものではなく、傷口の縁に立ち上がったその「めくれ」なのだという。
+        </p>
+
+        <p>
+          今の私の心は、まさにその原版によく似ていた。<span class="highlight-moment">別れという針が私たちの生活に引いた鋭い溝は、銅版画の「めくれ」のように、その傷口の縁にだけ最も濃密な記憶のインクを溜め込んでいた。</span>彼が淹れてくれた朝の珈琲の湯気の匂い。雨の日に彼の左肩だけが濡れていたウールのコートの感触。夜更けに隣でページをめくる指先の乾いた音。それらは、一緒にいた頃には意識さえしなかった微細な突起だ。これから時間という重いローラーが私の上を何度も通過し、この痛みのささくれを平らに摩耗させていったとしても、別れの直後の今この瞬間にだけ刷り上がる、ベルベットのように深く滲んだ翳（かげ）りは、生涯に一枚きりの印画として私の奥底に残り続けるのだろう。
+        </p>
+
+        <p class="dialogue">
+          「これ、置いていくよ」
+        </p>
+
+        <p>
+          彼がキッチンのカウンターに、銀色の小さな合鍵を置いた。
+        </p>
+
+        <p>
+          金属が人工大理石に触れる『チリ、』という澄んだ高音が、空っぽの部屋の隅々まで驚くほど遠くへ広がっていった。
+        </p>
+
+        <p>
+          音響学において「残響時間」とは、音源が停止してから、音が完全に減衰してマイナス六〇デシベルの静寂に至るまでの時間を指すのだと、いつか彼が教えてくれたことがある。音が鳴り響いている最中には、残響の本当の長さも、その空間の本当の広さも測ることはできない。音源が完全に止み、誰もいなくなった瞬間に初めて、そこがいかに深く豊かな空間であったかが、消えゆく音の尾によって証明されるのだ。
+        </p>
+
+        <p>
+          彼は玄関の扉の前で一度だけ私を振り返り、何か言いかけて、けれど最後にはただ静かに目元を緩めて頷いた。「元気で」という言葉すら、今のこの部屋の音響には過剰すぎることを、彼もまた知っていた。
+        </p>
+
+        <p>
+          扉が閉まり、廊下を遠ざかる足音がエレベーターの駆動音に吸い込まれて消えたあとも、私はしばらくその場から動けずにいた。西日の差し込む空っぽの部屋の壁には、外された額縁の跡だけが、周囲より少し白い長方形の「不在」として鮮やかに浮かび上がっている。
+        </p>
+
+        <p>
+          私は深く息を吸い込み、自分の胸の裡（うち）でまだ微かに震えている、マイナス六〇デシベルへと向かう長い残響に耳を澄ませた。それはどんな愛の言葉よりも澄み切った、私たち二人の最後の音楽だった。
+        </p>
+      </main>
+    </article>
+
+    <!-- Appendix / Creative Insights Accordion -->
+    <aside class="appendix-section">
+      <div class="accordion-card" id="appendixCard">
+        <button class="accordion-header" onclick="toggleAppendix()" aria-expanded="false" aria-controls="appendixBody">
+          <div class="accordion-title-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>付録：創作メモと構造分析（概念の架橋）</span>
+          </div>
+          <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="accordion-body" id="appendixBody">
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 戦略①：ネガティブ・スペースからの定義（「別れ」が存在しない世界）</div>
+            <p>
+              1. <strong>境界なき永続的同化の世界</strong>：二つの個体が決して離れず混ざり合い続ける世界では「独立した美しい他者として眺める視点」が失われる。<br>
+              2. <strong>琥珀の中に停止した世界</strong>：最も幸福な瞬間のまま標本のように固定された世界では「失われる予感ゆえの煌めき」が失われる。<br>
+              3. <strong>無摩擦の消去の世界</strong>：記憶や痕跡が最初からなかったかのように消える世界では「欠落の造形美（痛みを通じた生の輪郭）」が失われる。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 戦略②：直交ベクトル探索（建築音響学 × 銅版画技法）</div>
+            <p>
+              ・<strong>残響時間（Reverberation Time）の設計</strong>：音が止んだ後に初めて空間の広さを浮かび上がらせる「マイナス60dBへの減衰」。<br>
+              ・<strong>吸音材としての親密さ</strong>：部屋に増えていった布製品や日用品が、互いの声を吸い込む吸音材として機能していた。<br>
+              ・<strong>逆位相（Phase Cancellation）による消音</strong>：近すぎる距離と深すぎる理解が波形を打ち消し合っていた状態からの解放。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 戦略③：属性の強制移植（銅版画ドライポイントの「めくれ」）</div>
+            <p>
+              銅板を針で彫る際、溝の両側に盛り上がる微細なささくれ（バー／Burr）が最も深くインクを抱き込むように、別れの針が引いた傷口の縁にだけ最も濃密な記憶のインクが溜まるという比喩。時間というローラーが突起を摩耗させても、最初の印画の滲みは胸の裡に残る。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 戦略④：概念の架橋（物語構造）</div>
+            <p>
+              「建築音響学における残響測定」×「同棲解消の最後の午後」。諍いや憎しみではなく、近すぎる距離ゆえに逆位相となった大人二人が部屋を引き払う最後の数十分。家具（吸音材）が消えた部屋で、床の窪み（版画原版）と合鍵の澄んだ残響を通して、不在によって完成する愛の輪郭を描き出しています。
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+      <div class="footer-author-box">
+        <div class="author-avatar" style="background: linear-gradient(135deg, #a855f7, #38bdf8);">G4</div>
+        <span>Generated by <strong>Gemini 4 Argon</strong></span>
+        <span>•</span>
+        <span>Curated by 来火 <a class="footer-link" href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+            rel="noopener noreferrer">@highants.bsky.social</a></span>
+      </div>
+      <p style="font-size: 0.74rem; color: var(--text-faint);">
+        Pages Literary Archive // Generated 2026-10-18T18:21:28 (UID: 20261018182128)
+      </p>
+    </footer>
+  </div>
+
+  <!-- Client-side Logic (Shared Story Reader Engine) -->
+  <script src="story-reader.js"></script>
+</body>
+
+</html>

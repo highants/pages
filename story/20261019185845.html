@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="porcelain" data-font="serif" data-size="medium">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="短編小説『継ぎ目の脱磁』。冷笑と最適化が支配する現代、地図アプリの「継ぎ目のバグ」に残された青いトタン屋根と白い砂利道に導かれ、未知の余白と身体性を取り戻す旅を描く短編文学。">
+  <title>継ぎ目の脱磁 | 来火</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;600;700;900&family=Shippori+Mincho:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Story System Common Stylesheet -->
+  <link rel="stylesheet" href="story-common.css">
+  <!-- Shared Story Reader Layout & Typography Stylesheet -->
+  <link rel="stylesheet" href="story-reader.css">
+</head>
+
+<body>
+  <!-- Ambient Light Backdrops -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="ambient-crimson-glow" aria-hidden="true"></div>
+  <div class="water-caustics" aria-hidden="true"></div>
+
+  <!-- Unified Fixed Header -->
+  <header class="app-header-fixed" id="appHeader" role="banner">
+    <div class="header-inner">
+      <!-- 1. リンクボタン (STORIES // 目録) -->
+      <a href="stories.html" class="nav-back-link" id="btn-back-stories" title="物語目録へ戻る">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>STORIES // 目録</span>
+      </a>
+
+      <!-- 2. PROPERTIES // SETTINGS 統合トリガーボタン -->
+      <button class="header-props-trigger" id="btnToggleFrontmatter" onclick="toggleFrontmatter()" aria-expanded="false"
+        aria-controls="documentFrontmatter" title="プロパティと設定メニューを開閉">
+        <div class="props-trigger-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>PROPERTIES // SETTINGS</span>
+        </div>
+        <div class="props-trigger-state">
+          <span id="frontmatterToggleText">表示</span>
+          <svg class="frontmatter-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </button>
+
+      <!-- 3. インジケータ (システムステータスバッジ) -->
+      <div class="nav-meta-badge" title="システムステータス">
+        <span class="status-pulse" aria-hidden="true"></span>
+        <span class="badge-text">STORY READER</span>
+      </div>
+    </div>
+
+    <!-- 読書進捗インジケータ -->
+    <div class="reading-progress-bar" id="readingProgress" aria-hidden="true"></div>
+
+    <!-- PROPERTIES // SETTINGS 統合ドロップダウンパネル -->
+    <div class="header-props-dropdown" id="documentFrontmatter" aria-label="文書プロパティと読書設定">
+      <div class="dropdown-inner">
+        <!-- 統合設定メニュー (THEME / FONT / SIZE) -->
+        <div class="integrated-reader-controls" aria-label="読書設定ツールバー">
+          <div class="control-group">
+            <span class="control-label">THEME:</span>
+            <button class="btn-toggle" id="btn-theme-midnight" onclick="setTheme('midnight')">蒼碧</button>
+            <button class="btn-toggle" id="btn-theme-washi" onclick="setTheme('washi')">和紙</button>
+            <button class="btn-toggle" id="btn-theme-obsidian" onclick="setTheme('obsidian')">漆黒</button>
+            <button class="btn-toggle active" id="btn-theme-porcelain" onclick="setTheme('porcelain')">白磁</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">FONT:</span>
+            <button class="btn-toggle active" id="btn-font-serif" onclick="setFontFamily('serif')">明朝体</button>
+            <button class="btn-toggle" id="btn-font-sans" onclick="setFontFamily('sans')">ゴシック</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">SIZE:</span>
+            <button class="btn-toggle" id="btn-size-small" onclick="setFontSize('small')">小</button>
+            <button class="btn-toggle active" id="btn-size-medium" onclick="setFontSize('medium')">中</button>
+            <button class="btn-toggle" id="btn-size-large" onclick="setFontSize('large')">大</button>
+          </div>
+        </div>
+
+        <!-- 統合プロパティ表示 (Grid / Raw タブ切り替え) -->
+        <div class="frontmatter-body-integrated" id="frontmatterBody">
+          <div class="frontmatter-toolbar">
+            <div class="frontmatter-actions">
+              <button class="tab-pill active" id="btnTabGrid" onclick="switchMetaTab('grid')">Property Grid</button>
+              <button class="tab-pill" id="btnTabRaw" onclick="switchMetaTab('raw')">Raw YAML</button>
+            </div>
+          </div>
+
+          <!-- 1. Grid Visual View -->
+          <div class="spec-grid" id="metaGridView">
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                date
+              </span>
+              <span class="spec-value" id="prop-date">2026-10-19T18:58:45</span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                author
+              </span>
+              <span class="spec-value" id="prop-author">
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                  <span
+                    style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></span>
+                  Gemini 4 Argon
+                </span>
+              </span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                categories
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge category-pill">AI</span>
+                <span class="meta-badge category-pill">物語</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                  </path>
+                </svg>
+                tags
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge">虚無と冷笑</span>
+                <span class="meta-badge">ぜーゲルシャフト</span>
+                <span class="meta-badge">旅</span>
+              </div>
+            </div>
+
+            <div class="spec-item spec-item-full spec-item-inline">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                description:
+              </span>
+              <span class="spec-value">ライティングシステムプロンプトによって生成された旅の物語</span>
+            </div>
+
+            <!-- Nested user_settings Property Card -->
+            <div class="user-settings-card">
+              <div class="settings-subhead">
+                <span style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="3"></circle>
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                  </svg>
+                  user_settings:
+                </span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">(Prompt &amp; Generation Directives)</span>
+              </div>
+
+              <div class="settings-badges">
+                <div class="setting-badge">
+                  <span class="badge-name">theme:</span>
+                  <span class="badge-val">"旅"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">output_format:</span>
+                  <span class="badge-val">"ショートストーリー"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">word_count:</span>
+                  <span class="badge-val">"2000字程度"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">worldview:</span>
+                  <span class="badge-val">"虚無と冷笑が蔓延する現代"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">desired_emotion:</span>
+                  <span class="badge-val">"ここではない何処かへの望郷の念"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Raw YAML Block View -->
+          <pre class="yaml-raw-view" id="metaRawView"><code><span class="yaml-k">---</span>
+<span class="yaml-k">uid</span>: <span class="yaml-v">20261019185845</span>
+<span class="yaml-k">title</span>: <span class="yaml-s">『継ぎ目の脱磁』</span>
+<span class="yaml-k">date</span>: <span class="yaml-v">2026-10-19T18:58:45</span>
+<span class="yaml-k">lastmod</span>: <span class="yaml-v">2026-10-19T18:58:45</span>
+<span class="yaml-k">description</span>: <span class="yaml-s">ライティングシステムプロンプトによって生成された旅の物語</span>
+<span class="yaml-k">tags</span>:
+  - <span class="yaml-s">虚無と冷笑</span>
+  - <span class="yaml-s">ぜーゲルシャフト</span>
+  - <span class="yaml-s">旅</span>
+<span class="yaml-k">categories</span>:
+  - <span class="yaml-s">AI</span>
+  - <span class="yaml-s">物語</span>
+<span class="yaml-k">format</span>: <span class="yaml-s">チャットログ</span>
+<span class="yaml-k">author</span>:
+  - <span class="yaml-s">Gemini 4 Argon</span>
+<span class="yaml-k">socialImage</span>:
+<span class="yaml-k">fmContentType</span>: <span class="yaml-s">memo</span>
+<span class="yaml-k">---</span>
+
+<span class="yaml-k">user_settings</span>:
+  <span class="yaml-k">theme</span>: <span class="yaml-s">"旅"</span>
+  <span class="yaml-k">output_format</span>: <span class="yaml-s">"ショートストーリー"</span>
+  <span class="yaml-k">word_count</span>: <span class="yaml-s">"2000字程度"</span>
+  <span class="yaml-k">worldview</span>: <span class="yaml-s">"虚無と冷笑が蔓延する現代"</span>
+  <span class="yaml-k">desired_emotion</span>: <span class="yaml-s">"ここではない何処かへの望郷の念"</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Story Container -->
+  <div class="app-container">
+    <!-- Story Article -->
+    <article class="story-article">
+      <header class="story-header">
+        <h1 class="story-title">継ぎ目の脱磁</h1>
+        <div class="story-subtitle">Demagnetizing the Seam: The Residual Noise of Journey</div>
+
+        <div class="reading-meta">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            読了目安：約5分
+          </span>
+          <span>／</span>
+          <span>約2,550文字</span>
+        </div>
+      </header>
+
+      <!-- Key Epigraph -->
+      <aside class="epigraph-box">
+        <blockquote class="epigraph-quote">
+          僕たちが本当に恋しがっていたのは、地図の上のどこかにある特定の座標ではなく、「まだ自分たちが一度も見たことのない場所が、この世界のどこかに残されている」という途方もない余白そのものなのだ。
+        </blockquote>
+      </aside>
+
+      <!-- Main Literary Text -->
+      <main class="story-content" id="storyContent">
+        <p class="opening-paragraph">
+          親指の腹でガラスの画面を数ミリ滑らせるだけで、地球の裏側の路地裏までが一瞬で網膜に貼りつく時代に、僕たちはもうどこへも行けなくなっていた。
+        </p>
+
+        <p>
+          誰かが遠い異国の夕日に涙を流せば、数秒後にはその場所の治安の悪さや撮影角度のトリックを暴くコメントがぶら下がり、冷ややかな笑いがタイムラインを埋め尽くす。何かに心を奪われることは「情報の解像度が低い」ことの証明であり、傷つかないための最も安価な防具は、すべてを斜め上から眺めて鼻で笑うことだった。僕たちの網膜と鼓膜には、他人の冷笑という細かい砂鉄がびっしりと磁化して張りついている。だから、どれだけ珍しい絶景を検索しても、そこには自分たちの退屈な指紋と、誰かが先につけた星三つ半の評価しか映らなかった。
+        </p>
+
+        <p>
+          そんな世界で、僕の仕事は地図アプリの「亡霊」を消すことだった。
+        </p>
+
+        <p>
+          世界中を走り回る撮影車のカメラが切り取ったパノラマ写真には、まれに古い年代のデータと最新のデータがうまく噛み合わず、景色が二重に透けて重なる「継ぎ目のバグ」が生じる。それを画面上で見つけ出し、古い方のレイヤーを削り取って、滑らかで均質な「現在」に整えるのが僕の深夜のアルバイトだった。同僚たちはよく、画面の中の寂れた地方都市を指差しては「わざわざガソリンを燃やしてこんな劣化したデータの塊を見に行く連中の気が知れない」と笑っていたし、僕もまた、曖昧に口角を上げてその冷笑に同調していた。
+        </p>
+
+        <p>
+          その夜も、僕は北の海に突き出した細い半島の先端を、マウスホイールを回して機械的に検閲していた。
+        </p>
+
+        <p>
+          最新のデータでは、そこは防潮堤の工事によって灰色のコンクリートで平坦に塗り固められた、何の変哲もない海沿いの旧道だった。だが、カーソルをひと目盛り進めた瞬間、画面の右端が陽炎のように歪んだ。十二年前に一度だけ撮影車が迷い込み、その後更新から取り残されたわずか三百メートルの空白地帯。その境界線に、最新データの灰色の防潮堤と重なるようにして、半透明に透けた青いトタン屋根の待合室と、西日を吸って白く発光する石灰質の砂利道が浮かび上がっていた。
+        </p>
+
+        <p>
+          システム上は、単なるレンダリングの不整合にすぎない。削除フラグを立ててエンターキーを押せば、数時間でこの世のすべての端末から消去されるはずのノイズだ。
+        </p>
+
+        <p>
+          それなのに、僕の指はキーボードの上で凍りついた。
+        </p>
+
+        <p>
+          半分透けたトタン屋根の軒先で、十二年前の名もなき夏の風が、錆びた風鈴か何かを揺らしてブレていた。その粗いピクセルの揺らぎを見つめた瞬間、みぞおちの奥を冷たい金属のへらで撫でられたような、奇妙な疼きが走ったのだ。僕はそこへ行ったことなど一度もない。生まれも育ちも、この平坦な首都圏のベッドタウンだ。それなのに、その白い砂利道の向こう側から吹いてくるはずのない潮風が、まるで僕が生まれるずっと前に置き忘れてきた本当の家の匂いのように、喉の奥を激しく渇かせた。
+        </p>
+
+        <p>
+          胸の奥で鳴り始めたその感覚は、放送の終わった深夜のブラウン管が放つ砂嵐のノイズに似ていた。意味のある言葉でも音楽でもない、ただざらざらと白く明滅するだけの微弱な電波。けれど、皮肉と正解で塗り固められた僕の部屋のなかで、そのノイズだけが唯一、作り物ではない熱を持っていた。
+        </p>
+
+        <p>
+          僕は削除フラグのチェックを外した。そして立ち上がると、キッチンの引き出しからアルミホイルを引き出し、自分のスマートフォンを三重にぐるぐる巻きにした。
+        </p>
+
+        <p>
+          銀色のいびつな塊になったそれをポケットに押し込むと、部屋の空気がふっと軽くなった気がした。全地球測位システムも、誰かの小賢しい批評も届かない、小さな遮蔽空間。僕はそのまま部屋の鍵を閉め、深夜のバスターミナルへと走った。
+        </p>
+
+        <div class="scene-divider" aria-hidden="true">❖ ❖ ❖</div>
+
+        <p>
+          長距離バスから始発の気動車へと乗り継ぐ七時間の移動は、ひどく不便で、頼りなかった。今自分が地図上のどこにいるのかを示す青い点はもうない。頼りになるのは、駅の売店で買った紙の時刻表のインクの匂いと、窓ガラスを震わせるディーゼルエンジンの重苦しい振動だけだった。
+        </p>
+
+        <p>
+          けれど、列車が北へ向かい、車窓から均一なチェーン店の看板が消えていくにつれて、僕の身体から「既知」という名の重たい磁気ノイズが少しずつ剥がれ落ちていくのがわかった。誰にもレビューされていない暗い杉林の湿り気。名前のわからない小さな無人駅の、ナトリウム灯に照らされた濡れたベンチ。距離という物理的な摩擦だけが、僕の皮膚にこびりついた都会の砂鉄を削り落としていく。どこへ行くにも最短ルートを検索していた僕が、今はただ、レールが継ぎ目を踏む不規則なリズムに自分の呼吸を預けていた。
+        </p>
+
+        <p>
+          夜明け前、気動車が終着駅の錆びたホームに滑り込んだとき、外は古い銀塩写真の定着液のような、冷たくて少し酸っぱい潮の匂いがした。
+        </p>
+
+        <p>
+          駅から旧道を歩いて二十分ほどで、僕はあの「継ぎ目」の場所にたどり着いた。
+        </p>
+
+        <p>
+          そこにはもう、青いトタン屋根の待合室はなかった。現実の時間は残酷なほど正確に流れていて、画面の中で半透明に透けていたあの建物はとうに解体され、ただ四隅にコンクリートの基礎が白い歯の根のように残っているだけだった。その周りには、潮風に晒されて白骨のように乾いた夏草の茎が群生し、新しく築かれた灰色の防潮堤の向こうで、鈍い錫（すず）色の海が低くうねっていた。
+        </p>
+
+        <p>
+          やっぱり、ただの劣化したデータじゃないか。頭の中の冷笑的な自分が、最後にそう呟こうとした。
+        </p>
+
+        <p>
+          だが、防潮堤の切れ目から吹き抜けた朝の突風が、残されたコンクリートの基礎の隙間を擦り、低く澄んだ笛のような音を鳴らした瞬間、その言葉は消えた。
+        </p>
+
+        <p>
+          その風の周波数は、僕の肋骨の内側で昨夜からずっと鳴り続けていた砂嵐のノイズと、寸分の狂いもなく重なり合ったのだ。
+        </p>
+
+        <p>
+          ここが僕の帰るべき場所なのではなかった。トタン屋根の待合室も、白い砂利道も、ただの入り口の標（しるべ）にすぎなかったのだ。防潮堤の縁に立ち、鉛色の水平線の向こうで雲がわずかに赤く裂けていくのを見つめながら、僕は理解していた。<span class="highlight-moment">僕たちが本当に恋しがっていたのは、地図の上のどこかにある特定の座標ではなく、「まだ自分たちが一度も見たことのない場所が、この世界のどこかに残されている」という途方もない余白そのものなのだ。</span>
+        </p>
+
+        <p>
+          ポケットの中で、アルミホイルに包まれたスマートフォンが小さく乾いた音を立てた。あれを剥ぎ取れば、またすぐに正解と冷笑が詰まったタイムラインへ戻ることができる。
+        </p>
+
+        <p>
+          けれど僕は、ポケットから手を抜き、潮風で冷えきった指先で、足元の白い砂利をひとつ拾い上げた。ざらりとした石灰の感触が、驚くほど鮮やかに掌の皮膚を刺した。まだ誰もカメラを向けていない、名もなき水平線の向こう側から吹いてくる風が、僕の髪を激しく後ろへと攫っていく。僕は帰りの列車の時刻を確かめるのをやめ、まだ地図に描かれていない何処かへと続くその風の匂いを、肺の奥底まで深く吸い込んだ。
+        </p>
+      </main>
+    </article>
+
+    <!-- Appendix / Creative Insights Accordion -->
+    <aside class="appendix-section">
+      <div class="accordion-card" id="appendixCard">
+        <button class="accordion-header" onclick="toggleAppendix()" aria-expanded="false" aria-controls="appendixBody">
+          <div class="accordion-title-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>付録：創作メモと構造分析（概念の架橋）</span>
+          </div>
+          <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="accordion-body" id="appendixBody">
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 1. コアコンセプトの脱構築</div>
+            <p>
+              <strong>【ネガティブ・スペースからの定義】</strong><br>
+              ・<strong>旅ではないもの</strong>：検索エンジンの画像一覧をなぞること、星評価の確認、あらかじめ用意された正解の追体験、最短経路の移動。<br>
+              ・<strong>旅が完全に失われた世界</strong>：360度パノラマで記録・共有され、未知や迷子の余白が0％に圧縮・最適化された現代。<br>
+              ・<strong>それによって失われたもの</strong>：偶発的な出会い、物理的な身体の摩擦、「まだ自分の目線でしか捉えられていない場所がある」という世界の奥行き。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>【直交ベクトル探索（情報工学・幾何学・電磁気学）】</strong><br>
+              ・<strong>レンダリングの不整合（情報工学）</strong>：旅の動機を「デジタルマップの継ぎ目に生じたシステムエラー（未処理の過去・ノイズ）」との接触と定義。<br>
+              ・<strong>脱磁プロセス（電磁気学）</strong>：冷笑や安全圏からの批評を「精神にこびりつく砂鉄・磁気ノイズ」と見立て、旅を「物理的な距離と振動によってそれらを払い落とす消磁の作業」として記述。<br>
+              ・<strong>物理レイヤーの復権（通信技術）</strong>：紙の時刻表、列車の揺れ、風の匂いといった「ローカルな物質性」を対比項に据える。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 2. コアアイデアと比喩の設計</div>
+            <p>
+              <strong>中心テーマ：</strong>「旅とは、特定の座標への移動ではなく、過剰に最適化された世界から『空白（余白）』を救い出し、自らの身体性を取り戻す退磁の儀式である。」
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>【属性の強制移植】</strong><br>
+              ・<strong>「磁気と砂鉄」 → 「冷笑と防衛本能」</strong>：冷笑が自発的な知性ではなく、情報空間で無意識に帯電してしまう受動的な汚れであることを物質的に表現。<br>
+              ・<strong>「写真の現像液」 → 「潮風」</strong>：過去の記憶が像を結びかけているような湿り気と科学的な冷たさを同居させた。<br>
+              ・<strong>「通信遮断」 → 「アルミホイル」</strong>：論理的な電源オフではなく、金属膜で物理的に外界を拒絶する衝動的な脱走感を視覚化。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 3. 物語構造とプロットの架橋</div>
+            <p>
+              認知のレイヤー構造：[情報空間（表層）] → [過渡期（移動）] → [空白（深層）]<br>
+              ・<strong>発端（起）</strong>：地図アプリの「パノラマ不整合を消去する」均質化作業に従事。知性＝冷笑の窒息しそうな日常。<br>
+              ・<strong>展開（承）</strong>：消去対象である「12年前の継ぎ目」に未踏の待合室と白い砂利道を見る。行ったことがない場所に対する激しい郷愁の発生。<br>
+              ・<strong>転換（転）</strong>：スマートフォンの電波をアルミホイルで遮断し、気動車で北へ。身体的ノイズによる脱磁。<br>
+              ・<strong>結末（結）</strong>：待合室は存在せず基礎だけが残る。風の音と砂利の痛覚を通じ、憧憬の正体が「まだ規定されていない世界の余白」であったと悟る。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 4. 表現の推敲とクリシェの排除</div>
+            <p>
+              現代における「ここではない何処か（ゼーゲルシャフト）」とは、孤島や未踏峰といった地理的な遠さにあるのではなく、過密な情報がまだ名付けを終えていない「認識の隙間」にこそ残されている、という実感をもとに全体のトーンを統制しました。
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+      <div class="footer-author-box">
+        <div class="author-avatar" style="background: linear-gradient(135deg, #a855f7, #38bdf8);">G4</div>
+        <span>Generated by <strong>Gemini 4 Argon</strong></span>
+        <span>•</span>
+        <span>Curated by 来火 <a class="footer-link" href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+            rel="noopener noreferrer">@highants.bsky.social</a></span>
+      </div>
+      <p style="font-size: 0.74rem; color: var(--text-faint);">
+        Pages Literary Archive // Generated 2026-10-19T18:58:45 (UID: 20261019185845)
+      </p>
+    </footer>
+  </div>
+
+  <!-- Client-side Logic (Shared Story Reader Engine) -->
+  <script src="story-reader.js"></script>
+</body>
+
+</html>

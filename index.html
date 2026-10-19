@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="来火(@highants.bsky.social)がAIに制作させたナレッジページの目録です。">
+  <meta name="description" content="来火(@highants.bsky.social)がAIに制作させたWEBページの目録です。">
   <title>Pages | 🏝️⛱️</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -215,10 +215,24 @@
       --tag-color: #0e7490;
     }
 
+    .card[data-theme="stories"] {
+      --card-accent: #0284c7;
+      /* cyan & deep ocean / literary archive */
+      --tag-bg: #e0f2fe;
+      --tag-color: #0369a1;
+      border-color: #cbd5e1;
+      background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%);
+    }
+
+    .card[data-theme="stories"] .card-title {
+      font-family: 'Noto Serif JP', var(--font-sans);
+    }
+
     .card-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.85rem;
       margin-bottom: 1.25rem;
     }
 
@@ -231,15 +245,20 @@
       background: var(--tag-bg, var(--primary-light));
       color: var(--tag-color, var(--primary));
       letter-spacing: 0.02em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .format-badge {
       font-family: var(--font-mono);
       font-size: 0.72rem;
       color: var(--text-soft);
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.35rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: auto;
     }
 
     .card-title {
@@ -423,15 +442,45 @@
       <h1>🏝️⛱️</h1>
       <p class="lead-text">
         私（来火 <a href="https://bsky.app/profile/highants.bsky.social" target="_blank"
-          rel="noopener noreferrer">@highants.bsky.social</a>）がAIに制作させたナレッジページの目録です。各カードから各ページへアクセスできます。
+          rel="noopener noreferrer">@highants.bsky.social</a>）がAIに制作させたWEBページの目録です。各カードから各ページへアクセスできます。
       </p>
     </header>
 
     <main class="grid" id="page-grid">
+      <!-- Card: story/stories.html (物語目録) -->
+      <a href="story/stories.html" class="card" data-theme="stories" id="card-stories">
+        <div class="card-top">
+          <span class="tag">STORIES / ARCHIVE</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            Stories
+          </span>
+        </div>
+        <h2 class="card-title">物語目録 // STORIES ARCHIVE</h2>
+        <div class="card-subtitle">短編小説・ショートストーリーの収蔵庫</div>
+        <p class="card-desc">
+          来火が生成AIと共に紡ぎ出した短編文学コレクション。『蒼いサロンの茹で上がり』をはじめ、独自の文体指示（user_settings）と美学設計のもとで制作された作品群を一覧・閲覧できます。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            目録を開く
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
       <!-- Card: zelenskyy_discourse_infographic.html -->
       <a href="zelenskyy_discourse_infographic.html" class="card" data-theme="discourse" id="card-discourse">
         <div class="card-top">
-          <span class="tag">DATA JOURNALISM / NETWORK</span>
+          <span class="tag">NETWORK / DISCOURSE</span>
           <span class="format-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -441,7 +490,7 @@
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
             </svg>
-            Interactive Infographic
+            Infographic
           </span>
         </div>
         <h2 class="card-title">言説の重力場と集合的感情の解剖学</h2>
