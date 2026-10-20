@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="porcelain" data-font="serif" data-size="medium">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="短編小説『遡上する果実』。鬼退治へ旅立った桃太郎を見送った爺さんが、十五年保管した桃の皮に毛細血管と臍の緒の痕跡を見出し、川を遡って水源の禁忌へと踏み込む。民話の空白に生物学的リアリズム（托卵と世代交代）を流し込んだ異色奇譚。">
+  <title>遡上する果実 | 来火</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;600;700;900&family=Shippori+Mincho:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Story System Common Stylesheet -->
+  <link rel="stylesheet" href="story-common.css">
+  <!-- Shared Story Reader Layout & Typography Stylesheet -->
+  <link rel="stylesheet" href="story-reader.css">
+</head>
+
+<body>
+  <!-- Ambient Light Backdrops -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="ambient-crimson-glow" aria-hidden="true"></div>
+  <div class="water-caustics" aria-hidden="true"></div>
+
+  <!-- Unified Fixed Header -->
+  <header class="app-header-fixed" id="appHeader" role="banner">
+    <div class="header-inner">
+      <!-- 1. リンクボタン (STORIES // 目録) -->
+      <a href="stories.html" class="nav-back-link" id="btn-back-stories" title="物語目録へ戻る">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>STORIES // 目録</span>
+      </a>
+
+      <!-- 2. PROPERTIES // SETTINGS 統合トリガーボタン -->
+      <button class="header-props-trigger" id="btnToggleFrontmatter" onclick="toggleFrontmatter()" aria-expanded="false"
+        aria-controls="documentFrontmatter" title="プロパティと設定メニューを開閉">
+        <div class="props-trigger-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>PROPERTIES // SETTINGS</span>
+        </div>
+        <div class="props-trigger-state">
+          <span id="frontmatterToggleText">表示</span>
+          <svg class="frontmatter-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </button>
+
+      <!-- 3. インジケータ (システムステータスバッジ) -->
+      <div class="nav-meta-badge" title="システムステータス">
+        <span class="status-pulse" aria-hidden="true"></span>
+        <span class="badge-text">STORY READER</span>
+      </div>
+    </div>
+
+    <!-- 読書進捗インジケータ -->
+    <div class="reading-progress-bar" id="readingProgress" aria-hidden="true"></div>
+
+    <!-- PROPERTIES // SETTINGS 統合ドロップダウンパネル -->
+    <div class="header-props-dropdown" id="documentFrontmatter" aria-label="文書プロパティと読書設定">
+      <div class="dropdown-inner">
+        <!-- 統合設定メニュー (THEME / FONT / SIZE) -->
+        <div class="integrated-reader-controls" aria-label="読書設定ツールバー">
+          <div class="control-group">
+            <span class="control-label">THEME:</span>
+            <button class="btn-toggle" id="btn-theme-midnight" onclick="setTheme('midnight')">蒼碧</button>
+            <button class="btn-toggle" id="btn-theme-washi" onclick="setTheme('washi')">和紙</button>
+            <button class="btn-toggle" id="btn-theme-obsidian" onclick="setTheme('obsidian')">漆黒</button>
+            <button class="btn-toggle active" id="btn-theme-porcelain" onclick="setTheme('porcelain')">白磁</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">FONT:</span>
+            <button class="btn-toggle active" id="btn-font-serif" onclick="setFontFamily('serif')">明朝体</button>
+            <button class="btn-toggle" id="btn-font-sans" onclick="setFontFamily('sans')">ゴシック</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">SIZE:</span>
+            <button class="btn-toggle" id="btn-size-small" onclick="setFontSize('small')">小</button>
+            <button class="btn-toggle active" id="btn-size-medium" onclick="setFontSize('medium')">中</button>
+            <button class="btn-toggle" id="btn-size-large" onclick="setFontSize('large')">大</button>
+          </div>
+        </div>
+
+        <!-- 統合プロパティ表示 (Grid / Raw タブ切り替え) -->
+        <div class="frontmatter-body-integrated" id="frontmatterBody">
+          <div class="frontmatter-toolbar">
+            <div class="frontmatter-actions">
+              <button class="tab-pill active" id="btnTabGrid" onclick="switchMetaTab('grid')">Property Grid</button>
+              <button class="tab-pill" id="btnTabRaw" onclick="switchMetaTab('raw')">Raw YAML</button>
+            </div>
+          </div>
+
+          <!-- 1. Grid Visual View -->
+          <div class="spec-grid" id="metaGridView">
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                date
+              </span>
+              <span class="spec-value" id="prop-date">2026-10-20T23:14:32</span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                author
+              </span>
+              <span class="spec-value" id="prop-author">
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                  <span
+                    style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></span>
+                  Gemini 4 Argon
+                </span>
+              </span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                categories
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge category-pill">AI</span>
+                <span class="meta-badge category-pill">物語</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                  </path>
+                </svg>
+                tags
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge">桃太郎</span>
+              </div>
+            </div>
+
+            <div class="spec-item spec-item-full spec-item-inline">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                description:
+              </span>
+              <span class="spec-value">ライティングシステムプロンプトによって生成された桃太郎の起源</span>
+            </div>
+
+            <!-- Nested user_settings Property Card -->
+            <div class="user-settings-card">
+              <div class="settings-subhead">
+                <span style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="3"></circle>
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                  </svg>
+                  user_settings:
+                </span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">(Prompt &amp;
+                  Generation Directives)</span>
+              </div>
+
+              <div class="settings-badges">
+                <div class="setting-badge">
+                  <span class="badge-name">theme:</span>
+                  <span class="badge-val">"桃太郎の起源"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">output_format:</span>
+                  <span class="badge-val">"ショートストーリー"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">word_count:</span>
+                  <span class="badge-val">"2000字程度"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">motive:</span>
+                  <span class="badge-val">"桃太郎が一体どこからやってきたのか気になったお爺さん"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">desired_emotion:</span>
+                  <span class="badge-val">"誰も知ろうとしなかった驚愕の真実"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Raw YAML Block View -->
+          <pre class="yaml-raw-view" id="metaRawView"><code><span class="yaml-k">---</span>
+<span class="yaml-k">uid</span>: <span class="yaml-v">20261020231432</span>
+<span class="yaml-k">title</span>: <span class="yaml-s">『遡上する果実』</span>
+<span class="yaml-k">date</span>: <span class="yaml-v">2026-10-20T23:14:32</span>
+<span class="yaml-k">lastmod</span>: <span class="yaml-v">2026-10-20T23:14:32</span>
+<span class="yaml-k">description</span>: <span class="yaml-s">ライティングシステムプロンプトによって生成された桃太郎の起源</span>
+<span class="yaml-k">tags</span>:
+  - <span class="yaml-s">桃太郎</span>
+<span class="yaml-k">categories</span>:
+  - <span class="yaml-s">AI</span>
+  - <span class="yaml-s">物語</span>
+<span class="yaml-k">format</span>: <span class="yaml-s">チャットログ</span>
+<span class="yaml-k">author</span>:
+  - <span class="yaml-s">Gemini 4 Argon</span>
+<span class="yaml-k">socialImage</span>:
+<span class="yaml-k">fmContentType</span>: <span class="yaml-s">memo</span>
+<span class="yaml-k">---</span>
+
+<span class="yaml-k">user_settings</span>:
+  <span class="yaml-k">theme</span>: <span class="yaml-s">"桃太郎の起源"</span>
+  <span class="yaml-k">output_format</span>: <span class="yaml-s">"ショートストーリー"</span>
+  <span class="yaml-k">word_count</span>: <span class="yaml-s">"2000字程度"</span>
+  <span class="yaml-k">motive</span>: <span class="yaml-s">"桃太郎が一体どこからやってきたのか気になったお爺さん"</span>
+  <span class="yaml-k">desired_emotion</span>: <span class="yaml-s">"誰も知ろうとしなかった驚愕の真実"</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Story Container -->
+  <div class="app-container">
+    <!-- Story Article -->
+    <article class="story-article">
+      <header class="story-header">
+        <h1 class="story-title">遡上する果実</h1>
+        <div class="story-subtitle">The Anadromous Fruit: The Primeval Cycle of Brood Parasitism</div>
+
+        <div class="reading-meta">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            読了目安：約4分
+          </span>
+          <span>／</span>
+          <span>約1,940文字</span>
+        </div>
+      </header>
+
+      <!-- Key Epigraph -->
+      <aside class="epigraph-box">
+        <blockquote class="epigraph-quote">
+          「鬼退治」とは、人間の勝利などではなかった。人間を苗床にした、鬼たちの冷酷な世代交代（サケの遡上）に過ぎなかったのだ。
+        </blockquote>
+      </aside>
+
+      <!-- Main Literary Text -->
+      <main class="story-content" id="storyContent">
+        <p class="opening-paragraph">
+          縁側の床下に隠しておいた木箱を開けると、十五年前の「桃の皮」はまだ微かに湿り気を帯びていた。
+        </p>
+
+        <p>
+          鬼退治へ旅立つあの子を村境まで見送り、婆さんが誇らしげに隣村へ触れ回りに行った昼下がりのことだ。家に一人残された爺さんは、ずっと喉の奥に引っかかっていた小さな魚の骨のような疑問を、ようやく吐き出す気になった。
+        </p>
+
+        <p>
+          そもそも、なぜわしらはあの時、悲鳴を上げなかったのか。
+        </p>
+
+        <p>
+          川から抱えるほどの桃が流れてきて、包丁の刃を当てた途端に内側から割れ、血と粘液にまみれた赤子が転がり出てきたのだ。尋常ならざる怪異である。それなのに、あの日、割れた果肉から立ち昇った濃厚で甘酸っぱい湯気を吸い込んだ瞬間、爺さんと婆さんの頭からは「恐怖」や「疑念」という文字が綺麗に抜け落ちた。まるで脳の皺に温かい蜜蝋を流し込まれたように、ただ「ああ、天からの授かりものだ」と頷き、笑っていたのである。
+        </p>
+
+        <p>
+          だが今、あの子の体臭が家から消えてみると、蜜蝋の膜が剥がれ落ちるように正気が戻ってきた。
+        </p>
+
+        <p>
+          爺さんは木箱の中の皮を摘まみ上げた。果物の皮であれば、とうに腐るか、黒ずんで干からびているはずだ。しかしそれは、薄い紅色のなめし革のようにしなやかで、裏返した白い内壁には、植物の繊維ではなく、赤黒い毛細血管のような網目がびっしりと張り巡らされていた。
+        </p>
+
+        <p>
+          その中央に、太い管を無理やり引きちぎったような、丸い瘡蓋（かさぶた）がある。種があった場所ではない。あの子とこの皮を繋いでいた「臍（へそ）の緒」の跡だ。
+        </p>
+
+        <p class="dialogue">
+          「……どこから流れてきた」
+        </p>
+
+        <p>
+          爺さんは独り言ちた。村の誰一人として、あの桃が川のどこで実り、どの枝から落ちたのかを知ろうともしなかった。皆、あの子が分け与えた「きびだんご」の甘い匂いに酔い、あの子を英雄と呼んで送り出した。けれど爺さんだけは知っていた。あの子が十五年で食い尽くしたのは、畑の黍（きび）だけではない。老いた夫婦が蓄えてきたわずかな銀貨も、山の木々も、そして夫婦自身の寿命を削るような労働も、すべてあの子の異様に早い成長へと吸い上げられたのだ。
+        </p>
+
+        <p>
+          爺さんは柴刈りの背負子を納屋に置き去りにし、山刀一本を腰に差して家を飛び出した。
+        </p>
+
+        <div class="scene-divider" aria-hidden="true">❖ ❖ ❖</div>
+
+        <p>
+          婆さんが洗濯をしていた川原から、さらに上流へ。いつもなら足を踏み入れない深い渓谷へと、岩肌を掴みながら遡っていく。水は冷たく澄んでいるはずなのに、半刻も登ると、奇妙なことに川の水が少しずつ生温かくなり始めた。
+        </p>
+
+        <p>
+          水面を流れる泡が、石鹸のように白い。しかも、風に混じって、十五年前に嗅いだあの匂い――熟れすぎた果実と、産屋の古い畳を混ぜ合わせたような、甘く生臭い匂いが漂ってくる。
+        </p>
+
+        <p>
+          爺さんは手拭いで口と鼻を強く覆った。あの匂いをまともに吸い込めば、また頭が痺れ、「どうでもよいことだ」と引き返したくなるに違いない。
+        </p>
+
+        <p>
+          岩場を抜け、視界が開けた水源の窪地に辿り着いたとき、爺さんの足が凍りついた。
+        </p>
+
+        <p>
+          そこには、桃の木など一本も生えてはいなかった。
+        </p>
+
+        <p>
+          切り立った赤い岩壁の隙間から、白い大蛇のような太い根が何十本も這い出し、浅瀬の川底へと伸びている。そして、その白い管の先端に、子供の胴体ほどもある巨大な「桃」が、まるで水中に産み落とされた蛙の卵嚢のように、幾つも連なって浮かんでいたのだ。
+        </p>
+
+        <p>
+          桃は生きていた。川の水を吸い上げては、薄い紅色の皮をドクン、ドクンと規則正しく脈動させ、内側から透けて見える黒い影が時折、窮屈そうに手足を動かしている。
+        </p>
+
+        <p class="dialogue">
+          「なんだ、これは……なんだ、これは……」
+        </p>
+
+        <p>
+          震える声で後ずさった爺さんの耳に、水音を掻き消すような重い金属音が響いた。
+        </p>
+
+        <p>
+          見上げると、桃の群生地の奥にある巨大な岩窟の前に、数人の大男たちが蹲（うずくま）っていた。どいつもこいつも、筋骨隆々とした見事な体躯をしている。だが、その額の皮膚は内側から無惨に裂け、白い骨の突起――紛れもない「角」が、二本ずつ突き出していた。
+        </p>
+
+        <p>
+          男たちの足元には、毛皮を剥がれた犬や、首を折られた猿と雉の骸が転がっている。そして、一人の男が振り返ったとき、爺さんは息を呑んだ。
+        </p>
+
+        <p>
+          その男の腰には、十年前に隣の谷の老夫婦が「川から拾った桃から生まれた」と自慢し、やがて鬼退治へと送り出したはずの若者と同じ、見覚えのある陣羽織が巻かれていたからだ。
+        </p>
+
+        <p>
+          若者だった鬼は、虚ろな目で自らの腕を小刀で切り裂くと、まだ未熟な水中の桃の根元へと、どす黒い血を滴らせた。すると、白い管が生き物のように蠢き、その血を吸い上げて桃をさらに一回り大きく膨らませた。
+        </p>
+
+        <p>
+          爺さんはすべてを悟った。
+        </p>
+
+        <p>
+          鬼ヶ島など、遠い海の向こうにはなかったのだ。この川の最上流、山の裏側にこそ鬼の巣がある。
+        </p>
+
+        <p>
+          鬼は最初から、自分たちの手で子を育てたりはしない。カッコウが他の鳥の巣に卵を産み落とすように、甘い香りを放つ「桃」という名の胎盤に幼生を包み、川へと流すのだ。下流で暮らす子なしの老夫婦に拾わせ、無償の愛情と家財を注ぎ込ませて、最も強靭な肉体へと育て上げさせるために。
+        </p>
+
+        <p>
+          そして十分に育った「桃太郎」は、本能に導かれるまま、きびだんごで人間界の獣たちを誘い出し、生きた食糧として引き連れてこの水源――「鬼ヶ島」へと帰還する。古くなり力を失った先代の鬼を殺してその肉を喰らい、自らが新しい「鬼」へと羽化して、次の桃を川へ流すために。
+        </p>
+
+        <p>
+          <span class="highlight-moment">「鬼退治」とは、人間の勝利などではなかった。人間を苗床にした、鬼たちの冷酷な世代交代（サケの遡上）に過ぎなかったのだ。</span>
+        </p>
+
+        <p class="dialogue">
+          「……婆さんや」
+        </p>
+
+        <p>
+          爺さんの乾いた唇から、掠れた声が漏れた。今頃、うちの桃太郎は、海の向こうではなく、裏山の尾根からこの谷へと降りてきているはずだ。その額の皮を突き破って、白い角を覗かせながら。
+        </p>
+
+        <p>
+          その時、水中で最も大きく膨らんでいた一つの桃が、白い臍の緒からぷつりと音を立てて千切れた。
+        </p>
+
+        <p>
+          甘い、脳を溶かすような芳香が谷間に立ち込める。切り離されたばかりの赤い肉塊は、くるりと向きを変えると、下流の村で洗濯をしているであろう別の老夫婦のもとへと、どんぶらこ、どんぶらこと、まるで意思を持った生き物のように揺れながら流れ落ちていった。
+        </p>
+      </main>
+    </article>
+
+    <!-- Appendix / Creative Insights Accordion -->
+    <aside class="appendix-section">
+      <div class="accordion-card" id="appendixCard">
+        <button class="accordion-header" onclick="toggleAppendix()" aria-expanded="false" aria-controls="appendixBody">
+          <div class="accordion-title-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>付録：創作メモと構造分析（概念の架橋）</span>
+          </div>
+          <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="accordion-body" id="appendixBody">
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 1. 企画意図とコアコンセプト</div>
+            <p>
+              <strong>【中心テーマの再定義】</strong><br>
+              「桃太郎＝正義の英雄譚」という記号的理解を解体し、「<strong>異種族による寄生と世代交代のサイクル（托卵）</strong>」として再解釈する。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>【着眼点（ネガティブ・スペース）】</strong><br>
+              ・「なぜ巨大な果実から生まれた人外の赤子を、老夫婦は疑いもなく受け入れたのか？」<br>
+              ・「なぜ桃太郎は莫大な食糧を消費して異常な速度で成長したのか？」<br>
+              ・「なぜ退治したはずの鬼の島へ行き、略奪して戻るという構造が成立するのか？」<br>
+              民話において「奇跡」「めでたし」で塗り潰されていた不自然な空白（ネガティブ・スペース）に、冷徹な生物学的リアリズムを流し込む。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 2. 世界観と深層設定（裏プロット）</div>
+            <p>
+              <strong>① 「桃」の正体：擬態された外胎盤</strong><br>
+              ・本作における「桃」は植物の果実ではなく、鬼の幼生を保護し運搬するための有機的な肉質カプセル（羊膜・胎盤）である。<br>
+              ・表面の産毛や果肉の甘い芳香は、下流に住む知的生命体（人間）の警戒心を解き、多幸感を与えて保護本能を刺激するための<strong>神経毒・フェロモン</strong>。<br>
+              ・老夫婦が恐怖を覚えず「天の授かりもの」と信じ込んだのは、割れた瞬間に飛散した胞子状の成分による認知的麻痺によるもの。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>② 鬼の生態系：托卵とサケの遡上</strong><br>
+              ・鬼は自らの手で子育てを行わない。過酷な源流環境で生き残るため、人里の老夫婦に無償の労働力・資産・食糧を搾取させ、安全な環境で幼生を急成長させる<strong>托卵戦略</strong>をとる。<br>
+              ・「鬼退治」とは、成体となった幼生が里を食い尽くした後に起こす帰巣本能（遡上）の隠語である。<br>
+              ・「きびだんご」は従順な部下を作る魔法の団子ではなく、犬・猿・雉などの獣を誘引し、源流の親鬼や幼生群へ捧げる「生贄・歩く保存食」を確保するための餌に過ぎない。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>③ 鬼ヶ島の脱・神話化</strong><br>
+              ・鬼ヶ島は海の彼方の異界ではなく、人間が生活用水を依存している生活圏の最上流（水源地）に位置する。<br>
+              ・桃太郎が持ち帰るとされる「財宝」は、過去に別の桃太郎たちが村々から奪い取って集積させた略奪品の蓄積であり、新たな幼生を産み出すための養分・触媒として機能している。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 3. 構造と視点設計</div>
+            <p>
+              <strong>【視点人物の選定：老爺（父性）の一人称客観】</strong><br>
+              英雄として旅立った桃太郎でも、社会的に歓喜する村人（婆さん）でもなく、生活の疲弊と現実的な代償を肌で知っていた「爺さん」を視点に据える。桃太郎の匂いが消えたことでフェロモンの呪縛が解け、15年越しの違和感が「疑念」へと変質する静かな導入から開始。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>【シークエンスのグラデーション】</strong><br>
+              1. <strong>日常の亀裂</strong>：物置の桃の皮（血管、へその緒の痕跡）の観察。<br>
+              2. <strong>境界の侵犯</strong>：清流から生温かい水、甘酸っぱい産屋の匂いへの移行。<br>
+              3. <strong>驚愕の開示</strong>：水源の異形（脈動する桃の群生と角の生えた若者たち）。<br>
+              4. <strong>サイクルの継続</strong>：新たな桃の流下（救いのない反復構造）。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 4. 文体・比喩の技巧（属性の強制移植）</div>
+            <p>
+              <strong>【民話の記号 × 寄生虫・海洋生物の生理描写】</strong><br>
+              ・桃の皮：植物的質感（皮、果肉、種）を排除し、「なめし革」「毛細血管」「臍の緒の瘡蓋」など動物的・内臓的語彙に置換。<br>
+              ・桃の群生：果樹園のイメージを反転させ、「白い大蛇のような管」「水中の卵嚢」「サケの遡上」といった両生類・魚類の生殖行動のグロテスクさと結びつける。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>【不穏なオノマトペの再構築】</strong><br>
+              昔話の代名詞である「どんぶらこ、どんぶらこ」を、無邪気な擬音から「重く意思を持った肉塊が川面を這う音」へと文脈的に変容させて結びとする。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 5. 読後感の設計</div>
+            <p>
+              「鬼を退治してめでたしめでたし」の裏で、人間は太古より<strong>鬼の繁殖装置・無自覚な苗床</strong>として組み込まれていたという、不可逆な認識の転換。<br>
+              次の桃が流れていく光景を描くことで、読者自身が知る「桃太郎の冒頭」そのものが、抗えない捕食サイクルのワンシーンであったという寒気を残す構成としています。
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+      <div class="footer-author-box">
+        <div class="author-avatar" style="background: linear-gradient(135deg, #a855f7, #38bdf8);">G4</div>
+        <span>Generated by <strong>Gemini 4 Argon</strong></span>
+        <span>•</span>
+        <span>Curated by 来火 <a class="footer-link" href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+            rel="noopener noreferrer">@highants.bsky.social</a></span>
+      </div>
+      <p style="font-size: 0.74rem; color: var(--text-faint);">
+        Pages Literary Archive // Generated 2026-10-20T23:14:32 (UID: 20261020231432)
+      </p>
+    </footer>
+  </div>
+
+  <!-- Client-side Logic (Shared Story Reader Engine) -->
+  <script src="story-reader.js"></script>
+</body>
+
+</html>
