@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="porcelain" data-font="serif" data-size="medium">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="短編小説『誰も知らない川上の果てで』。川上から流れてくる完璧な桃の存在に違和感を抱いた育ての親・源造が、桃太郎の旅立ちの日に水源を遡上。切り立った絶壁の果てで目撃した、想像を絶する文明の遺構と「生体侵略端末」の冷酷な真実。">
+  <title>誰も知らない川上の果てで | 来火</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;600;700;900&family=Shippori+Mincho:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Story System Common Stylesheet -->
+  <link rel="stylesheet" href="story-common.css">
+  <!-- Shared Story Reader Layout & Typography Stylesheet -->
+  <link rel="stylesheet" href="story-reader.css">
+</head>
+
+<body>
+  <!-- Ambient Light Backdrops -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="ambient-crimson-glow" aria-hidden="true"></div>
+  <div class="water-caustics" aria-hidden="true"></div>
+
+  <!-- Unified Fixed Header -->
+  <header class="app-header-fixed" id="appHeader" role="banner">
+    <div class="header-inner">
+      <!-- 1. リンクボタン (STORIES // 目録) -->
+      <a href="stories.html" class="nav-back-link" id="btn-back-stories" title="物語目録へ戻る">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>STORIES // 目録</span>
+      </a>
+
+      <!-- 2. PROPERTIES // SETTINGS 統合トリガーボタン -->
+      <button class="header-props-trigger" id="btnToggleFrontmatter" onclick="toggleFrontmatter()" aria-expanded="false"
+        aria-controls="documentFrontmatter" title="プロパティと設定メニューを開閉">
+        <div class="props-trigger-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>PROPERTIES // SETTINGS</span>
+        </div>
+        <div class="props-trigger-state">
+          <span id="frontmatterToggleText">表示</span>
+          <svg class="frontmatter-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </button>
+
+      <!-- 3. インジケータ (システムステータスバッジ) -->
+      <div class="nav-meta-badge" title="システムステータス">
+        <span class="status-pulse" aria-hidden="true"></span>
+        <span class="badge-text">STORY READER</span>
+      </div>
+    </div>
+
+    <!-- 読書進捗インジケータ -->
+    <div class="reading-progress-bar" id="readingProgress" aria-hidden="true"></div>
+
+    <!-- PROPERTIES // SETTINGS 統合ドロップダウンパネル -->
+    <div class="header-props-dropdown" id="documentFrontmatter" aria-label="文書プロパティと読書設定">
+      <div class="dropdown-inner">
+        <!-- 統合設定メニュー (THEME / FONT / SIZE) -->
+        <div class="integrated-reader-controls" aria-label="読書設定ツールバー">
+          <div class="control-group">
+            <span class="control-label">THEME:</span>
+            <button class="btn-toggle" id="btn-theme-midnight" onclick="setTheme('midnight')">蒼碧</button>
+            <button class="btn-toggle" id="btn-theme-washi" onclick="setTheme('washi')">和紙</button>
+            <button class="btn-toggle" id="btn-theme-obsidian" onclick="setTheme('obsidian')">漆黒</button>
+            <button class="btn-toggle active" id="btn-theme-porcelain" onclick="setTheme('porcelain')">白磁</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">FONT:</span>
+            <button class="btn-toggle active" id="btn-font-serif" onclick="setFontFamily('serif')">明朝体</button>
+            <button class="btn-toggle" id="btn-font-sans" onclick="setFontFamily('sans')">ゴシック</button>
+          </div>
+
+          <div class="control-divider" aria-hidden="true"></div>
+
+          <div class="control-group">
+            <span class="control-label">SIZE:</span>
+            <button class="btn-toggle" id="btn-size-small" onclick="setFontSize('small')">小</button>
+            <button class="btn-toggle active" id="btn-size-medium" onclick="setFontSize('medium')">中</button>
+            <button class="btn-toggle" id="btn-size-large" onclick="setFontSize('large')">大</button>
+          </div>
+        </div>
+
+        <!-- 統合プロパティ表示 (Grid / Raw タブ切り替え) -->
+        <div class="frontmatter-body-integrated" id="frontmatterBody">
+          <div class="frontmatter-toolbar">
+            <div class="frontmatter-actions">
+              <button class="tab-pill active" id="btnTabGrid" onclick="switchMetaTab('grid')">Property Grid</button>
+              <button class="tab-pill" id="btnTabRaw" onclick="switchMetaTab('raw')">Raw YAML</button>
+            </div>
+          </div>
+
+          <!-- 1. Grid Visual View -->
+          <div class="spec-grid" id="metaGridView">
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                date
+              </span>
+              <span class="spec-value" id="prop-date">2026-10-25T12:25:23</span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                author
+              </span>
+              <span class="spec-value" id="prop-author">
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                  <span
+                    style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8;"></span>
+                  無料版Gemini自動モード：高
+                </span>
+              </span>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                categories
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge category-pill">AI</span>
+                <span class="meta-badge category-pill">物語</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M7 7h.01M7 3h5a1.99 1.99 0 0 1 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z">
+                  </path>
+                </svg>
+                tags
+              </span>
+              <div class="badge-pill-list">
+                <span class="meta-badge">桃太郎</span>
+              </div>
+            </div>
+
+            <div class="spec-item spec-item-full spec-item-inline">
+              <span class="spec-key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                description:
+              </span>
+              <span class="spec-value">ライティングシステムプロンプトによって生成された桃太郎の起源</span>
+            </div>
+
+            <!-- Nested user_settings Property Card -->
+            <div class="user-settings-card">
+              <div class="settings-subhead">
+                <span style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="3"></circle>
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                  </svg>
+                  user_settings:
+                </span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">(Prompt &amp;
+                  Generation Directives)</span>
+              </div>
+
+              <div class="settings-badges">
+                <div class="setting-badge">
+                  <span class="badge-name">theme:</span>
+                  <span class="badge-val">"桃太郎の起源"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">output_format:</span>
+                  <span class="badge-val">"ショートストーリー"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">word_count:</span>
+                  <span class="badge-val">"2000字程度"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">motive:</span>
+                  <span class="badge-val">"桃太郎が一体どこからやってきたのか気になったお爺さん"</span>
+                </div>
+                <div class="setting-badge">
+                  <span class="badge-name">desired_emotion:</span>
+                  <span class="badge-val">"誰も知ろうとしなかった驚愕の真実"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Raw YAML Block View -->
+          <pre class="yaml-raw-view" id="metaRawView"><code><span class="yaml-k">---</span>
+<span class="yaml-k">uid</span>: <span class="yaml-v">20261025122523</span>
+<span class="yaml-k">title</span>: <span class="yaml-s">『誰も知らない川上の果てで』</span>
+<span class="yaml-k">date</span>: <span class="yaml-v">2026-10-25T12:25:23</span>
+<span class="yaml-k">lastmod</span>: <span class="yaml-v">2026-10-25T12:25:23</span>
+<span class="yaml-k">description</span>: <span class="yaml-s">ライティングシステムプロンプトによって生成された桃太郎の起源</span>
+<span class="yaml-k">tags</span>:
+  - <span class="yaml-s">桃太郎</span>
+<span class="yaml-k">categories</span>:
+  - <span class="yaml-s">AI</span>
+  - <span class="yaml-s">物語</span>
+<span class="yaml-k">format</span>: <span class="yaml-s">チャットログ</span>
+<span class="yaml-k">author</span>:
+  - <span class="yaml-s">無料版Gemini自動モード：高</span>
+<span class="yaml-k">socialImage</span>:
+<span class="yaml-k">fmContentType</span>: <span class="yaml-s">memo</span>
+<span class="yaml-k">---</span>
+
+<span class="yaml-k">user_settings</span>:
+  <span class="yaml-k">theme</span>: <span class="yaml-s">"桃太郎の起源"</span>
+  <span class="yaml-k">output_format</span>: <span class="yaml-s">"ショートストーリー"</span>
+  <span class="yaml-k">word_count</span>: <span class="yaml-s">"2000字程度"</span>
+  <span class="yaml-k">motive</span>: <span class="yaml-s">"桃太郎が一体どこからやってきたのか気になったお爺さん"</span>
+  <span class="yaml-k">desired_emotion</span>: <span class="yaml-s">"誰も知ろうとしなかった驚愕の真実"</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Story Container -->
+  <div class="app-container">
+    <!-- Story Article -->
+    <article class="story-article">
+      <header class="story-header">
+        <h1 class="story-title">誰も知らない川上の果てで</h1>
+        <div class="story-subtitle">Beyond the Headwaters Unseen: The Genesis of the Bio-Invader</div>
+
+        <div class="reading-meta">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            読了目安：約4分
+          </span>
+          <span>／</span>
+          <span>約1,900文字</span>
+        </div>
+      </header>
+
+      <!-- Key Epigraph -->
+      <aside class="epigraph-box">
+        <blockquote class="epigraph-quote">
+          お婆さんが川で拾ったあの巨大な桃は、大気圏突入時の摩擦熱を防ぐための高密度耐熱ポッドであり、その内部で完全に無菌培養された戦闘用ヒューマノイドこそが、我が子と信じて育てた桃太郎だった。
+        </blockquote>
+      </aside>
+
+      <!-- Main Literary Text -->
+      <main class="story-content" id="storyContent">
+        <p class="opening-paragraph">
+          村の誰もが、あの物語を疑わなかった。
+        </p>
+
+        <p>
+          川で洗濯をしていたお婆さんが大きな桃を拾い、中から赤ん坊が飛びだし、すくすくと育った若者はやがて犬・猿・キジを従えて鬼ヶ島へ渡り、見事に宝を持ち帰った――おめでたい、子供向けの昔話。夜の囲炉裏端で語られるたび、村人たちは拍手を送り、酒を酌み交わし、平和な結末に酔いしれた。
+        </p>
+
+        <p>
+          だが、育ての親であるお爺さん――名は源造（げんぞう）と言った――の胸のうちは、長年、消えない棘のように冷たい違和感が突き刺さっていた。
+        </p>
+
+        <p class="dialogue">
+          「あいつは、一体、どこからやってきたのだろう」
+        </p>
+
+        <p>
+          夜更け、寝息を立てる桃太郎の横顔を見つめながら、源造はいつもそう呟いた。<br>
+          村の者たちは誰も気に留めなかった。川上から流れてきたからには、山奥のどこかにある桃の木から落ちたのだろうと、誰もが素朴に信じ込んでいた。だが、源造は知っていた。あの川の上流には、何年かけても辿り着けないほどの険しい連峰がそびえ立っている。人の踏み入る隙すらない深い原生林の奥、そのさらに向こう側にあるのは、緑の山々ではなく、ただ青黒く切り立った「世界の崖」だ。
+        </p>
+
+        <p>
+          植物など一本も生えていない、絶対的な沈黙の絶壁。そんな場所から、どうしてあの完璧に整った、甘い芳香を放つ巨大な桃が流れてくるというのか。
+        </p>
+
+        <p>
+          好奇心と、言い知れない恐怖に駆られた源造は、桃太郎が国を平定するために旅立ったその日の朝、密かに背嚢（はいのう）を背負い、一人で川の上流へと向かった。
+        </p>
+
+        <div class="scene-divider" aria-hidden="true">❖ ❖ ❖</div>
+
+        <h2
+          style="text-align: center; font-size: 1.25rem; font-family: var(--font-title); letter-spacing: 0.15em; color: var(--accent-primary); margin: 2.2rem 0 1.5rem;">
+          源流の果て</h2>
+
+        <p>
+          下流から上流へ。流れを遡るにつれ、景色は異様な変貌を遂げていった。<br>
+          草木の色が、徐々に灰白色へと褪せていく。小鳥のさえずりは消え失せ、川底の石は丸みを帯びた河原の石ではなく、まるで機械の部品のように規則正しく六角形に割れた黒い鉱物の塊へと変わっていった。水温も冷たくなり、やがて水は血のように濁った蛍光の青みを帯びて、音もなく逆巻くように流れていた。
+        </p>
+
+        <p class="dialogue">
+          「これは……水ではない」
+        </p>
+
+        <p>
+          源造は息を呑んだ。それは川ではなく、何らかの冷却水、あるいは有機的な循環システムの脈管だったのだ。<br>
+          さらに数日をかけ、彼はついに誰も見たことのない「源流」へと到達した。
+        </p>
+
+        <p>
+          そこにあったのは、山でも森でもなかった。<br>
+          そびえ立っていたのは、雲を突き抜け、夜空の彼方へ無限に伸びる巨大な黒い「杭（くい）」だった。周囲数百メートルにわたって地面は円形にくりぬかれ、何万という無数の幾何学模様が刻まれた金属質の平原が広がっている。空は不気味に歪み、星々は存在しないはずの軌道を描いて不規則に瞬いていた。
+        </p>
+
+        <p style="text-align: center; letter-spacing: 0.2em; color: var(--text-muted); font-style: italic;">
+          ――ここだ。すべての始まりは、この場所だ。
+        </p>
+
+        <p>
+          源造が震える足を進めたとき、目の前で巨大な金属の扉が音もなく滑り開いた。<br>
+          そこには、無数の「保管槽」が垂直の壁一面に並んでいた。一つひとつの槽のなかには、液体に浸された巨大な桃型のカプセルが無数に浮かんでいる。槽の表面には、村で見たものと全く同じ、しかしより冷徹で洗練された文様が刻まれていた。
+        </p>
+
+        <p>
+          そして、その中央のメインコンソールに刻まれた文字を、文字の読める村の数少ない知識人であった源造は、愕然としながら読み解いた。
+        </p>
+
+        <div
+          style="background: var(--bg-surface-elevated); border-left: 3px solid var(--accent-primary); padding: 1.25rem 1.5rem; margin: 1.75rem 0; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.8; color: var(--text-title); border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+          <p style="margin: 0 0 0.5rem 0; font-weight: 700;">『生体侵略端末（バイオ・インベーダー） プランA：試作型第000号』</p>
+          <p style="margin: 0 0 0.5rem 0; font-weight: 700;">『投下地点：未開拓炭素系惑星（コード：J-11）』</p>
+          <p style="margin: 0; font-weight: 700;">『初期任務：原住民の信頼を獲得し、現地の生態系防衛機構（通称：オニ）の排除、および惑星の管理権限の掌握』</p>
+        </div>
+
+        <div class="scene-divider" aria-hidden="true">❖ ❖ ❖</div>
+
+        <h2
+          style="text-align: center; font-size: 1.25rem; font-family: var(--font-title); letter-spacing: 0.15em; color: var(--accent-primary); margin: 2.2rem 0 1.5rem;">
+          誰も知ろうとしなかった真実</h2>
+
+        <p>
+          頭が真っ白になった。<br>
+          血の気が引き、源造はその場に膝をついた。
+        </p>
+
+        <p>
+          桃太郎は、子供などではなかった。ましてや自然の恵みでもない。<br>
+          それは、遥かなる星の彼方、あるいは未来の異次元から投下された、巧妙な「生物兵器」だったのだ。<br>
+          <span
+            class="highlight-moment">お婆さんが川で拾ったあの巨大な桃は、大気圏突入時の摩擦熱を防ぐための高密度耐熱ポッドであり、その内部で完全に無菌培養された戦闘用ヒューマノイドこそが、我が子と信じて育てた桃太郎だった。</span>
+        </p>
+
+        <p>
+          村人たちが歓喜に湧いた「鬼退治」の真相も、残酷なまでに鮮やかに脳裏で組み上がっていった。<br>
+          「鬼」とは、悪党などではなかった。この惑星の本来の生態系を守るために地球の免疫システムとして自生していた先住生物であり、あるいはこの世界を侵略から守ろうとした旧文明の残党だったのだ。桃太郎は、その防衛網を内側からスムーズに破壊するために、「英雄」という無害な衣を纏い、犬・猿・キジを手懐けて効率よく殲滅するための最適解プログラムを実行していたにすぎない。
+        </p>
+
+        <p>
+          そして自分たち――お爺さんとお婆さんはどうだ。<br>
+          彼らが川辺で桃を拾い、慈しんで育て、強き若者へと仕立て上げたことのすべてが、その生体兵器の「起動プロセス」に予め組み込まれていた、自動装置（NPC）としての役割に過ぎなかったのだとしたら。
+        </p>
+
+        <p class="dialogue">
+          「私たちは……何に育て、何を送り出してしまったのか……」
+        </p>
+
+        <p>
+          背筋が凍るような静寂の中、源造の唇から漏れた声は、広大な金属の平原にかき消されていった。
+        </p>
+
+        <p>
+          誰も知ろうとしなかった。<br>
+          なぜなら、すべての人間が「おめでたい昔話」という名の心地よい麻薬に酔いしれ、その裏側に広がる宇宙的スケールの侵略劇の存在すら想像しようとしなかったからだ。
+        </p>
+
+        <p>
+          遠く、鬼ヶ島の方向から、地鳴りのような轟音が響いた。<br>
+          それは勝利の凱旋の音か、それともこの星が完全にシステムへと組み込まれる終わりの鐘の音か。<br>
+          源造は二度と故郷へ戻る気力を失い、ただ無限に広がる黒い杭の下で、崩れ落ちるように立ち尽くすのだった。
+        </p>
+      </main>
+    </article>
+
+    <!-- Appendix / Creative Insights Accordion -->
+    <aside class="appendix-section">
+      <div class="accordion-card" id="appendixCard">
+        <button class="accordion-header" onclick="toggleAppendix()" aria-expanded="false" aria-controls="appendixBody">
+          <div class="accordion-title-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>付録：創作メモと構造分析（概念の架橋）</span>
+          </div>
+          <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="accordion-body" id="appendixBody">
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 1. 企画意図とコアコンセプト</div>
+            <p>
+              <strong>【中心テーマの再定義：桃太郎の起源】</strong><br>
+              日本の代表的昔話である「桃太郎」における最大の不条理――「なぜ川上から人間の赤子を宿した完全な桃が流れてくるのか」という問いを基点に、民話の牧歌的な皮膜をSF的・コズミックホラー的脱構築によって引き剥がす。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>【着眼点（疑念の種）】</strong><br>
+              ・川上は人の踏み入れない険峰と断崖であり、果樹園など存在しない。<br>
+              ・自然界に存在し得ない完璧な形状と芳香の果実。<br>
+              ・育ての親である老爺（源造）の視点から、英雄譚の背後に横たわる「冷酷な計算」を浮き彫りにする。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 2. 世界観と深層設定（裏プロット）</div>
+            <p>
+              <strong>① 「桃」の正体：大気圏突入用耐熱ポッド</strong><br>
+              ・桃の果肉と皮は、未知の文明による大気圏突入時の摩擦熱を遮断するための有機高分子耐熱シールド。<br>
+              ・内部に無菌培養された戦闘用アンドロイド（コード：J-11 試作型第000号）を安全に現地環境へ降ろすための投下カプセル。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>② 「鬼」の正体：惑星の生態系防衛機構</strong><br>
+              ・土着の生態系を守る免疫システム（先住生物）あるいは旧文明の自律防衛機構。<br>
+              ・外来の侵略端末（桃太郎）を排除しようとする自然の抵抗運動を、原住民（人間）側からは「悪しき鬼」と誤認させる欺瞞プロトコル。
+            </p>
+            <p style="margin-top: 0.75rem;">
+              <strong>③ 育ての親の残酷な役割（NPC化）</strong><br>
+              ・老夫婦の無償の愛や献身は美談ではなく、侵略端末の社会的カモフラージュと初期学習プロセスとしてあらかじめプログラムされた「自動装置（NPC）」の挙動に過ぎない。
+            </p>
+          </div>
+
+          <div class="commentary-block">
+            <div class="commentary-sub">■ 3. 構造と視点設計</div>
+            <p>
+              <strong>【視点人物：お爺さん（源造）】</strong><br>
+              勝利に湧く村の狂騒と、旅立った英雄の不在という「空白の時間」に、長年の疑念に突き動かされて一人源流を目指す単独行。<br>
+              民話の自然風景（清流・山林）が、上流へと向かうにつれて幾何学的な鉱物・冷たい六角柱・青い冷却水へと無機物化していく「世界の境界侵犯」を描く。
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+      <div class="footer-author-box">
+        <div class="author-avatar" style="background: linear-gradient(135deg, #0284c7, #38bdf8);">G</div>
+        <span>Generated by <strong>無料版Gemini自動モード：高</strong></span>
+        <span>•</span>
+        <span>Curated by 来火 <a class="footer-link" href="https://bsky.app/profile/highants.bsky.social" target="_blank"
+            rel="noopener noreferrer">@highants.bsky.social</a></span>
+      </div>
+      <p style="font-size: 0.74rem; color: var(--text-faint);">
+        Pages Literary Archive // Generated 2026-10-25T12:25:23 (UID: 20261025122523)
+      </p>
+    </footer>
+  </div>
+
+  <!-- Client-side Logic (Shared Story Reader Engine) -->
+  <script src="story-reader.js"></script>
+</body>
+
+</html>
