@@ -215,6 +215,17 @@
       --tag-color: #0e7490;
     }
 
+    .card[data-theme="horoscope"] {
+      --card-accent: #b45309;
+      /* amber & celestial gold / mundane astrology */
+      --tag-bg: #fffbeb;
+      --tag-color: #92400e;
+    }
+
+    .card[data-theme="horoscope"] .card-title {
+      font-family: 'Noto Serif JP', var(--font-sans);
+    }
+
     .card[data-theme="stories"] {
       --card-accent: #0284c7;
       /* cyan & deep ocean / literary archive */
@@ -225,6 +236,19 @@
     }
 
     .card[data-theme="stories"] .card-title {
+      font-family: 'Noto Serif JP', var(--font-sans);
+    }
+
+    .card[data-theme="odyssey"] {
+      --card-accent: #0284c7;
+      /* antique cyan & maritime / classic epic parallel reader */
+      --tag-bg: #e0f2fe;
+      --tag-color: #0369a1;
+      border-color: #cbd5e1;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .card[data-theme="odyssey"] .card-title {
       font-family: 'Noto Serif JP', var(--font-sans);
     }
 
@@ -447,6 +471,35 @@
     </header>
 
     <main class="grid" id="page-grid">
+      <!-- Card: washington_2026_horoscope.html (2026年ワシントンD.C.ホロスコープ) -->
+      <a href="washington_2026_horoscope.html" class="card" data-theme="horoscope" id="card-washington-2026-horoscope">
+        <div class="card-top">
+          <span class="tag">ASTROLOGY</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            Chart
+          </span>
+        </div>
+        <h2 class="card-title">2026年ワシントンD.C.ホロスコープ</h2>
+        <div class="card-subtitle">国家構造の相転移と世界の行方 // マンデン分析</div>
+        <p class="card-desc">
+          2026年11月3日正午（中間選挙投票日）のワシントンD.C.天体配置（Kerykeion計算）を原典SVG・データとともに完全可視化。蠍座MCと逆行水星の極限合（オーブ0.04°）、牡羊座海王星・土星の通貨再編、獅子座ステリウムの覇権、そして水瓶座冥王星とドラゴンヘッドが示す文明のネットワーク化を10章のエッセイとリアルタイム連動で読み解く。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            ホロスコープを開く
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
       <!-- Card: story/stories.html (物語目録) -->
       <a href="story/stories.html" class="card" data-theme="stories" id="card-stories">
         <div class="card-top">
@@ -465,6 +518,35 @@
         <div class="card-subtitle">短編小説・ショートストーリーの収蔵庫</div>
         <p class="card-desc">
           来火が生成AIと共に紡ぎ出した短編文学コレクション。『蒼いサロンの茹で上がり』をはじめ、独自の文体指示（user_settings）と美学設計のもとで制作された作品群を一覧・閲覧できます。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            目録を開く
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card: library/index.html (図書館・収蔵書目録) -->
+      <a href="library/index.html" class="card" data-theme="odyssey" id="card-library">
+        <div class="card-top">
+          <span class="tag">LIBRARY / CLASSIC</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+              <line x1="8" y1="3" x2="8" y2="21"></line>
+            </svg>
+            Library Archive
+          </span>
+        </div>
+        <h2 class="card-title">図書館 // 収蔵書目録</h2>
+        <div class="card-subtitle">古典・名著の並列リーダーアーカイブ</div>
+        <p class="card-desc">
+          『オデュッセイア』をはじめとする古典文学・名著の日本語翻訳詩と、各場面の構造解説・ナレッジを左右並列で同時に読み解くデジタル収蔵庫の総合目録です。
         </p>
         <div class="card-footer">
           <span class="card-action">
