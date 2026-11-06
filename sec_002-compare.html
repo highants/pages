@@ -1,0 +1,3425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ホメロス『オデュッセイア』第1巻（アレグザンダー・ポープ1725年英雄対句英訳）の英語原文、Gemini 3.8 Flash 訳、PLaMo-3-Translate-31B 訳を完全同期して3列並列比較する読書リーダー。">
+  <title>『オデュッセイア』第1巻 3列並列リーダー // 原文・Gemini・PLaMo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-header: #ffffff;
+      --bg-pane: #ffffff;
+      --bg-pane-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --text-soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+
+      /* Column 1: Pope Original (Slate/Bronze) */
+      --color-original: #475569;
+      --bg-original-subtle: #f8fafc;
+      --border-original: #cbd5e1;
+
+      /* Column 2: Gemini 3.8 Flash (Warm Amber) */
+      --color-gemini: #b45309;
+      --bg-gemini-subtle: #fffbeb;
+      --border-gemini: #fde68a;
+
+      /* Column 3: PLaMo-3-Translate-31B (Indigo) */
+      --color-plamo: #3730a3;
+      --bg-plamo-subtle: #eef2ff;
+      --border-plamo: #c7d2fe;
+
+      /* Unified Serif typography across all 3 reading panes */
+      --font-serif: 'Noto Serif JP', 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', 'EB Garamond', Georgia, serif;
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Menlo, monospace;
+      
+      --base-font-size: 15.5px;
+      --base-line-height: 1.95;
+    }
+
+    body.theme-sepia {
+      --bg-page: #fbf7ee;
+      --bg-header: #f4ece1;
+      --bg-pane: #fdfaf4;
+      --bg-pane-subtle: #f3ece0;
+      --text-main: #2d261e;
+      --text-body: #473c33;
+      --text-muted: #7c6f64;
+      --text-soft: #a89a8c;
+      --border: #e7decb;
+      --border-dark: #d5c8b0;
+      --bg-original-subtle: #f7f1e5;
+      --bg-gemini-subtle: #fef8eb;
+      --bg-plamo-subtle: #ede9fe;
+      --border-original: #ded3be;
+      --border-gemini: #eed49f;
+      --border-plamo: #d3c8f8;
+    }
+
+    body.theme-dark {
+      --bg-page: #090d16;
+      --bg-header: #0f172a;
+      --bg-pane: #0f172a;
+      --bg-pane-subtle: #1e293b;
+      --text-main: #f8fafc;
+      --text-body: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-soft: #64748b;
+      --border: #334155;
+      --border-dark: #475569;
+      --bg-original-subtle: #161e2e;
+      --bg-gemini-subtle: #291c0e;
+      --bg-plamo-subtle: #1a1e36;
+      --border-original: #334155;
+      --border-gemini: #78350f;
+      --border-plamo: #3730a3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-page);
+      color: var(--text-body);
+      font-family: var(--font-sans);
+      font-size: var(--base-font-size);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Global Header */
+    .global-header {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      padding: 0.55rem 1.25rem;
+      flex-shrink: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.28rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-pane);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      color: var(--primary);
+      border-color: var(--border-dark);
+    }
+
+    .page-title-wrap h1 {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      letter-spacing: -0.01em;
+    }
+
+    .model-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      background: var(--bg-gemini-subtle);
+      color: var(--color-gemini);
+      border: 1px solid var(--border-gemini);
+    }
+
+    .model-tag.orig-tag {
+      background: var(--bg-original-subtle);
+      color: var(--color-original);
+      border-color: var(--border-original);
+    }
+
+    .model-tag.plamo-tag {
+      background: var(--bg-plamo-subtle);
+      color: var(--color-plamo);
+      border-color: var(--border-plamo);
+    }
+
+    .btn-critique-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: #0284c7;
+      text-decoration: none;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-critique-link:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
+    }
+
+    /* Controls Strip */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: var(--bg-pane-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .view-btn {
+      border: none;
+      background: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.15s ease;
+    }
+
+    .view-btn.active {
+      background: var(--bg-pane);
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .sync-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-pane);
+    }
+
+    .sync-toggle-label input {
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .font-controls {
+      display: flex;
+      align-items: center;
+      background: var(--bg-pane);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .font-btn {
+      border: none;
+      background: none;
+      padding: 0.22rem 0.48rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background 0.15s;
+    }
+
+    .font-btn:hover {
+      background: var(--bg-pane-subtle);
+      color: var(--text-main);
+    }
+
+    .theme-select {
+      font-size: 0.76rem;
+      font-family: inherit;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-pane);
+      color: var(--text-muted);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Collapsible Source Banner */
+    .query-banner {
+      background: var(--bg-pane-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-body);
+      cursor: pointer;
+    }
+
+    .query-summary {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      list-style: none;
+      outline: none;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .query-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .query-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      flex-shrink: 0;
+      background: var(--primary-light);
+      padding: 0.08rem 0.35rem;
+      border-radius: 3px;
+    }
+
+    body.theme-dark .query-label {
+      background: #1e3a8a;
+      color: #93c5fd;
+    }
+
+    .query-text {
+      color: var(--text-main);
+      font-size: 0.8rem;
+    }
+
+    .query-meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .query-details-content {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    /* 3-Column Panes Container */
+    .panes-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      min-height: 0;
+      position: relative;
+    }
+
+    /* View Modes */
+    .panes-container.view-jp2 {
+      grid-template-columns: 1fr 1fr;
+    }
+    .panes-container.view-jp2 .pane-original {
+      display: none !important;
+    }
+
+    .panes-container.view-orig-only {
+      grid-template-columns: 1fr;
+    }
+    .panes-container.view-orig-only .pane-personal,
+    .panes-container.view-orig-only .pane-neutral {
+      display: none !important;
+    }
+
+    .panes-container.view-personal-only {
+      grid-template-columns: 1fr;
+    }
+    .panes-container.view-personal-only .pane-original,
+    .panes-container.view-personal-only .pane-neutral {
+      display: none !important;
+    }
+
+    .panes-container.view-neutral-only {
+      grid-template-columns: 1fr;
+    }
+    .panes-container.view-neutral-only .pane-original,
+    .panes-container.view-neutral-only .pane-personal {
+      display: none !important;
+    }
+
+    /* Pane Item */
+    .pane {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-pane);
+      min-height: 0;
+      position: relative;
+    }
+
+    .pane-original {
+      border-right: 1px solid var(--border);
+    }
+
+    .pane-personal {
+      border-right: 1px solid var(--border);
+    }
+
+    /* Sticky Pane Header */
+    .pane-header {
+      padding: 0.6rem 1.15rem;
+      background: var(--bg-pane);
+      border-bottom: 2px solid var(--pane-accent, var(--border));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .pane-original .pane-header {
+      --pane-accent: var(--color-original);
+      background: var(--bg-original-subtle);
+    }
+
+    .pane-personal .pane-header {
+      --pane-accent: var(--color-gemini);
+      background: var(--bg-gemini-subtle);
+    }
+
+    .pane-neutral .pane-header {
+      --pane-accent: var(--color-plamo);
+      background: var(--bg-plamo-subtle);
+    }
+
+    .pane-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pane-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .pane-status-pill {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 0.12rem 0.42rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+
+    .pane-original .pane-status-pill {
+      background: var(--color-original);
+      color: #ffffff;
+    }
+
+    .pane-personal .pane-status-pill {
+      background: var(--color-gemini);
+      color: #ffffff;
+    }
+
+    .pane-neutral .pane-status-pill {
+      background: var(--color-plamo);
+      color: #ffffff;
+    }
+
+    .pane-stats {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    /* Scrollable Reading Area (Serif Unified) */
+    .pane-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.6rem 1.6rem 6rem;
+      position: relative;
+      font-family: var(--font-serif);
+      overflow-anchor: none;
+    }
+
+    .prose {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: var(--base-font-size);
+      line-height: var(--base-line-height);
+      font-family: var(--font-serif);
+      color: var(--text-body);
+    }
+
+    /* Poem Sections */
+    .poem-section {
+      margin-bottom: 3.2rem;
+      padding-top: 0.8rem;
+      scroll-margin-top: 1rem;
+      font-family: var(--font-serif);
+    }
+
+    .section-header-bar {
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sec-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .sec-badge {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .sec-badge.orig-badge {
+      background: var(--bg-original-subtle);
+      color: var(--color-original);
+      border: 1px solid var(--border-original);
+    }
+
+    .sec-badge.gemini-badge {
+      background: var(--bg-gemini-subtle);
+      color: var(--color-gemini);
+      border: 1px solid var(--border-gemini);
+    }
+
+    .sec-badge.plamo-badge {
+      background: var(--bg-plamo-subtle);
+      color: var(--color-plamo);
+      border: 1px solid var(--border-plamo);
+    }
+
+    .sec-pope-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .sec-title {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .verse-stanza {
+      margin-bottom: 1.25rem;
+      line-height: 1.95;
+      text-align: justify;
+      text-justify: inter-ideograph;
+      font-family: var(--font-serif);
+    }
+
+    .pane-original .verse-stanza {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.02em;
+      line-height: 1.75;
+      text-align: left;
+    }
+
+    /* Highlights & Badges */
+    .diff-highlight {
+      background-color: rgba(234, 179, 8, 0.18);
+      border-bottom: 2px solid #eab308;
+      padding: 1px 3px;
+      border-radius: 2px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .diff-highlight.orig-hl {
+      background-color: rgba(71, 85, 105, 0.15);
+      border-bottom-color: #64748b;
+    }
+
+    .diff-highlight.danger {
+      background-color: rgba(239, 68, 68, 0.15);
+      border-bottom-color: #ef4444;
+    }
+
+    .diff-highlight.warning {
+      background-color: rgba(245, 158, 11, 0.2);
+      border-bottom-color: #f59e0b;
+    }
+
+    body.theme-dark .diff-highlight {
+      background-color: rgba(234, 179, 8, 0.25);
+      border-bottom-color: #facc15;
+    }
+
+    body.theme-dark .diff-highlight.danger {
+      background-color: rgba(239, 68, 68, 0.25);
+      border-bottom-color: #f87171;
+    }
+
+    .diff-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.08rem 0.35rem;
+      border-radius: 3px;
+      margin-right: 0.3rem;
+      vertical-align: middle;
+      color: #ffffff;
+    }
+
+    .diff-badge.orig-badge { background: #475569; }
+    .diff-badge.success { background: #16a34a; }
+    .diff-badge.danger { background: #dc2626; }
+    .diff-badge.warning { background: #d97706; }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .panes-container {
+        grid-template-columns: 1fr 1fr;
+      }
+      .pane-original {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .panes-container {
+        grid-template-columns: 1fr;
+      }
+      .pane-personal {
+        border-right: none;
+      }
+      .pane-content {
+        padding: 1.2rem 1.1rem 4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- GLOBAL HEADER -->
+    <header class="global-header">
+      <div class="header-top">
+        <div class="nav-brand">
+          <a href="index.html" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            Pages
+          </a>
+          <div class="page-title-wrap">
+            <h1>
+              『オデュッセイア』第1巻 3列並列リーダー
+              <span class="model-tag orig-tag">Pope 原文</span>
+              <span class="model-tag">Gemini</span>
+              <span class="model-tag plamo-tag">PLaMo</span>
+            </h1>
+          </div>
+        </div>
+
+        <!-- CONTROLS STRIP -->
+        <div class="header-controls">
+          <a href="sec_002-critique.html" class="btn-critique-link" title="単独批評ページを開く">
+            📊 翻訳の分析と批評を読む
+          </a>
+
+          <!-- View Switcher -->
+          <div class="view-toggle">
+            <button class="view-btn active" id="btnAll3" title="3列並行表示（原文・Gemini・PLaMo）">3列並行</button>
+            <button class="view-btn" id="btnJp2" title="日日比較（GeminiとPLaMoの2列並列）">日日比較(2列)</button>
+            <button class="view-btn" id="btnOrigOnly" title="英語原文のみ">原文</button>
+            <button class="view-btn" id="btnPersonal" title="Gemini版のみ">Gemini</button>
+            <button class="view-btn" id="btnNeutral" title="PLaMo版のみ">PLaMo</button>
+          </div>
+
+          <!-- Section Quick-Jump Dropdown -->
+          <select class="theme-select" id="sectionJump" title="セクションへジャンプ">
+            <option value="">セクション移動...</option>
+            <option value="sec-01">第01節：要綱（あらすじ）＆ 序歌：ムーサへの祈祷と神...</option>
+            <option value="sec-02">第02節：オリュンポスの神々の会議：ゼウスが語るアイギ...</option>
+            <option value="sec-03">第03節：アテナの嘆願とゼウスの応答：ポセイドンの怒り...</option>
+            <option value="sec-04">第04節：アテナの計画とイタケ降臨：メンテス王への変身...</option>
+            <option value="sec-05">第05節：テレマコスによる客人の歓待と求婚者たちの宴...</option>
+            <option value="sec-06">第06節：吟遊詩人ペミオスの歌とテレマコスの嘆き...</option>
+            <option value="sec-07">第07節：メンテス（アテナ）の名乗りとユリシーズ帰還の...</option>
+            <option value="sec-08">第08節：親子の相似とテレマコスの悲憤：荒らされる王家...</option>
+            <option value="sec-09">第09節：アテナの憤りと助言：民会の召集とペネロペの去...</option>
+            <option value="sec-10">第10節：ピュロス・スパルタへの探索行の勧めとオレステ...</option>
+            <option value="sec-11">第11節：アテナの飛翔・神性の顕現とペネロペの涙...</option>
+            <option value="sec-12">第12節：母ペネロペを諭すテレマコスと求婚者への宣戦布...</option>
+            <option value="sec-13">第13節：アンティノオス・エウリュマコスとの舌戦...</option>
+            <option value="sec-14">第14節：宴の終わりと老乳母エウリュクレイアに導かれる...</option>
+          </select>
+
+          <!-- Sync Scroll Switch -->
+          <label class="sync-toggle-label" title="左右の読書位置をセクション単位で完全同期させます">
+            <input type="checkbox" id="syncScrollCheck" checked>
+            <span>連動スクロール</span>
+          </label>
+
+          <!-- Font Size Adjustment -->
+          <div class="font-controls" title="文字サイズ変更">
+            <button class="font-btn" id="btnFontDec">A-</button>
+            <button class="font-btn" id="btnFontInc">A+</button>
+          </div>
+
+          <!-- Theme Selector -->
+          <select class="theme-select" id="themeSelect" title="テーマ切り替え">
+            <option value="light">ライト</option>
+            <option value="sepia">セピア（読書）</option>
+            <option value="dark">ダーク</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLE SOURCE METADATA BANNER -->
+      <details class="query-banner">
+        <summary class="query-summary">
+          <span class="query-label">SOURCE</span>
+          <span class="query-text">Homer, The Odyssey — Book I (Pope 1725 Heroic Couplets vs Gemini 3.8 Flash vs PLaMo-3-Translate-31B)</span>
+          <span class="query-meta">全14節 3列並列対照リーダー</span>
+        </summary>
+        <div class="query-details-content">
+          <strong>3列並列リーダーの構成について：</strong><br>
+          本ページは、アレグザンダー・ポープによる英雄対句英訳『オデュッセイア』第1巻の<strong>英語原文（左列）</strong>、<strong>Gemini 3.8 Flash 訳（中列）</strong>、<strong>PLaMo-3-Translate-31B 訳（右列）</strong>を同一の14セクションに構造整合させ、全列を明朝体・セリフ体で同期読書できるビューアです。<br>
+          翻訳の統語論的背景、ラテン詩的語法、および両モデルの定量的・定性的評価については、上部ボタンより<a href="sec_002-critique.html" style="color: var(--primary); font-weight: 700;">『翻訳の分析と批評』単独ページ</a>をご参照ください。
+        </div>
+      </details>
+    </header>
+
+    <!-- 3-COLUMN PANES CONTAINER -->
+    <div class="panes-container" id="panesContainer">
+      <!-- COLUMN 1: ALEXANDER POPE ENGLISH ORIGINAL -->
+      <aside class="pane pane-original" id="paneOriginal">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+              英語原文（Alexander Pope訳）
+            </span>
+            <span class="pane-status-pill">Original (Pope)</span>
+          </div>
+          <div class="pane-stats">
+            <span>Heroic Couplets</span>
+            <span>全14節</span>
+          </div>
+        </div>
+
+        <div class="pane-content" id="scrollOriginal">
+          <div class="prose">
+      <!-- SECTION 01 ORIGINAL -->
+      <section class="poem-section" data-section="sec-01" id="original-sec-01">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 01</span>
+            <span class="sec-pope-tag">Lines 1–24 (Book I, Heroic Couplets)</span>
+          </div>
+          <h2 class="sec-title">要綱（あらすじ）＆ 序歌：ムーサへの祈祷と神々の帰還</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+Book 1
+</div>
+<div class="verse-stanza">
+ARGUMENT.<br>
+MINERVA’S DESCENT TO ITHACA.<br>
+The poem opens <mark class="diff-highlight orig-hl" title="【対照点①】within 48 days of arrival = ユリシーズ帰着の48日前（全40余日の叙事詩全体構造）"><span class="diff-badge orig-badge">Timeline</span>within forty eight days of the arrival</mark> of Ulysses in his<br>
+dominions. He had now remained seven years in the Island of Calypso,<br>
+when the gods assembled in council, proposed the method of his<br>
+departure from thence and his return to his native country. For this<br>
+purpose it is concluded to send Mercury to Calypso, and Pallas<br>
+immediately descends to Ithaca. She holds a conference with<br>
+Telemachus, in the shape of Mantes, king of Taphians; in which she<br>
+advises him to take a journey in quest of his father Ulysses, to Pylos<br>
+and Sparta, where Nestor and Menelaus yet reigned; then, after having<br>
+visibly displayed her divinity, disappears. The suitors of Penelope<br>
+make great entertainments, and riot in her palace till night. Phemius<br>
+sings to them the return of the Grecians, till Penelope puts a stop to<br>
+the song. Some words arise between the suitors and Telemachus, who<br>
+summons the council to meet the day following.<br>
+The man for wisdom’s various arts renown’d,<br>
+Long exercised in woes, O Muse! resound;<br>
+Who, when his arms had wrought the destined fall<br>
+Of sacred Troy, and razed her heaven-built wall,<br>
+Wandering from clime to clime, observant stray’d,<br>
+Their manners noted, and their states survey’d,<br>
+On stormy seas unnumber’d toils he bore,<br>
+<mark class="diff-highlight orig-hl" title="【対照点②】to gain...（目的の不定詞：友と帰還せんとしたが、空しき労苦であった）"><span class="diff-badge orig-badge">Infinitive</span>Safe with his friends to gain his natal shore:<br>
+Vain toils!</mark> their impious folly dared to prey<br>
+On herds devoted to the god of day;<br>
+The god vindictive doom’d them never more<br>
+(Ah, men unbless’d!) to touch that natal shore.<br>
+Oh, snatch some portion of these acts from fate,<br>
+Celestial Muse! and to our world relate.<br>
+Now at their native realms the Greeks arrived;<br>
+All who the wars of ten long years survived;<br>
+And ’scaped the perils of the gulfy main.<br>
+Ulysses, sole of all the victor train,<br>
+An exile from his dear paternal coast,<br>
+Deplored his absent queen and empire lost.<br>
+Calypso in her caves constrain’d his stay,
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 02 ORIGINAL -->
+      <section class="poem-section" data-section="sec-02" id="original-sec-02">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 02</span>
+            <span class="sec-pope-tag">Lines 25–68</span>
+          </div>
+          <h2 class="sec-title">オリュンポスの神々の会議：ゼウスが語るアイギストスの破滅</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+With sweet, reluctant, amorous delay;<br>
+In vain-for now the circling years disclose<br>
+The day predestined to reward his woes.<br>
+At length his Ithaca is given by fate,<br>
+Where yet new labours his arrival wait;<br>
+At length their rage the hostile powers restrain,<br>
+All but the ruthless monarch of the main.<br>
+But now the god, remote, a heavenly guest,<br>
+In AEthiopia graced the genial feast<br>
+(A race divided, whom with sloping rays<br>
+The rising and descending sun surveys);<br>
+There on the world’s extremest verge revered<br>
+With hecatombs and prayer in pomp preferr’d,<br>
+Distant he lay: while in the bright abodes<br>
+Of high Olympus, Jove convened the gods:<br>
+The assembly thus the sire supreme address’d,<br>
+AEgysthus’ fate revolving in his breast,<br>
+Whom young Orestes to the dreary coast<br>
+Of Pluto sent, a blood-polluted ghost.<br>
+“Perverse mankind! whose wills, created free,<br>
+Charge all their woes on absolute degree;<br>
+All to the dooming gods their guilt translate,<br>
+And follies are miscall’d the crimes of fate.<br>
+When to his lust AEgysthus gave the rein,<br>
+Did fate, or we, the adulterous act constrain?<br>
+Did fate, or we, when great Atrides died,<br>
+Urge the bold traitor to the regicide?<br>
+Hermes I sent, while yet his soul remain’d<br>
+<mark class="diff-highlight orig-hl" title="【対照点③】sincere from = ラテン語 sincerus a（〜に汚されていない、純潔な）"><span class="diff-badge orig-badge">Latinate</span>Sincere from royal blood, and faith profaned</mark>;<br>
+To warn the wretch, that young Orestes, grown<br>
+To manly years, should re-assert the throne.<br>
+Yet, impotent of mind, and uncontroll’d,<br>
+He plunged into the gulf which Heaven foretold.”<br>
+Here paused the god; and pensive thus replies<br>
+Minerva, graceful with her azure eyes:<br>
+“O thou! from whom the whole creation springs,<br>
+The source of power on earth derived to kings!<br>
+His death was equal to the direful deed;<br>
+So may the man of blood be doomed to bleed!<br>
+But grief and rage alternate wound my breast<br>
+For brave Ulysses, still by fate oppress’d.<br>
+Amidst an isle, around whose rocky shore<br>
+The forests murmur, and the surges roar,
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 03 ORIGINAL -->
+      <section class="poem-section" data-section="sec-03" id="original-sec-03">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 03</span>
+            <span class="sec-pope-tag">Lines 69–112</span>
+          </div>
+          <h2 class="sec-title">アテナの嘆願とゼウスの応答：ポセイドンの怒りと帰還の決定</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+The blameless hero from his wish’d-for home<br>
+A goddess guards in her enchanted dome;<br>
+(Atlas her sire, to whose far-piercing eye<br>
+The wonders of the deep expanded lie;<br>
+The eternal columns which on earth he rears<br>
+End in the starry vault, and prop the spheres).<br>
+By his fair daughter is the chief confined,<br>
+Who soothes to dear delight his anxious mind;<br>
+Successless all her soft caresses prove,<br>
+To banish from his breast his country’s love;<br>
+To see the smoke from his loved palace rise,<br>
+While the dear isle in distant prospect lies,<br>
+With what contentment could he close his eyes!<br>
+And will Omnipotence neglect to save<br>
+The suffering virtue of the wise and brave?<br>
+Must he, whose altars on the Phrygian shore<br>
+With frequent rites, and pure, avow’d thy power,<br>
+Be doom’d the worst of human ills to prove,<br>
+Unbless’d, abandon’d to the wrath of Jove?”<br>
+“Daughter! what words have pass’d thy lips unweigh’d!<br>
+(Replied the Thunderer to the martial maid;)<br>
+Deem not unjustly by my doom oppress’d,<br>
+Of human race the wisest and the best.<br>
+<mark class="diff-highlight orig-hl" title="【対照点④】rarely won = 悔悛の祈願にも滅多に心動かされぬ"><span class="diff-badge orig-badge">Negative</span>Neptune, by prayer repentant rarely won,<br>
+Afflicts the chief</mark>, to avenge his giant son,<br>
+Whose visual orb Ulysses robb’d of light;<br>
+Great Polypheme, of more than mortal might?<br>
+Him young Thousa bore (the bright increase<br>
+Of Phorcys, <mark class="diff-highlight orig-hl" title="【対照点⑤】sounds = 入り江、海峡（音響のsoundではない地勢多義語）"><span class="diff-badge orig-badge">Geography</span>dreaded in the sounds and seas</mark>);<br>
+<mark class="diff-highlight orig-hl" title="【対照点④】bloom of beauty bless’d = 美に恵まれた彼女（ニンフ・トオサ）を修飾する分詞構文"><span class="diff-badge orig-badge">Participle</span>Whom Neptune eyed with bloom of beauty bless’d,</mark><br>
+And in his cave the yielding nymph compress’d<br>
+For this the god constrains the Greek to roam,<br>
+A hopeless exile from his native home,<br>
+From death alone exempt—but cease to mourn;<br>
+Let all combine to achieve his wish’d return;<br>
+Neptune atoned, his wrath shall now refrain,<br>
+Or thwart the synod of the gods in vain.”<br>
+“Father and king adored!” Minerva cried,<br>
+“Since all who in the Olympian bower reside<br>
+Now make the wandering Greek their public care,<br>
+Let Hermes to the Atlantic isle repair;<br>
+Bid him, arrived in bright Calypso’s court,<br>
+The sanction of the assembled powers report:
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 04 ORIGINAL -->
+      <section class="poem-section" data-section="sec-04" id="original-sec-04">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 04</span>
+            <span class="sec-pope-tag">Lines 113–157</span>
+          </div>
+          <h2 class="sec-title">アテナの計画とイタケ降臨：メンテス王への変身と求婚者たちの驕慢</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+That wise Ulysses to his native land<br>
+Must speed, obedient to their high command.<br>
+Meantime Telemachus, the blooming heir<br>
+Of sea-girt Ithaca, demands my care;<br>
+’Tis mine to form his green, unpractised years<br>
+In sage debates; surrounded with his peers,<br>
+To save the state, and timely to restrain<br>
+The bold intrusion of the suitor-train;<br>
+Who crowd his palace, and with lawless power<br>
+His herds and flocks in feastful rites devour.<br>
+To distant Sparta, and the spacious waste<br>
+Of Sandy Pyle, the royal youth shall haste.<br>
+There, warm with filial love, the cause inquire<br>
+That from his realm retards his god-like sire;<br>
+Delivering early to the voice of fame<br>
+The promise of a green immortal name.”<br>
+She said: the sandals of celestial mould,<br>
+Fledged with ambrosial plumes, and rich with gold,<br>
+Surround her feet: with these sublime she sails<br>
+The aerial space, and mounts the winged gales;<br>
+O’er earth and ocean wide prepared to soar,<br>
+Her dreaded arm a beamy javelin bore,<br>
+Ponderous and vast: which, when her fury burns,<br>
+Proud tyrants humbles, and whole hosts o’erturns.<br>
+From high Olympus prone her flight she bends,<br>
+And in the realms of Ithaca descends,<br>
+Her lineaments divine, the grave disguise<br>
+Of Mentes’ form conceal’d from human eyes<br>
+(Mentes, the monarch of the Taphian land);<br>
+A glittering spear waved awful in her hand.<br>
+There in the portal placed, the heaven-born maid<br>
+Enormous riot and misrule survey’d.<br>
+On hides of beeves, before the palace gate<br>
+(Sad spoils of luxury), the suitors sate.<br>
+With rival art, and ardour in their mien,<br>
+At chess they vie, to captivate the queen;<br>
+Divining of their loves. Attending nigh,<br>
+A menial train the flowing bowl supply.<br>
+Others, apart, the spacious hall prepare,<br>
+And form the costly feast with busy care.<br>
+There young Telemachus, his bloomy face<br>
+Glowing celestial sweet, with godlike grace<br>
+Amid the circle shines: but hope and fear<br>
+(Painful vicissitude!) his bosom tear.
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 05 ORIGINAL -->
+      <section class="poem-section" data-section="sec-05" id="original-sec-05">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 05</span>
+            <span class="sec-pope-tag">Lines 158–202</span>
+          </div>
+          <h2 class="sec-title">テレマコスによる客人の歓待と求婚者たちの宴</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+Now, imaged in his mind, he sees restored<br>
+In peace and joy the people’s rightful lord;<br>
+The proud oppressors fly the vengeful sword.<br>
+While his fond soul these fancied triumphs swell’d,<br>
+The stranger guest the royal youth beheld;<br>
+Grieved that a visitant so long should wait<br>
+Unmark’d, unhonour’d, at a monarch’s gate;<br>
+Instant he flew with hospitable haste,<br>
+And the new friend with courteous air embraced.<br>
+“Stranger, whoe’er thou art, securely rest,<br>
+Affianced in my faith, a ready guest;<br>
+Approach the dome, the social banquet share,<br>
+And then the purpose of thy soul declare.”<br>
+Thus affable and mild, the prince precedes,<br>
+And to the dome the unknown celestial leads.<br>
+The spear receiving from the hand, he placed<br>
+Against a column, fair with sculpture graced;<br>
+Where seemly ranged in peaceful order stood<br>
+Ulysses’ arms now long disused to blood.<br>
+He led the goddess to the sovereign seat,<br>
+Her feet supported with a stool of state<br>
+(A purple carpet spread the pavement wide);<br>
+Then drew his seat, familiar, to her side;<br>
+Far from the suitor-train, a brutal crowd,<br>
+With insolence, and wine, elate and loud:<br>
+Where the free guest, unnoted, might relate,<br>
+If haply conscious, of his father’s fate.<br>
+The golden ewer a maid obsequious brings,<br>
+Replenish’d from the cool, translucent springs;<br>
+With copious water the bright vase supplies<br>
+A silver laver of capacious size;<br>
+They wash. The tables in fair order spread,<br>
+They heap the glittering canisters with bread:<br>
+Viands of various kinds allure the taste,<br>
+Of choicest sort and savour, rich repast!<br>
+Delicious wines the attending herald brought;<br>
+The gold gave lustre to the purple draught.<br>
+Lured with the vapour of the fragrant feast,<br>
+In rush’d the suitors with voracious haste;<br>
+Marshall’d in order due, to each a sewer<br>
+Presents, to bathe his hands, a radiant ewer.<br>
+Luxurious then they feast. Observant round<br>
+Gay stripling youths the brimming goblets crown’d.<br>
+The rage of hunger quell’d, they all advance
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 06 ORIGINAL -->
+      <section class="poem-section" data-section="sec-06" id="original-sec-06">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 06</span>
+            <span class="sec-pope-tag">Lines 203–246</span>
+          </div>
+          <h2 class="sec-title">吟遊詩人ペミオスの歌とテレマコスの嘆き</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+And form to measured airs the mazy dance;<br>
+To Phemius was consign’d the chorded lyre,<br>
+Whose hand reluctant touch’d the warbling wire;<br>
+Phemius, whose voice divine could sweetest sing<br>
+High strains responsive to the vocal string.<br>
+Meanwhile, in whispers to his heavenly guest<br>
+His indignation thus the prince express’d:<br>
+“Indulge my rising grief, whilst these (my friend)<br>
+With song and dance the pompous revel end.<br>
+Light is the dance, and doubly sweet the lays,<br>
+When for the dear delight another pays.<br>
+His treasured stores those cormarants consume,<br>
+Whose bones, defrauded of a regal tomb<br>
+And common turf, lie naked on the plain,<br>
+Or doom’d to welter in the whelming main.<br>
+Should he return, that troop so blithe and bold,<br>
+With purple robes inwrought, and stiff with gold,<br>
+Precipitant in fear would wing their flight,<br>
+And curse their cumbrous pride’s unwieldy weight.<br>
+But ah, I dream!-the appointed hour is fled.<br>
+And hope, too long with vain delusion fed,<br>
+Deaf to the rumour of fallacious fame,<br>
+Gives to the roll of death his glorious name!<br>
+With venial freedom let me now demand<br>
+Thy name, thy lineage, and paternal land;<br>
+Sincere from whence began thy course, recite,<br>
+And to what ship I owe the friendly freight?<br>
+Now first to me this visit dost thou deign,<br>
+Or number’d in my father’s social train?<br>
+All who deserved his choice he made his own,<br>
+And, curious much to know, he far was known.”<br>
+“My birth I boast (the blue-eyed virgin cries)<br>
+From great Anchialus, renown’d and wise;<br>
+Mentes my name; I rule the Taphian race,<br>
+Whose bounds the deep circumfluent waves embrace;<br>
+A duteous people, and industrious isle,<br>
+To naval arts inured, and stormy toil.<br>
+Freighted with iron from my native land,<br>
+I steer my voyage to the Brutian strand<br>
+To gain by commerce, for the labour’d mass,<br>
+A just proportion of refulgent brass.<br>
+Far from your capital my ship resides<br>
+At Reitorus, and secure at anchor rides;
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 07 ORIGINAL -->
+      <section class="poem-section" data-section="sec-07" id="original-sec-07">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 07</span>
+            <span class="sec-pope-tag">Lines 247–290</span>
+          </div>
+          <h2 class="sec-title">メンテス（アテナ）の名乗りとユリシーズ帰還の予言</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+Where waving groves on airy Neign grow,<br>
+Supremely tall and shade the deeps below.<br>
+Thence to revisit your imperial dome,<br>
+An old hereditary guest I come;<br>
+Your father’s friend. Laertes can relate<br>
+Our faith unspotted, and its early date;<br>
+Who, press’d with heart-corroding grief and years,<br>
+To the gay court a rural shed pretors,<br>
+Where, sole of all his train, a matron sage<br>
+Supports with homely fond his drooping age,<br>
+With feeble steps from marshalling his vines<br>
+Returning sad, when toilsome day declines.<br>
+“With friendly speed, induced by erring fame,<br>
+To hail Ulysses’ safe return I came;<br>
+But still the frown of some celestial power<br>
+With envious joy retards the blissful hour.<br>
+Let not your soul be sunk in sad despair;<br>
+He lives, he breathes this heavenly vital air,<br>
+Among a savage race, whose shelfy bounds<br>
+With ceaseless roar the foaming deep surrounds.<br>
+The thoughts which roll within my ravish’d breast,<br>
+To me, no seer, the inspiring gods suggest;<br>
+Nor skill’d nor studious, with prophetic eye<br>
+To judge the winged omens of the sky.<br>
+Yet hear this certain speech, nor deem it vain;<br>
+Though adamantine bonds the chief restrain,<br>
+The dire restraint his wisdom will defeat,<br>
+And soon restore him to his regal seat.<br>
+But generous youth! sincere and free declare,<br>
+Are you, of manly growth, his royal heir?<br>
+For sure Ulysses in your look appears,<br>
+The same his features, if the same his years.<br>
+Such was that face, on which I dwelt with joy<br>
+Ere Greece assembled stemm’d the tides to Troy;<br>
+But, parting then for that detested shore,<br>
+Our eyes, unhappy never greeted more.”<br>
+“To prove a genuine birth (the prince replies)<br>
+On female truth assenting faith relies.<br>
+Thus manifest of right, I build my claim<br>
+Sure-founded on a fair maternal fame,<br>
+Ulysses’ son: but happier he, whom fate<br>
+Hath placed beneath the storms which toss the great!<br>
+Happier the son, whose hoary sire is bless’d
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 08 ORIGINAL -->
+      <section class="poem-section" data-section="sec-08" id="original-sec-08">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 08</span>
+            <span class="sec-pope-tag">Lines 291–334</span>
+          </div>
+          <h2 class="sec-title">親子の相似とテレマコスの悲憤：荒らされる王家</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+With humble affluence, and domestic rest!<br>
+Happier than I, to future empire born,<br>
+But doom’d a father’s wretch’d fate to mourn!”<br>
+To whom, with aspect mild, the guest divine:<br>
+“Oh true descendant of a sceptred line!<br>
+The gods a glorious fate from anguish free<br>
+To chaste Penelope’s increase decree.<br>
+But say, yon jovial troops so gaily dress’d,<br>
+Is this a bridal or a friendly feast?<br>
+Or from their deed I rightlier may divine,<br>
+Unseemly flown with insolence and wine?<br>
+Unwelcome revellers, whose lawless joy<br>
+Pains the sage ear, and hurts the sober eye.”<br>
+“Magnificence of old (the prince replied)<br>
+Beneath our roof with virtue could reside;<br>
+Unblamed abundance crowned the royal board,<br>
+What time this dome revered her prudent lord;<br>
+Who now (so Heaven decrees) is doom’d to mourn,<br>
+Bitter constraint, erroneous and forlorn.<br>
+Better the chief, on Ilion’s hostile plain,<br>
+Had fall’n surrounded with his warlike train;<br>
+Or safe return’d, the race of glory pass’d,<br>
+New to his friends’ embrace, and breathed his last!<br>
+Then grateful Greece with streaming eyes would raise,<br>
+Historic marbles to record his praise;<br>
+His praise, eternal on the faithful stone,<br>
+Had with transmissive honour graced his son.<br>
+Now snatch’d by harpies to the dreary coast.<br>
+Sunk is the hero, and his glory lost;<br>
+Vanish’d at once! unheard of, and unknown!<br>
+And I his heir in misery alone.<br>
+Nor for a dear lost father only flow<br>
+The filial tears, but woe succeeds to woe<br>
+To tempt the spouseless queen with amorous wiles<br>
+Resort the nobles from the neighbouring isles;<br>
+From Samos, circled with the Ionian main,<br>
+Dulichium, and Zacynthas’ sylvan reign;<br>
+Ev’n with presumptuous hope her bed to ascend,<br>
+The lords of Ithaca their right pretend.<br>
+She seems attentive to their pleaded vows,<br>
+Her heart detesting what her ear allows.<br>
+They, vain expectants of the bridal hour,<br>
+My stores in riotous expense devour.
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 09 ORIGINAL -->
+      <section class="poem-section" data-section="sec-09" id="original-sec-09">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 09</span>
+            <span class="sec-pope-tag">Lines 335–379</span>
+          </div>
+          <h2 class="sec-title">アテナの憤りと助言：民会の召集とペネロペの去就</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+In feast and dance the mirthful months employ,<br>
+And meditate my doom to crown their joy.”<br>
+With tender pity touch’d, the goddess cried:<br>
+“Soon may kind Heaven a sure relief provide,<br>
+Soon may your sire discharge the vengeance due,<br>
+And all your wrongs the proud oppressors rue!<br>
+Oh! in that portal should the chief appear,<br>
+Each hand tremendous with a brazen spear,<br>
+In radiant panoply his limbs incased<br>
+(For so of old my fathers court he graced,<br>
+When social mirth unbent his serious soul,<br>
+O’er the full banquet, and the sprightly bowl);<br>
+He then from Ephyre, the fair domain<br>
+Of Ilus, sprung from Jason’s royal strain,<br>
+Measured a length of seas, a toilsome length, in vain.<br>
+For, voyaging to learn the direful art<br>
+To taint with deadly drugs the barbed dart;<br>
+Observant of the gods, and sternly just,<br>
+Ilus refused to impart the baneful trust;<br>
+With friendlier zeal my father’s soul was fired,<br>
+The drugs he knew, and gave the boon desired.<br>
+Appear’d he now with such heroic port,<br>
+As then conspicuous at the Taphian court;<br>
+Soon should you boasters cease their haughty strife,<br>
+Or each atone his guilty love with life.<br>
+But of his wish’d return the care resign,<br>
+Be future vengeance to the powers divine.<br>
+My sentence hear: with stern distaste avow’d,<br>
+To their own districts drive the suitor-crowd;<br>
+When next the morning warms the purple east,<br>
+Convoke the peerage, and the gods attest;<br>
+The sorrows of your inmost soul relate;<br>
+And form sure plans to save the sinking state.<br>
+Should second love a pleasing flame inspire,<br>
+And the chaste queen connubial rights require;<br>
+Dismiss’d with honour, let her hence repair<br>
+To great Icarius, whose paternal care<br>
+Will guide her passion, and reward her choice<br>
+With wealthy dower, and bridal gifts of price.<br>
+Then let this dictate of my love prevail:<br>
+Instant, to foreign realms prepare to sail,<br>
+To learn your father’s fortunes; Fame may prove,<br>
+Or omen’d voice (the messenger of Jove),<br>
+Propitious to the search. Direct your toil
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 10 ORIGINAL -->
+      <section class="poem-section" data-section="sec-10" id="original-sec-10">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 10</span>
+            <span class="sec-pope-tag">Lines 380–423</span>
+          </div>
+          <h2 class="sec-title">ピュロス・スパルタへの探索行の勧めとオレステスの模範</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+Through the wide ocean first to sandy Pyle;<br>
+Of Nestor, hoary sage, his doom demand:<br>
+Thence speed your voyage to the Spartan strand;<br>
+For young Atrides to the Achaian coast<br>
+Arrived the last of all the victor host.<br>
+If yet Ulysses views the light, forbear,<br>
+Till the fleet hours restore the circling year.<br>
+But if his soul hath wing’d the destined flight,<br>
+Inhabitant of deep disastrous night;<br>
+Homeward with pious speed repass the main,<br>
+To the pale shade funereal rites ordain,<br>
+Plant the fair column o’er the vacant grave,<br>
+A hero’s honours let the hero have.<br>
+With decent grief the royal dead deplored,<br>
+For the chaste queen select an equal lord.<br>
+Then let revenge your daring mind employ,<br>
+By fraud or force the suitor train destroy,<br>
+And starting into manhood, scorn the boy.<br>
+Hast thou not heard how young Orestes, fired<br>
+With great revenge, immortal praise acquired?<br>
+His virgin-sword AEgysthus’ veins imbrued;<br>
+The murderer fell, and blood atoned for blood.<br>
+O greatly bless’d with every blooming grace!<br>
+With equal steps the paths of glory trace;<br>
+Join to that royal youth’s your rival name,<br>
+And shine eternal in the sphere of fame.<br>
+But my associates now my stay deplore,<br>
+Impatient on the hoarse-resounding shore.<br>
+Thou, heedful of advice, secure proceed;<br>
+My praise the precept is, be thine the deed.<br>
+“The counsel of my friend (the youth rejoin’d)<br>
+Imprints conviction on my grateful mind.<br>
+So fathers speak (persuasive speech and mild)<br>
+Their sage experience to the favourite child.<br>
+But, since to part, for sweet refection due,<br>
+The genial viands let my train renew;<br>
+And the rich pledge of plighted faith receive,<br>
+Worthy the air of Ithaca to give.”<br>
+“Defer the promised boon (the goddess cries,<br>
+Celestial azure brightening in her eyes),<br>
+And let me now regain the Reithrian port;<br>
+From Temese return’d, your royal court<br>
+I shall revisit, and that pledge receive;
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 11 ORIGINAL -->
+      <section class="poem-section" data-section="sec-11" id="original-sec-11">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 11</span>
+            <span class="sec-pope-tag">Lines 424–467</span>
+          </div>
+          <h2 class="sec-title">アテナの飛翔・神性の顕現とペネロペの涙</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+And gifts, memorial of our friendship, leave.”<br>
+Abrupt, with eagle-speed she cut the sky;<br>
+Instant invisible to mortal eye.<br>
+Then first he recognized the ethereal guest;<br>
+Wonder and joy alternate fire his breast;<br>
+Heroic thoughts, infused, his heart dilate;<br>
+Revolving much his father’s doubtful fate.<br>
+At length, composed, he join’d the suitor-throng;<br>
+Hush’d in attention to the warbled song.<br>
+His tender theme the charming lyrist chose.<br>
+Minerva’s anger, and the dreadful woes<br>
+Which voyaging from Troy the victors bore,<br>
+<mark class="diff-highlight orig-hl" title="【対照点⑤】intercept the store = 帰途の船路・積荷を阻んだ"><span class="diff-badge orig-badge">Nautical</span>While storms vindictive intercept the store.</mark><br>
+The shrilling airs the vaulted roof rebounds,<br>
+Reflecting to the queen the silver sounds.<br>
+With grief renew’d the weeping fair descends;<br>
+Their sovereign’s step a virgin train attends:<br>
+A veil, of richest texture wrought, she wears,<br>
+And silent to the joyous hall repairs.<br>
+There from the portal, with her mild command,<br>
+Thus gently checks the minstrel’s tuneful hand:<br>
+“Phemius! let acts of gods, and heroes old,<br>
+What ancient bards in hall and bower have told,<br>
+Attemper’d to the lyre, your voice employ;<br>
+Such the pleased ear will drink with silent joy.<br>
+But, oh! forbear that dear disastrous name,<br>
+To sorrow sacred, and secure of fame;<br>
+My bleeding bosom sickens at the sound,<br>
+And every piercing note inflicts a wound.”<br>
+“Why, dearest object of my duteous love,<br>
+(Replied the prince,) will you the bard reprove?<br>
+Oft, Jove’s ethereal rays (resistless fire)<br>
+The chanters soul and raptured song inspire<br>
+Instinct divine? nor blame severe his choice,<br>
+Warbling the Grecian woes with heart and voice;<br>
+For novel lays attract our ravish’d ears;<br>
+But old, the mind with inattention hears:<br>
+Patient permit the sadly pleasing strain;<br>
+Familiar now with grief, your tears refrain,<br>
+And in the public woe forget your own;<br>
+You weep not for a perish’d lord alone.<br>
+What Greeks new wandering in the Stygian gloom,<br>
+Wish your Ulysses shared an equal doom!
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 12 ORIGINAL -->
+      <section class="poem-section" data-section="sec-12" id="original-sec-12">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 12</span>
+            <span class="sec-pope-tag">Lines 468–510</span>
+          </div>
+          <h2 class="sec-title">母ペネロペを諭すテレマコスと求婚者への宣戦布告</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+Your widow’d hours, apart, with female toil<br>
+And various labours of the loom beguile;<br>
+There rule, from palace-cares remote and free;<br>
+That care to man belongs, and most to me.”<br>
+<mark class="diff-highlight orig-hl" title="【対照点⑦】Mature beyond his years = 息子の齢を超えて成熟した賢明な答え（主語は息子）"><span class="diff-badge orig-badge">Inversion</span>Mature beyond his years, the queen admires<br>
+His sage reply,</mark> and with her train retires.<br>
+Then swelling sorrows burst their former bounds,<br>
+With echoing grief afresh the dome resounds;<br>
+Till Pallas, piteous of her plaintive cries,<br>
+In slumber closed her silver-streaming eyes.<br>
+Meantime, rekindled at the royal charms,<br>
+Tumultuous love each beating bosom warms;<br>
+Intemperate rage a wordy war began;<br>
+But bold Telemachus assumed the man.<br>
+“Instant (he cried) your female discord end,<br>
+Ye deedless boasters! and the song attend;<br>
+Obey that sweet compulsion, nor profane<br>
+With dissonance the smooth melodious strain.<br>
+Pacific now prolong the jovial feast;<br>
+But when the dawn reveals the rosy east,<br>
+I, to the peers assembled, shall propose<br>
+The firm resolve, I here in few disclose;<br>
+No longer live the cankers of my court;<br>
+All to your several states with speed resort;<br>
+Waste in wild riot what your land allows,<br>
+There ply the early feast, and late carouse.<br>
+But if, to honour lost, ’tis still decreed<br>
+For you my bowl shall flow, my flock shall bleed;<br>
+Judge and revenge my right, impartial Jove!<br>
+By him and all the immortal thrones above<br>
+(A sacred oath), each proud oppressor slain,<br>
+Shall with inglorious gore this marble stain.”<br>
+Awed by the prince, thus haughty, bold, and young,<br>
+Rage gnaw’d the lip, and wonder chain’d the tongue.<br>
+Silence at length the gay Antinous broke,<br>
+Constrain’d a smile, and thus ambiguous spoke:<br>
+“What god to your untutor’d youth affords<br>
+This headlong torrent of amazing words?<br>
+May Jove delay thy reign, and cumber late<br>
+So bright a genius with the toils of state!”<br>
+“Those toils (Telemachus serene replies)<br>
+Have charms, with all their weight, t’allure the wise.
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 13 ORIGINAL -->
+      <section class="poem-section" data-section="sec-13" id="original-sec-13">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 13</span>
+            <span class="sec-pope-tag">Lines 511–554</span>
+          </div>
+          <h2 class="sec-title">アンティノオス・エウリュマコスとの舌戦</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+Fast by the throne obsequious fame resides,<br>
+And wealth incessant rolls her golden tides.<br>
+Nor let Antinous rage, if strong desire<br>
+Of wealth and fame a youthful bosom fire:<br>
+Elect by Jove, his delegate of sway,<br>
+With joyous pride the summons I’d obey.<br>
+Whene’er Ulysses roams the realm of night,<br>
+Should factious power dispute my lineal right,<br>
+Some other Greeks a fairer claim may plead;<br>
+To your pretence their title would precede.<br>
+At least, the sceptre lost, I still should reign<br>
+Sole o’er my vassals, and domestic train.”<br>
+To this Eurymachus: “To Heaven alone<br>
+Refer the choice to fill the vacant throne.<br>
+Your patrimonial stores in peace possess;<br>
+Undoubted, all your filial claim confess:<br>
+Your private right should impious power invade,<br>
+The peers of Ithaca would arm in aid.<br>
+But say, that stranger guest who late withdrew,<br>
+What and from whence? his name and lineage shew.<br>
+His grave demeanour and majestic grace<br>
+Speak him descended of no vulgar race:<br>
+Did he some loan of ancient right require,<br>
+Or came forerunner of your sceptr’d sire?”<br>
+“Oh son of Polybus!” the prince replies,<br>
+“No more my sire will glad these longing eyes;<br>
+The queen’s fond hope inventive rumour cheers,<br>
+Or vain diviners’ dreams divert her fears.<br>
+That stranger-guest the Taphian realm obeys,<br>
+A realm defended with encircling seas.<br>
+Mentes, an ever-honour’d name, of old<br>
+High in Ulysses’ social list enroll’d.”<br>
+Thus he, though conscious of the ethereal guest,<br>
+Answer’d evasive of the sly request.<br>
+Meantime the lyre rejoins the sprightly lay;<br>
+Love-dittied airs, and dance, conclude the day<br>
+But when the star of eve with golden light<br>
+Adorn’d the matron brow of sable night,<br>
+The mirthful train dispersing quit the court,<br>
+And to their several domes to rest resort.<br>
+A towering structure to the palace join’d;<br>
+To this his steps the thoughtful prince inclined:<br>
+In his pavilion there, to sleep repairs;
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 14 ORIGINAL -->
+      <section class="poem-section" data-section="sec-14" id="original-sec-14">
+        <div class="section-header-bar orig-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge orig-badge">Section 14</span>
+            <span class="sec-pope-tag">Lines 555–574</span>
+          </div>
+          <h2 class="sec-title">宴の終わりと老乳母エウリュクレイアに導かれる就寝</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+The lighted torch, the sage Euryclea bears<br>
+(Daughter of Ops, the just Pisenor’s son,<br>
+For twenty beeves by great Laertes won;<br>
+In rosy prime with charms attractive graced,<br>
+Honour’d by him, a gentle lord and chaste,<br>
+With dear esteem: too wise, with jealous strife<br>
+To taint the joys of sweet connubial life.<br>
+Sole with Telemachus her service ends,<br>
+A child she nursed him, and a man attends).<br>
+Whilst to his couch himself the prince address’d,<br>
+The duteous dame received the purple vest;<br>
+The purple vest with decent care disposed,<br>
+The silver ring she pull’d, the door reclosed,<br>
+The bolt, obedient to the silken cord,<br>
+To the strong staple’s inmost depth restored,<br>
+Secured the valves. There, wrapped in silent shade,<br>
+Pensive, the rules the goddess gave he weigh’d;<br>
+Stretch’d on the downy fleece, no rest he knows,<br>
+And in his raptured soul the vision glows.
+</div>
+        </div>
+      </section>
+          </div>
+        </div>
+      </aside>
+
+      <!-- COLUMN 2: GEMINI 3.8 FLASH -->
+      <main class="pane pane-personal" id="panePersonal">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Gemini版（文脈統合・雅語劇詩調）
+            </span>
+            <span class="pane-status-pill">Gemini 3.8 Flash</span>
+          </div>
+          <div class="pane-stats">
+            <span>全603行</span>
+            <span>全14節</span>
+          </div>
+        </div>
+
+        <div class="pane-content" id="scrollPersonal">
+          <div class="prose">
+      <!-- SECTION 01 GEMINI -->
+      <section class="poem-section" data-section="sec-01" id="gemini-sec-01">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 01</span>
+            <span class="sec-pope-tag">Lines 1–24 (Book I, Heroic Couplets)</span>
+          </div>
+          <h2 class="sec-title">要綱（あらすじ）＆ 序歌：ムーサへの祈祷と神々の帰還</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+第1巻
+</div>
+<div class="verse-stanza">
+要綱<br>
+ミネルヴァのイタケ降臨<br>
+本詩篇は、<mark class="diff-highlight" title="【注目例①】正解：物語開幕はユリシーズ帰着の48日前（全40余日の叙事詩全体構造を把握）"><span class="diff-badge success">48日前</span>ユリシーズが己の領土へと帰着する48日前の時点から幕を開ける。</mark>彼はすでに7年間をカリュプソの島で過ごしていたが、神々が会議に集い、そこからの彼の出発と故郷への帰還の方法を提起した。この目的のため、メルクリウスをカリュプソのもとへと遣わすことが決せられ、パラスは直ちにイタケへと降臨する。女神はタフォスの王メンテスの姿を借りてテレマコスと対談し、いまだネストルとメネラオスが統治するピュロスとスパルタへ、父ユリシーズを探し求める旅に出るよう助言する。その後、自らの神性を目に見える形で示して姿を消す。ペネロペへの求婚者たちは大いなる宴を催し、夜に至るまで宮殿で乱痴気騒ぎを繰り広げる。ペミオスが彼らにギリシャ勢の帰還を歌うが、ペネロペがその歌を制止する。求婚者たちとテレマコスの間で口論が生じ、テレマコスは翌日の民会召集を告げる。<br>
+智謀の技に名高く、<br>
+幾多の艱難を耐え抜いたあの男のことを、おおムーサよ、歌いたまえ。<br>
+己の武勇により、定められし神聖なるトロイアの<br>
+陥落を成し遂げ、神の築きし城壁を灰燼に帰せしめたのち、<br>
+国から国へと巡り歩き、諸国の風情に目を留め、<br>
+その人々の習俗を書き留め、そのありさまを見届けた男を。<br>
+嵐荒ぶる大洋の上で、彼は数知れぬ労苦に耐え、<br>
+<mark class="diff-highlight" title="【注目例②】正解：目的の不定詞（Safe with his friends to gain... = 帰還を願ったが空しき労苦であった）"><span class="diff-badge success">目的不定詞</span>友らとともに無事、生国の岸辺を踏まんと願った。<br>
+空しき労苦よ！</mark> 彼らの不敬なる愚行は、<br>
+日の神に捧げられし牛の群れを貪る暴挙に及んだ。<br>
+復讐の神は、彼らに二度と（ああ、不運なる者たちよ！）<br>
+その生国の岸辺を踏むことを許さぬ過酷な定めを下された。<br>
+おお、天上のムーサよ、これら事蹟の断片を運命の手から掬い上げ、<br>
+我らの世に向けて語り伝えたまえ。<br>
+いまやギリシャの勇士らは各々の生国へと帰り着いていた。<br>
+十年の長き戦を生き延び、<br>
+渦巻く深海の危難を逃れ得た者たちは皆。<br>
+ただユリシーズひとりのみが、勝利の列から取り残され、<br>
+懐かしき父祖の岸辺を追われた流浪人として、<br>
+遠き王妃を嘆き、失われし王国を偲んでいた。<br>
+カリュプソはその洞窟に彼を引き留めていた、
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 02 GEMINI -->
+      <section class="poem-section" data-section="sec-02" id="gemini-sec-02">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 02</span>
+            <span class="sec-pope-tag">Lines 25–68</span>
+          </div>
+          <h2 class="sec-title">オリュンポスの神々の会議：ゼウスが語るアイギストスの破滅</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+甘美にして、抗いがたき情愛の遅延をもって。<br>
+だがそれも空しく――いまや巡る歳月が明かそうとしていた、<br>
+彼の苦難に報いるべく定められたその日を。<br>
+ついに運命の手により、彼のイタケが授けられる時が巡り来る、<br>
+そこでは彼の到着を、なお新たな労苦が待ち受けているのだが。<br>
+ついに敵対する諸神もその怒りを収めた、<br>
+ただひとり、大海の冷酷なる覇王を除いては。<br>
+だがその神はいま、遥か遠く、天界の客人として、<br>
+アイティオピアの地の祝宴に臨まれていた<br>
+（二つに分かたれし民、昇る日と沈む日が<br>
+その傾く光をもって見下ろすかの地）。<br>
+世界の最果ての地で、厳かに捧げられる<br>
+百牛の犠牲と祈祷により崇められ、<br>
+遠く憩うておられた。その間、高きオリュンポスの<br>
+輝かしき館にて、ユピテルは神々を召集された。<br>
+最高神たる父は、アイギストスの運命を<br>
+胸の内に巡らせつつ、列座の神々にこう語りかけた。<br>
+若きオレステスが、冥府の陰鬱なる岸辺へと送った男、<br>
+血に汚れた亡霊となって赴かせたアイギストスのことを。<br>
+「理不尽なる人間どもよ！ 自らの意志を自由として創られながら、<br>
+己のあらゆる艱難を、至高の定めのせいにするとは。<br>
+己の罪過をすべて運命を下す神々のせいにし、<br>
+己の愚行を『運命の過ち』と呼び誤っているのだ。<br>
+アイギストスが己の情欲のままに手綱を緩めたとき、<br>
+運命が、あるいは我らが、その密通を強いたとでもいうのか？<br>
+大いなるアトレウスの子が倒れたとき、運命が、あるいは我らが、<br>
+あの不届きな反逆者に大逆を唆したとでもいうのか？<br>
+彼の魂になお、王の血と破られた信義による<br>
+汚れがついていなかったころ、我はヘルメスを遣わしたのだ。<br>
+若きオレステスが成人し、壮年の齢に達したとき、<br>
+王位を再び奪還せんとするであろうと、あの哀れな男に警告するために。<br>
+しかし彼は、心の制御を欠き、自らを制すること能わず、<br>
+天が予言した破滅の深淵へと自ら身を投じたのだ。」<br>
+神がここで言葉を止められると、青き瞳の美しきミネルヴァが、<br>
+物思いに沈みつつ、このように応えられた。<br>
+「おお、全創造物の源泉にして、<br>
+地上の王たちに権力を授けたもう御父よ！<br>
+かの者の死は、そのおぞましき所業に相応しきもの、<br>
+血を流した男には、流血の運命こそふさわしゅうございます！<br>
+されど、私の胸は悲嘆と憤りに交互に苛まれております、<br>
+今なお運命に虐げられし、勇敢なるユリシーズのことを思えば。<br>
+孤島の中央、その岩がちの岸辺を巡って<br>
+森がざわめき、大波が轟く場所、
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 03 GEMINI -->
+      <section class="poem-section" data-section="sec-03" id="gemini-sec-03">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 03</span>
+            <span class="sec-pope-tag">Lines 69–112</span>
+          </div>
+          <h2 class="sec-title">アテナの嘆願とゼウスの応答：ポセイドンの怒りと帰還の決定</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+憧れの故郷から隔てられた瑕なき英雄を、<br>
+ひとりの女神がその魔の館に留め置いております。<br>
+（その父はアトラス、その遠くを見通す瞳には<br>
+深海の驚異が余すところなく広がっており、<br>
+地上に彼が打ち立てた永遠の柱は<br>
+星々の天蓋に達し、天球を支えております）。<br>
+その美しき娘に英雄は囚われ、<br>
+彼女は英雄の憂いに満ちた心を、甘き歓びで慰めようとしております。<br>
+けれど、その柔らかな愛撫のすべては功を奏しません、<br>
+彼の胸から祖国への愛を追い払うことはできぬのです。<br>
+愛する宮殿から立ち上る煙をひと目見ること、<br>
+愛しき島が遥かな遠景に見えるなかで、<br>
+それさえ叶えば、どれほどの満ち足りた心で目を閉じることができましょう！<br>
+しかるに全能の神は、知恵と勇気を備えし者の<br>
+苦難に満ちた美徳をお見捨てになるのでしょうか？<br>
+フリュギアの岸辺において、幾度となく清らかな祭儀をもって<br>
+御身の御力を讃え、祭壇を捧げたあの者が、<br>
+人の世の最悪の災厄を味わうべく定められ、<br>
+ユピテルの怒りのもとに見放され、呪われ続けねばならぬのでしょうか？」<br>
+「我が娘よ！ よく考えもせず、何という言葉を口にするのか！<br>
+（雷霆を操る神は、戦装束の乙女にこう答えられた。）<br>
+人類の中で最も賢明にして最も優れた男が、<br>
+不当にも我が定めによって苦しめられているなどと思ってはならぬ。<br>
+<mark class="diff-highlight" title="【注目例④】正解：by prayer repentant rarely won（悔悛の祈りにも滅多に動かされぬ）"><span class="diff-badge success">否定解釈</span>悔悛の祈願にも滅多に心動かされぬネプトゥヌスが、</mark><br>
+あの巨人の息子を討たれた復讐のために、英雄を苦しめているのだ。<br>
+ユリシーズがその瞳から光を奪い去った息子、<br>
+人ならぬ怪力を誇る、大いなるポリュペモスをな。<br>
+彼を産み落としたのは、若きトオサ（入り江と海で恐れられる<br>
+ポルキュスの輝かしき裔）。<br>
+<mark class="diff-highlight" title="【注目例④】正解：bloom of beauty bless'd（美に恵まれた彼女）の分詞係り受け"><span class="diff-badge success">分詞係り受け</span>美の盛りに恵まれた彼女をネプトゥヌスが見初め、</mark><br>
+その洞窟にて、身を委ねたニンフを抱擁されたのだ。<br>
+このことゆえに、神はかのギリシャ人に放浪を強いておられるのだ、<br>
+生国の家から遠く離れた、望みなき流浪者として。<br>
+死からは免れさせているがな――だが、嘆くのはやめよ。<br>
+皆で心を合わせ、彼の望みたる帰還を成し遂げようではないか。<br>
+ネプトゥヌスも宥められ、やがてその怒りを収めるか、<br>
+さもなくば神々の総意に逆らおうとも、無駄に終わるであろう。」<br>
+「敬愛する父よ、王よ！」とミネルヴァは叫ばれた、<br>
+「オリュンポスの神殿に住まう者すべてが、<br>
+いまやかのアカイアの流浪人を等しく気遣うとおっしゃるならば、<br>
+ヘルメスをあの大西洋の島へと遣わしてくださいませ。<br>
+輝くカリュプソの館に到着した彼に命じ、<br>
+集いし神々の決定を伝えさせるのです。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 04 GEMINI -->
+      <section class="poem-section" data-section="sec-04" id="gemini-sec-04">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 04</span>
+            <span class="sec-pope-tag">Lines 113–157</span>
+          </div>
+          <h2 class="sec-title">アテナの計画とイタケ降臨：メンテス王への変身と求婚者たちの驕慢</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+賢明なるユリシーズは、神々の高き命に従い、<br>
+祖国へと急ぎ帰還せねばならぬ、と。<br>
+その間に、海に囲まれしイタケの若き後継者たる<br>
+テレマコスには、私の配慮が必要でございます。<br>
+若く未熟な彼の歳月を導き、賢明なる議論を教えること、<br>
+同輩たちに囲まれる中で、国家を救い、<br>
+傲慢に押し寄せる求婚者どもの群れを<br>
+時を逃さず制止することは、私の役目でございます。<br>
+彼らはその宮殿に群がり、無法なる権勢をもって<br>
+牛や羊の群れを宴の供物として貪り食らっております。<br>
+遠きスパルタへ、そして砂多きピュロスの<br>
+広大なる荒野へと、高貴なる若者を急がせましょう。<br>
+そこで、父への情愛に燃えつつ、神のごとき父を<br>
+領国から足止めしている原因を尋ねさせるのです。<br>
+そうして早くも名声の声へと委ねさせ、<br>
+瑞々しくも不滅の名を残す約束を与えましょう。」<br>
+彼女はそう告げた。天界で作られし黄金に輝き、<br>
+神々の芳しき羽毛をまとったサンダルが、<br>
+その足を包む。これらを履いて、彼女は崇高に空を滑り、<br>
+空中の広がりを渡り、翼ある風に乗る。<br>
+大地と広大なる大洋の上を飛翔すべく備え、<br>
+恐るべきその腕には、光を放つ槍が握られていた。<br>
+重々しくも巨大な槍――彼女の憤激が燃え上がるとき、<br>
+傲慢なる僭主を打ち倒し、大軍をも覆す槍である。<br>
+高きオリュンポスより身を翻して飛び立ち、<br>
+イタケの領土へと舞い降りる。<br>
+その神々しき容貌を、厳かなるメンテスの姿という<br>
+人間の目から隠す仮面で覆い隠して<br>
+（タフォスの地を統べる君主、メンテスである）。<br>
+煌めく槍が、その手に威厳をもって掲げられていた。<br>
+宮殿の門前に立ち、天より生まれし乙女は、<br>
+夥しい狼藉と無秩序のさまを見渡した。<br>
+宮殿の門前、牛の皮の上に<br>
+（贅沢の悲しき残骸）、求婚者たちが座していた。<br>
+競い合う技と、熱気配を帯びた面持ちで、<br>
+彼らは盤戯に興じ、王妃の心を射止めんと争っていた。<br>
+己の恋を占いつつ。すぐそばに控える<br>
+召使いたちの列が、満ちゆく鉢に酒を満たす。<br>
+また別の者たちは離れて、広々とした広間を整え、<br>
+忙しなく立ち働きながら贅を尽くした宴を設えていた。<br>
+そこに若きテレマコスが、咲き誇る花のような顔を<br>
+天上の甘美さで輝かせ、神のごとき気品をもって<br>
+人々の輪の中に輝いていた。だが希望と恐れが<br>
+（痛ましき交錯！）彼の胸を引き裂いていた。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 05 GEMINI -->
+      <section class="poem-section" data-section="sec-05" id="gemini-sec-05">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 05</span>
+            <span class="sec-pope-tag">Lines 158–202</span>
+          </div>
+          <h2 class="sec-title">テレマコスによる客人の歓待と求婚者たちの宴</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+いまや心の中に思い描き、彼は目にする、<br>
+平和と歓びのうちに、民の正当なる主君が復位する姿を。<br>
+傲慢なる圧制者どもが、復讐の剣を恐れて逃げ惑う姿を。<br>
+愛おしき魂がこれら空想の勝利に満ち足りていたとき、<br>
+若き王子は、見知らぬ客人の姿を見留めた。<br>
+賓客がこれほど長く、誰にも気づかれず、<br>
+もてなされることもなく王の門前に待たされていたことを嘆き、<br>
+すぐさま彼はもてなしの心で急ぎ駆け寄り、<br>
+礼儀正しい物腰で、新たな友を迎え入れた。<br>
+「旅人よ、御身が何人であれ、心安らかにお寛ぎください、<br>
+我が信義に頼り、心からの客として。<br>
+館の内へお入りになり、親しき宴を共にし、<br>
+その後に、御身の志をお聞かせください。」<br>
+このように愛想よく穏やかに語り、王子は先導し、<br>
+未知の天上の神を館の内へと導く。<br>
+その手から槍を受け取ると、精緻な彫刻で<br>
+飾られた美しき柱に立てかけた。<br>
+そこには、戦いの血から久しく遠ざかっていた<br>
+ユリシーズの武具が、整然と並べられていた。<br>
+彼は女神を尊き上座へと導き、<br>
+その足を威厳ある足台に置かせた<br>
+（紫の絨毯が敷石の上に広く敷き詰められていた）。<br>
+そして自らの席を引き寄せ、親しげにその傍らに座した。<br>
+野蛮なる求婚者どもの群れから遠く離れて、<br>
+傲慢と酒に酔いしれ、大声を張り上げる彼らから。<br>
+心置きなき客人が、誰にも邪魔されず、<br>
+もし父の運命を知るならば、語り明かせる場所へ。<br>
+侍女が恭しく黄金の水差しを運んでくる、<br>
+涼やかで澄み切った泉の水で満たされたものを。<br>
+輝く器から豊かな水が注がれ、<br>
+大きな銀の盥を満たす。<br>
+ふたりは手を洗う。食卓が見事に並べられ、<br>
+煌めく籠にはパンが高々と盛られる。<br>
+さまざまな種類の肉料理が舌を誘い、<br>
+極上の品と味わい、贅沢なるもてなしである！<br>
+控える布告役が芳醇なワインを運び、<br>
+黄金の杯が、紫の美酒にさらなる輝きを添えた。<br>
+香り高き馳走の匂いに誘われて、<br>
+求婚者たちが貪欲に我先にと押し寄せてきた。<br>
+整然と席につくと、給仕たちが一人ひとりに<br>
+手を洗わせるべく、眩い水差しを差し出す。<br>
+かくして彼らは贅沢に宴を貪る。周囲に気を配りつつ、<br>
+朗らかな若者たちが、なみなみと注がれた杯を差し出す。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 06 GEMINI -->
+      <section class="poem-section" data-section="sec-06" id="gemini-sec-06">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 06</span>
+            <span class="sec-pope-tag">Lines 203–246</span>
+          </div>
+          <h2 class="sec-title">吟遊詩人ペミオスの歌とテレマコスの嘆き</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+飢えの炎が鎮まると、皆が立ち上がり、
+</div>
+<div class="verse-stanza">
+調子の揃った調べに合わせて、入り組んだ舞踏を踊る。<br>
+弦を張った竪琴がペミオスに委ねられた、<br>
+その手は気乗りせぬまま、鳴り響く弦を爪弾く。<br>
+ペミオス、その神聖なる声は誰よりも甘美に歌うことができた、<br>
+調べを奏でる弦の音に応じる高らかな旋律を。<br>
+その間、天よりの客人に囁きかけるようにして、<br>
+王子はその憤りをこのように吐露した。<br>
+「友よ、これら（の者ども）が歌と踊りで華やかな宴を<br>
+締めくくる間、胸に湧き上がる私の悲しみをお許しください。<br>
+踊りは軽やかで、調べは倍も甘美に響くものです、<br>
+その甘美な歓びの代償を、他人が支払っているときには。<br>
+あの貪欲な鵜のような奴らが食い潰しているのは父の蓄えです、<br>
+王たる墓も、名もなき土さえも奪われ、<br>
+その骨が荒野に晒されているか、<br>
+あるいは呑み込む大海の波間に漂う運命にある、父の蓄えを。<br>
+もし父が帰還したならば、あのように陽気で不敵な一味も、<br>
+紫の衣をまとい、黄金で身を固めた奴らも、<br>
+恐れおののいて我先にと逃げ去り、<br>
+自らの重々しき傲慢の重さを呪うことでしょう。<br>
+ですが、ああ、私は夢を見ているにすぎぬ！ 定められた時は過ぎ去り、<br>
+あまりに長く空しき妄想に養われてきた希望は、<br>
+当てにならぬ噂に耳を塞ぎつつ、<br>
+父の輝かしき名を、死者の名簿へと引き渡してしまうのです！<br>
+失礼を顧みず、どうかお尋ねすることをお許しください、<br>
+御身の御名、御身の家柄、そして父祖の国を。<br>
+御身の旅がどこから始まったのか、偽りなくお聞かせいただき、<br>
+いかなる船によって、この親しき客人をもたらしていただいたのかを。<br>
+私を訪ねてくださったのはこれが初めてでしょうか、<br>
+それとも父の交友の列に名を連ねておられたのでしょうか？<br>
+父はその眼鏡に適う者すべてを己の友とし、<br>
+多くを知らんと欲したゆえに、遥か遠くまで知られておりました。」<br>
+「我が生まれは（青き瞳の乙女は告げる）<br>
+名高く賢明なる、大いなるアンキアロスに発すると誇りを持って申そう。<br>
+我が名はメンテス。タフォスの民を統べている、<br>
+その境界は、巡り流れる深き波に抱かれた地である。<br>
+従順なる民、そして勤勉なる島であり、<br>
+航海の技と、嵐の労苦に鍛えられている。<br>
+故郷の国から鉄を積み込み、<br>
+私はブルティウムの岸辺へと船の舵を取っているのだ、<br>
+鍛え上げたその鉄の塊と交易し、<br>
+相応しき輝く青銅を手に入れるためにな。<br>
+そなたの都から遠く離れたレイトロンに
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 07 GEMINI -->
+      <section class="poem-section" data-section="sec-07" id="gemini-sec-07">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 07</span>
+            <span class="sec-pope-tag">Lines 247–290</span>
+          </div>
+          <h2 class="sec-title">メンテス（アテナ）の名乗りとユリシーズ帰還の予言</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+我が船は留まり、錨を下ろして安全に停泊している。
+</div>
+<div class="verse-stanza">
+風通うネイオンの高嶺に揺れる木立が生い茂り、<br>
+ひときわ高く聳え立って下の深海に影を落としている場所だ。<br>
+そこからそなたの王宮を再び訪ねようと、<br>
+古くより代々受け継がれた客として私は参ったのだ、<br>
+そなたの父の友として。ラエルテスに尋ねれば語ってくれよう、<br>
+我らの曇りなき信義と、その古き絆について。<br>
+胸を苛む悲嘆と老齢に圧迫され、<br>
+華やかな宮廷よりも鄙びた小屋を好むあの老人ならな。<br>
+従者のすべての中でただひとり、賢明なる老女が<br>
+素朴な食事でその衰えゆく齢を支えている、<br>
+ブドウの木を剪定し、心重く、弱々しい足取りで<br>
+労苦に満ちた一日が暮れる頃に帰ってくるあの老人に。<br>
+「誤った噂に誘われ、ユリシーズの無事なる帰還を<br>
+祝おうと、親しき心で急ぎ参じたのだ。<br>
+しかし、いまだ何らかの天上の神の怒気が、<br>
+嫉みの歓びをもって、その至福の時を遅らせている。<br>
+だが、そなたの魂を悲しき絶望に沈ませてはならぬ。<br>
+彼は生きている、この天上の生命の息吹を吸っているのだ、<br>
+野蛮なる民のただ中、岩礁連なるその境を<br>
+泡立つ深海が絶え間なき轟音とともに取り囲む地でな。
+</div>
+<div class="verse-stanza">
+私の心の中に湧き起こる思いは、<br>
+予言者でもない私に、神々が吹き込んでくださるもの。<br>
+私は空を飛ぶ鳥の兆しを予言の眼をもって<br>
+見極める術も持たず、学んでもおらぬ。<br>
+だが、この確かな言葉を聞き、空言と思うなかれ。<br>
+たとえ金剛石の戒めが英雄を引き留めていようとも、<br>
+その知恵により過酷なる束縛を打ち破り、<br>
+やがて彼を己の王座へと連れ戻すであろう。<br>
+しかし、気高き若者よ！ 偽りなく率直に明かしてくれ、<br>
+男らしく成長したそなたは、彼の王たる後継者なのか？<br>
+そなたの面影には、確かにユリシーズが宿っている、<br>
+その顔立ちは、かつての彼の歳の頃と瓜二つだ。<br>
+まさにそのような顔立ちであった、私が歓びをもって見つめていたのは、<br>
+ギリシャの軍勢が集い、波を押し分けてトロイアへ向かう前のこと。<br>
+だが、あの忌まわしき岸辺へと別れを告げて以来、<br>
+我らの目が再び相見えることは、悲しくも叶わなかった。」<br>
+「真の血筋を証し立てるには（王子は答える）<br>
+母の真実に寄せる信託にすがるしかございません。<br>
+それゆえ確固たる権利として、私は母の気高き誉れに<br>
+確かな基盤を置き、己の身分を主張いたします、<br>
+ユリシーズの息子であると。ですが、偉大なる者を揺さぶる嵐の
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 08 GEMINI -->
+      <section class="poem-section" data-section="sec-08" id="gemini-sec-08">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 08</span>
+            <span class="sec-pope-tag">Lines 291–334</span>
+          </div>
+          <h2 class="sec-title">親子の相似とテレマコスの悲憤：荒らされる王家</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+下界に運命が置いてくださった者のほうが、どれほど幸せでありましょう！<br>
+白髪の父が、ささやかな富と家庭の平穏に
+</div>
+<div class="verse-stanza">
+恵まれている息子のほうが、どれほど幸せでありましょう！<br>
+未来の王国に生まれながら、父の悲惨なる運命を<br>
+嘆く定めに置かれた私よりも、どれほど幸せでありましょう！」<br>
+これに対し、神聖なる客人は穏やかな面持ちで応えられた。<br>
+「おお、王笏を執る血筋の正統なる末裔よ！<br>
+神々は苦難なき輝かしき運命を、<br>
+貞淑なるペネロペの胤たるそなたに定めておられる。<br>
+だが教えてくれ、あの華やかに着飾った陽気な一味は、<br>
+これは婚礼の宴なのか、それとも友らの集いなのか？<br>
+あるいはその振る舞いから見れば、傲慢と酒に<br>
+醜く浮かれ騒いでいると見なすべきなのか？<br>
+招かれざる騒宴の客、その無法なる歓楽は、<br>
+賢者の耳を痛め、清らかな目を損なうものだ。」<br>
+「かつての豪奢は（王子は答えた）<br>
+美徳とともに我が屋根の下に住まうことができました。<br>
+非の打ちどころなき豊かさが王の食卓を飾り、<br>
+この館がその賢明なる主君を敬っていた頃には。<br>
+しかし今や（天の定めにより）父は、彷徨い見捨てられたまま、<br>
+苦き束縛のうちに嘆く定めとなっております。<br>
+いっそ英雄が、イリオスの敵の野において、<br>
+戦士たちの列に囲まれながら討ち死にしていたほうが、<br>
+あるいは無事に帰還し、栄光の駆け比べを終えて、<br>
+友らの抱擁を新たに受けつつ息を引き取っていたほうが、どれほど良かったか！<br>
+そうであったなら、感謝に満ちたギリシャが涙を流しつつ、<br>
+その誉れを記す記念碑の石を建てたことでしょう。<br>
+忠実なる石刻の上に永遠に刻まれたその賛辞は、<br>
+受け継がれる名誉となって、その息子を飾ったはずでした。<br>
+今やハルピュイアに陰鬱なる岸辺へと攫われ、<br>
+英雄は沈み、その栄光は失われました。<br>
+一瞬にして消え失せ、誰の耳にも届かず、知られることもなく！<br>
+そしてその跡継ぎである私は、ただひとり悲嘆の中に残されました。<br>
+愛する父を失ったことだけに<br>
+子の涙が流れるのではなく、災いは災いを呼ぶのです。<br>
+夫を欠いた王妃を情愛の罠で誘惑せんと、<br>
+近隣の島々から貴族どもが集まってまいります。<br>
+イオニアの海に囲まれしサモスから、<br>
+ドゥリキオンから、森深きザキュントスの領国から。<br>
+それどころか、厚かましくも王妃の床に上がらんとの望みをもって、<br>
+イタケの貴族たちさえ自らの権利を主張しております。<br>
+王妃は彼らの訴える誓いに耳を傾けるふうを装いながらも、<br>
+耳が許すものを、心の中では憎み拒絶しております。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 09 GEMINI -->
+      <section class="poem-section" data-section="sec-09" id="gemini-sec-09">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 09</span>
+            <span class="sec-pope-tag">Lines 335–379</span>
+          </div>
+          <h2 class="sec-title">アテナの憤りと助言：民会の召集とペネロペの去就</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+婚礼の時を空しく待ち焦がれる彼らは、<br>
+放埒なる浪費をもって、我が蓄えを食い尽くしております。
+</div>
+<div class="verse-stanza">
+宴と舞踏のうちに楽しげな月日を費やし、<br>
+己らの歓びの頂点として、私の破滅を企んでいるのです。」<br>
+優しき憐憫に心を打たれ、女神は叫ばれた。<br>
+「願わくは慈悲深き天が、速やかに確かな救いを与えんことを、<br>
+願わくはそなたの父が、正当なる復讐を果たし、<br>
+そなたへのあらゆる非道を、傲慢なる圧制者どもが悔い改めんことを！<br>
+ああ！ あの門前に、もし英雄が姿を現したならば、<br>
+その両手に恐るべき青銅の槍を携え、<br>
+その身に眩い武具をまとって現れたならば<br>
+（かつて我が父の宮廷を彼が訪れたときもそうであった、<br>
+親しき歓談がその厳粛なる魂を解きほぐし、<br>
+満ち足りた宴と、泡立つ杯を交わした折の姿である）。<br>
+そのとき彼は、イアソンの王家の血を引く<br>
+イーロスの麗しき領地エピュレから、<br>
+遥かなる海路を、労苦に満ちた長旅を空しく越えてきたのであった。<br>
+矢尻に死の毒薬を塗るという、<br>
+恐るべき術を学ぶために旅をしていたのだが、<br>
+神々を敬い、厳格にして公正であったイーロスは、<br>
+その不吉なる秘薬を分け与えることを拒んだのだ。<br>
+だが我が父の魂は、より温かな熱意に燃え、<br>
+その薬を知っており、望まれた恵みを与えたのであった。<br>
+彼が今、かつてタフォスの宮廷で際立っていたような、<br>
+雄々しき姿で姿を現したならば、<br>
+あの自慢屋どももたちまち傲慢なる争いを止め、<br>
+あるいは各々が、罪深き恋を己の命で償うことになろう。<br>
+だが、待ち望む帰還の配慮はひとまず手放すがよい、<br>
+来たるべき復讐は、神々の御力に委ねるのだ。<br>
+我が言葉を聞くがよい。峻厳なる拒絶を宣言し、<br>
+求婚者どもの群れを各々の領国へと追い払うのだ。<br>
+次の朝、紫の東天が暖まる頃に、<br>
+貴族たちを召集し、神々を証人として誓え。<br>
+そなたの魂の奥底の悲嘆を語り、<br>
+沈みゆく国家を救うための確固たる策を立てるのだ。<br>
+もし再婚の甘き炎が心に燃え上がり、<br>
+貞淑なる王妃が婚姻の契りを求めるならば、<br>
+礼を尽くして送り出し、ここから偉大なるイカリオスの元へ<br>
+帰らせるがよい。その父の慈愛が<br>
+娘の想いを導き、その選びし相手に<br>
+豊かな持参金と、高価な婚礼の贈り物を授けるであろう。<br>
+そして、我が愛の命ずるこの言葉に従うのだ。<br>
+直ちに異国の地へと船出する準備をせよ、
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 10 GEMINI -->
+      <section class="poem-section" data-section="sec-10" id="gemini-sec-10">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 10</span>
+            <span class="sec-pope-tag">Lines 380–423</span>
+          </div>
+          <h2 class="sec-title">ピュロス・スパルタへの探索行の勧めとオレステスの模範</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+父の消息を知るために。風評が、<br>
+あるいは前兆ある声（ユピテルの使者）が、<br>
+探索にとって幸いをもたらすかもしれぬ。そなたの労苦を向けよ、
+</div>
+<div class="verse-stanza">
+広大なる大海を越えて、まずは砂多きピュロスへと。<br>
+白髪の賢者ネストルに、父の運命を問うのだ。<br>
+そこからスパルタの岸辺へと船を急がせよ、<br>
+勝利を得た全軍の中で、若きアトレウスの子こそが、<br>
+アカイアの海岸へと最後に辿り着いた者なのだから。<br>
+もしユリシーズがなお光を目にしているならば、<br>
+巡る一年を時の足が再びもたらすまで、耐えて待つがよい。<br>
+だが、もしその魂が定められた飛翔を遂げ、<br>
+深き災厄の夜の住人となってしまっているならば、<br>
+敬虔なる急ぎ足で海を渡り、故郷へと引き返し、<br>
+青白き亡霊のために葬礼の儀を執り行い、<br>
+空の墓の上に美しき石柱を建て、<br>
+英雄には英雄にふさわしき栄誉を授けるのだ。<br>
+礼にかなった悲嘆をもって亡き王を悼んだ後には、<br>
+貞淑なる王妃のために、釣り合う夫を選び出すがよい。<br>
+そののちは、復讐の念にその勇敢なる心を傾け、<br>
+謀略あるいは武力をもって、求婚者どもの群れを討ち滅ぼし、<br>
+一人前の男として立ち上がり、少年の心を脱ぎ捨てるのだ。<br>
+そなたは聞いてはおらぬか、若きオレステスが<br>
+大いなる復讐に燃え、いかにして不滅の称賛を得たかを？<br>
+彼の初めて振るう剣が、アイギストスの血管を染め、<br>
+人殺しは斃れ、血は血によって償われたのだ。<br>
+おお、あらゆる咲き誇る美徳に大いに恵まれし者よ！<br>
+同じ足取りをもって栄光の道を歩み、<br>
+かの気高き若者と並び立つ競の武名を連ね、<br>
+名声の天球において永遠に輝くのだ。<br>
+だが、我が同胞たちはいま、ざわめく岸辺で<br>
+痺れを切らし、私の遅れを嘆いている。<br>
+そなたよ、この助言を心に留め、揺らぐことなく進むがよい。<br>
+我が教えは称賛に値し、それを成すはそなたの行いである。」<br>
+「友よ、御身の忠言は（若者は答えた）<br>
+感謝に満ちた私の心に、確信を刻み込んでくださいました。<br>
+これこそまさに、父がその愛する子に向けて語る、<br>
+賢明なる経験の言葉（説得力に富み、穏やかな教え）でございます。<br>
+されど、今やお別れの時とはいえ、甘美なるもてなしのために、<br>
+我が従者たちに心づくしの馳走を新たに整えさせ、<br>
+交わした信義の証たる豊かなる贈り物を、<br>
+イタケの地に相応しきものとして、お受け取りくださいませ。」<br>
+「約束の恵みは後に延ばすがよい（女神は叫ばれた、<br>
+その瞳に天上の蒼穹を輝かせながら）、
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 11 GEMINI -->
+      <section class="poem-section" data-section="sec-11" id="gemini-sec-11">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 11</span>
+            <span class="sec-pope-tag">Lines 424–467</span>
+          </div>
+          <h2 class="sec-title">アテナの飛翔・神性の顕現とペネロペの涙</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+いまは私をレイトロンの港へと帰らせておくれ。<br>
+テメセから戻った折には、そなたの王宮を<br>
+再び訪ねて、その証を受け取ろう。
+</div>
+<div class="verse-stanza">
+そして、我らの友情の記念となる贈り物を残してゆこう。」<br>
+不意に、鷲のごとき速さで彼女は空を切り裂き、<br>
+瞬く間に、人の目には見えぬ姿となった。<br>
+そのとき初めて、彼は天上の客人であったことを悟った。<br>
+驚嘆と歓喜が交互に彼の胸を燃え上がらせ、<br>
+吹き込まれた英雄の志が、その心を奮い立たせる。<br>
+父の定かならぬ運命を深く胸に巡らせつつ。<br>
+やがて心を落ち着かせ、彼は求婚者たちの群れへと加わった。<br>
+彼らは静まり返り、歌われる調べに聞き入っていた。<br>
+心打つ調べを、魅力的な吟遊詩人は選んでいた。<br>
+ミネルヴァの怒りと、トロイアから航海する<br>
+勝利者たちが耐え忍ばねばならなかった恐るべき災難、<br>
+<mark class="diff-highlight" title="【注目例⑤】正解：intercept the store（帰還の船路・帰途を阻んだ）を物語文脈から正確に補正"><span class="diff-badge success">文脈補正</span>復讐の嵐がその帰途を阻んだ日々のことを。</mark><br>
+高く澄んだ調べが穹窿の屋根に反響し、<br>
+銀の音色となって王妃のもとへと届いた。<br>
+悲嘆を新たにしながら、涙を流す佳人は階を下りる。<br>
+主君の歩みには、処女の侍女たちが付き従う。<br>
+最上の織りで仕立てられたヴェールを纏い、<br>
+物言わず、歓楽に沸く広間へと赴く。<br>
+そこで門口から、穏やかな命をもって、<br>
+吟遊詩人の奏でる手を優しく押し止めた。<br>
+「ペミオスよ！ 神々の御業や昔の英雄たちの行い、<br>
+古の吟遊詩人たちが広間や奥座敷で語り継いできたものを、<br>
+竪琴の音色に合わせて、その声で歌っておくれ。<br>
+そのような調べならば、聞き入る耳も静かな歓びをもって受け入れよう。<br>
+けれど、ああ！ <mark class="diff-highlight" title="【注目例⑥】正解：the dear unhappy name（愛しくも悲痛なる名＝貞淑な妻ペネロペの夫への追慕）"><span class="diff-badge success">心情解釈</span>あの愛しくも悲痛なる名を歌うのはやめておくれ、</mark><br>
+悲しみに捧げられ、名声のうちにあるあの名を。<br>
+私の血を流す胸は、その調べを耳にするだけで苛まれ、<br>
+耳を刺す一音一音が、新たな傷を刻み込むのだから。」<br>
+「我が敬愛のまことなる対象、母上よ、<br>
+（王子は答えた）なぜ吟遊詩人を咎められるのですか？<br>
+時にユピテルの天上の光（抗いがたき炎）が、<br>
+歌い手の魂と恍惚の歌を奮い立たせるのです、<br>
+神の霊感によって。その選択を厳しく咎めないでください、<br>
+心と声を込めてギリシャ勢の悲難を歌い上げていることを。<br>
+人は新しい調べにこそ魅了されて耳を傾け、<br>
+古き歌には、心も散漫に聞き流してしまうものです。<br>
+悲しくも甘美な調べを、どうか忍耐をもってお許しください。<br>
+悲しみにはもう慣れておられるはず、涙をお拭いになり、<br>
+<mark class="diff-highlight warning" title="【わずかな瑕瑾】英語原文1行（And in the public woe...）が日本語訳直前に削除されず残留した軽微な出力アーティファクト"><span class="diff-badge warning">出力残留</span>And in the public woe forget your own;<br>
+天下の悲嘆の中に、御身の悲嘆をお忘れください。</mark><br>
+亡き夫のために泣いておられるのは、母上ひとりではありません。<br>
+冥府の暗闇を新たに彷徨う幾多のギリシャ兵たちが、<br>
+御身のユリシーズも同じ運命を共にしてくれればと願っていることか！
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 12 GEMINI -->
+      <section class="poem-section" data-section="sec-12" id="gemini-sec-12">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 12</span>
+            <span class="sec-pope-tag">Lines 468–510</span>
+          </div>
+          <h2 class="sec-title">母ペネロペを諭すテレマコスと求婚者への宣戦布告</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+残された独りの時間は、女の務めと<br>
+機織りのさまざまな労苦で紛らわせてください。<br>
+宮殿の政事から離れ、心安らかにそこを統べてください。<br>
+その気遣いは男に属するもの、何よりも私に属するものなのですから。」<br>
+その齢を超えて成熟した息子の<br>
+賢明なる答えに王妃は感服し、侍女たちを伴って退いた。<br>
+やがて膨れ上がった悲嘆はそれまでの境を破り、<br>
+こだまする嘆きとともに、館は再び鳴り響いた。<br>
+パラスが、その哀切なる叫びを憐れみ、<br>
+銀の涙を流すその瞳を眠りのうちに閉じさせるまで。<br>
+その間、王妃の美しき魅力に再び熱を帯び、<br>
+激しき恋情が騒ぎ立つ胸のすべてを焦がした。<br>
+節度なき激情が口論の戦の火蓋を切ったが、<br>
+勇敢なるテレマコスは、大人の男として立ち塞がった。<br>
+「直ちに（彼は叫んだ）女じみた争いをやめよ、<br>
+手柄もなき大言壮語の輩どもよ！ そして歌に聞き入れ。<br>
+その甘美なる命に従い、滑らかな旋律を<br>
+不協和音をもって冒涜するなかれ。<br>
+いまは穏やかに、この陽気な宴を続けよ。<br>
+だが、夜明けが薔薇色の東天を現したとき、<br>
+私は集いし貴族たちに提案するであろう、<br>
+ここで手短に明かす我が固き決意を。<br>
+もはや我が宮廷の害毒として生きることは許さぬ。<br>
+皆、己のそれぞれの領地へと速やかに帰るがよい。<br>
+己の領地が許す富を放埒に費やし、<br>
+そこで朝早くから宴を開き、夜更けまで飲み明かせ。<br>
+だが、名誉を忘れ、なおも我が杯を溢れさせ、<br>
+我が羊の群れに血を流させることが定められているというなら、<br>
+公平なるユピテルよ、我が正理を裁き、仇を討ちたまえ！<br>
+天上の彼と不滅の神座のすべてにかけて誓おう<br>
+（聖なる誓いを）、傲慢なる圧制者どもは一人残らず討たれ、<br>
+名誉なき血糊をもって、この大理石を染めることになろう。」<br>
+傲然として雄々しく、若き王子に気圧され、<br>
+憤怒は唇を噛み締めさせ、驚愕は舌を縛りつけた。<br>
+やがて陽気なアンティノオスが沈黙を破り、<br>
+無理に笑みを浮かべ、謎めいた口調でこう語った。<br>
+「いかなる神が、未熟なるそなたの若さに<br>
+これほど目を見張る言葉の奔流を授けたのか？<br>
+ユピテルがそなたの治世を遅らせ、これほど輝かしき<br>
+才能を国政の労苦で煩わすのを、できるだけ遅くしてくださるように！」<br>
+「その労苦は（テレマコスは静かに答える）<br>
+どれほど重くとも、賢者を惹きつける魅力を持つものです。
+</div>
+<div class="verse-stanza">
+王座のすぐ傍らに恭しき名声は宿り、
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 13 GEMINI -->
+      <section class="poem-section" data-section="sec-13" id="gemini-sec-13">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 13</span>
+            <span class="sec-pope-tag">Lines 511–554</span>
+          </div>
+          <h2 class="sec-title">アンティノオス・エウリュマコスとの舌戦</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+富は絶え間なく黄金の潮を押し寄せるのですから。<br>
+アンティノオスよ、富と名声への強き望みが<br>
+若き胸を焦がしたとて、憤ることはありません。<br>
+ユピテルに選ばれ、その支配の代行者となったなら、<br>
+私は歓喜に満ちた誇りをもってその召命に応じましょう。<br>
+ユリシーズが夜の国を彷徨うこととなったとき、<br>
+党派の権勢が私の直系の権利に異を唱えるならば、<br>
+他のギリシャの誰かが、より正当な権利を主張するかもしれません。<br>
+貴方方の口実よりも、彼らの資格こそが優先されることでしょう。<br>
+たとえ王笏を失おうとも、私はなお<br>
+自らの臣下と、家の従者たちの上には君臨し続けるのです。」<br>
+これに対しエウリュマコスが言った。「空位の王座を<br>
+埋める選択は、天にのみ委ねるべきことだ。<br>
+父祖伝来の蓄えは、平穏のうちに保つがよい。<br>
+誰もが疑うことなく、そなたの子としての権利を認めているのだから。<br>
+不敬なる権勢がそなたの私権を侵すことがあれば、<br>
+イタケの貴族たちが腕を振るって加勢しよう。<br>
+だが話してくれ、先ほど立ち去ったあの見知らぬ客人は、<br>
+何者で、どこから来たのか？ その名と家柄を明かしてくれ。<br>
+その重々しき物腰と威厳ある気品は、<br>
+卑しからぬ血筋の出であることを物語っている。<br>
+昔の権利に基づく借財でも求めに来たのか、<br>
+それとも王笏を執るそなたの父の前触れとして参じたのか？」<br>
+「おお、ポリュボスの息子よ！」と王子は答える、<br>
+「我が父が、待ち焦がれるこの目を喜ばせることは二度とありますまい。<br>
+まことしやかな噂が王妃の儚き希望を慰め、<br>
+あるいは占い師どもの空しき夢が、母の恐れを紛らわせているだけです。<br>
+あの見知らぬ客人はタフォスの領地に従う者、<br>
+巡る海によって守られた領地です。<br>
+メンテスという、古くより常に尊ばれ、<br>
+ユリシーズの親しき友の筆頭に名を連ねていた者でございます。」<br>
+このように彼は、天上の客人であったことを悟りながらも、<br>
+狡猾な問いを巧みにはぐらかして答えた。<br>
+その間、竪琴は再び陽気な調べを奏で始め、<br>
+恋の歌と舞踏が、その一日を締めくくる。<br>
+だが宵の明星が黄金の光をもって、<br>
+漆黒の夜の淑やかな額を飾る頃、<br>
+陽気な一行は散り散りになって宮廷を去り、<br>
+各々の館へと休息のために引き揚げていった。<br>
+宮殿に連なる、高く聳える館、<br>
+思索に沈む王子は、ここへと足を進めた。<br>
+その離れ屋敷において、眠りにつくために。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 14 GEMINI -->
+      <section class="poem-section" data-section="sec-14" id="gemini-sec-14">
+        <div class="section-header-bar gemini-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge gemini-badge">Section 14</span>
+            <span class="sec-pope-tag">Lines 555–574</span>
+          </div>
+          <h2 class="sec-title">宴の終わりと老乳母エウリュクレイアに導かれる就寝</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+火を灯した松明を、賢明なるエウリュクレイアが掲げている<br>
+（オプスの娘、公正なるペイセノルの子孫であり、<br>
+牛二十頭と引き換えに、偉大なるラエルテスが得た女。<br>
+薔薇色の盛りには人を惹きつける魅力に恵まれ、<br>
+優しく貞潔なる主君であった彼から、<br>
+深き敬愛をもって尊ばれた女。嫉妬の諍いをもって<br>
+甘美なる夫婦生活の歓びを損なうことのないよう、主君は賢明にも分別を保った。<br>
+いまや彼女の務めはテレマコスただひとりに向けられ、<br>
+幼子であった彼を育て、大人となった彼に仕えているのだ）。<br>
+王子が寝台へと身を落ち着かせようとするとき、<br>
+忠実なる老女が紫の上着を受け取った。<br>
+紫の上着を行儀よく丁寧に整え、<br>
+銀の輪を引いて扉を再び閉ざし、<br>
+絹の紐に従って閂を引けば、<br>
+頑丈な受け金深くに納まり、<br>
+扉の板は固く閉ざされた。そこに、静寂の影に包まれ、<br>
+物思いに耽りつつ、彼は女神が授けてくださった教えを心に巡らせた。<br>
+柔らかな羊毛の上に横たわりながらも、眠りを知らず、<br>
+その恍惚たる魂の内に、現れた幻影が白々と輝き続けていた。
+</div>
+        </div>
+      </section>
+          </div>
+        </div>
+      </main>
+
+      <!-- COLUMN 3: PLAMO-3-TRANSLATE-31B -->
+      <aside class="pane pane-neutral" id="paneNeutral">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              PLaMo版（チャンク翻訳・擬古文調）
+            </span>
+            <span class="pane-status-pill">PLaMo-3-Translate-31B</span>
+          </div>
+          <div class="pane-stats">
+            <span>14 Chunks</span>
+            <span>全14節</span>
+          </div>
+        </div>
+
+        <div class="pane-content" id="scrollNeutral">
+          <div class="prose">
+      <!-- SECTION 01 PLAMO -->
+      <section class="poem-section" data-section="sec-01" id="plamo-sec-01">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 01</span>
+            <span class="sec-pope-tag">Lines 1–24 (Book I, Heroic Couplets)</span>
+          </div>
+          <h2 class="sec-title">要綱（あらすじ）＆ 序歌：ムーサへの祈祷と神々の帰還</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+第1巻
+</div>
+<div class="verse-stanza">
+あらすじ。<br>
+ミネルヴァのイタカ降臨。<br>
+<mark class="diff-highlight danger" title="【注目例①】誤訳：within 48 days of arrival を「到着してから48日後」と解釈（物語全体の時間軸と完全矛盾）"><span class="diff-badge danger">時制誤認</span>詩は、ユリシーズが自らの領地に到着してから48日後の場面から始まる。</mark>彼はカリプソの島に7年留まっていたが、神々が評議に集い、彼をそこから出発させ、故郷へと帰還させる方法を案出した。その目的のため、メルクリウスをカリプソのもとへ遣わすことが決定し、パラスは直ちにイタカへと降臨する。彼女はタフィアン人の王マンテスの姿に化けてテレマコスと会談し、父ユリシーズを捜してピュロスとスパルタ――そこでは今なおネストールとメネラオスが統治していた――へ旅立つよう助言する。そして、自らの神性を顕現させた後、姿を消す。ペネロペの求婚者たちは盛大な宴を催し、夜になるまで彼女の宮殿で放蕩にふける。フェミオスが彼らにギリシャ人たちの帰還を歌い上げるが、ペネロペがその歌を止めさせる。求婚者たちとテレマコスの間に言い争いが生じ、テレマコスは翌日、評議を招集する。<br>
+知恵の諸術に名高き、<br>
+長き苦難に鍛えられし人よ、おおミューズよ、語り給え。<br>
+その腕により宿命づけられた聖なるトロイの陥落をもたらし、<br>
+天が築きし城壁を打ち砕きし後、<br>
+地から地へと彷徨い、鋭き眼差しで<br>
+諸方の習俗を記し、諸国の政情を眺め、<br>
+嵐の海にて数え切れぬ労苦に耐え、<br>
+<mark class="diff-highlight danger" title="【注目例②】誤訳：to gain his natal shore を完了事実として訳したため、直後の「二度と岸辺を踏まぬ」と論理矛盾"><span class="diff-badge danger">論理破綻</span>友と共に無事に故郷の岸辺へと辿り着きたり。<br>
+虚しき労苦よ！</mark> 彼らの不敬なる愚行は、<br>
+太陽神に捧げられし家畜を貪らんとせり。<br>
+復讐心に燃える神は、彼らに二度と<br>
+（ああ、不幸なる人々よ！）故郷の岸辺を踏まぬ定めを下したり。<br>
+おお、天上のミューズよ、これらの事績の一部を運命より救い出し、<br>
+我らの世界に語り伝え給え。<br>
+いまギリシャ人たちは故郷の地へと辿り着きたり。<br>
+十年にわたる長き戦争を生き延びた者すべてが、<br>
+そして深き海の危難を免れた者たちが。<br>
+勝利者の列の中でただ一人、<br>
+愛する父祖の岸辺より追放されしユリシーズは、<br>
+不在の王妃と失われた帝国を嘆きたり。<br>
+カリプソはその洞窟にて彼の滞在を強いり、
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 02 PLAMO -->
+      <section class="poem-section" data-section="sec-02" id="plamo-sec-02">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 02</span>
+            <span class="sec-pope-tag">Lines 25–68</span>
+          </div>
+          <h2 class="sec-title">オリュンポスの神々の会議：ゼウスが語るアイギストスの破滅</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+甘美に、名残惜しく、情熱的な猶予をもって。<br>
+されど虚しく――いまや巡る歳月が、<br>
+彼の苦難に報いるべき宿命の日を明かす。<br>
+ついに運命は彼をイタカへと導きたり、<br>
+そこでは新たな労苦が彼の到着を待ち構えている。<br>
+ついに敵対する諸力もその怒りを抑えん、<br>
+海の無慈悲なる君主を除いては。<br>
+だがいま、神は遠く、天上の客として、<br>
+エチオピアの和やかな宴に臨み給う<br>
+（昇る太陽と沈む太陽がその傾く光で<br>
+見守る、分かたれた民の地なり）。<br>
+世界の最果てにて、盛大な犠牲と祈りをもって<br>
+崇められながら、神は遠き地に在りき。一方、<br>
+高きオリンポスの輝かしき住処にて、ユピテルは神々を招集せり。<br>
+集会にて、至高の父はこう語りかけたり、<br>
+アイギストスの運命を胸に抱きて。<br>
+若きオレステスが冥界の荒涼たる岸辺へと<br>
+血に穢れた亡霊として送り出した者なり。<br>
+「ひねくれた人類よ！ 自由に創られし意志を持ちながら、<br>
+あらゆる苦難を絶対的な権威のせいにする。<br>
+すべての罪を宿命の神々に転嫁し、<br>
+愚行を運命の罪と呼び誤る。<br>
+アイギストスが情欲に身を任せたとき、<br>
+運命が、あるいは我らが、その不貞の行為を強いたか？<br>
+偉大なるアトリデスが没したとき、<br>
+運命が、あるいは我らが、大胆な反逆者を王殺しへと駆り立てたか？<br>
+ヘルメスを遣わしたのは、彼の魂が<br>
+王家の血に忠実であり、信義を汚さぬうちであった。<br>
+あの不幸な者に警告せんがため、若きオレステスが<br>
+成人し、再び王座を取り戻すであろうと。<br>
+されど、心は無力に、制御できぬまま、<br>
+彼は天が予言した深淵へと身を投げたのだ」<br>
+ここで神は言葉を切り、物思いにふけりながら<br>
+紺碧の瞳を持つ優美なるミネルヴァが答える。<br>
+「おお、万物を生み出し給う方よ、<br>
+地上の王たちに授けられる権能の源よ！<br>
+彼の死は、その恐ろしい行いに匹敵するものであった。<br>
+されば、血塗られた者もまた血を流す宿命にあらんことを！<br>
+されど、今なお運命に虐げられる勇敢なるユリシーズを想い、<br>
+悲しみと怒りが交互に我が胸を抉る。<br>
+岩だらけの岸辺に森が囁き、<br>
+波濤が咆哮する、ある島のただ中にて、」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 03 PLAMO -->
+      <section class="poem-section" data-section="sec-03" id="plamo-sec-03">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 03</span>
+            <span class="sec-pope-tag">Lines 69–112</span>
+          </div>
+          <h2 class="sec-title">アテナの嘆願とゼウスの応答：ポセイドンの怒りと帰還の決定</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+非の打ち所なき英雄を、待ち望んだ故郷より<br>
+ある女神がその魔法の館に護りたり。<br>
+（その父はアトラス、その貫くような眼差しには<br>
+深海の驚異が広がりてあり。<br>
+彼が地上に立てた永遠の柱は<br>
+星々の穹窿へと至り、天球を支えたり）。<br>
+英雄はその美しき娘に囲まれ、<br>
+彼女はその憂い深き心を心地よい歓喜へと癒やす。<br>
+されど、彼女の柔らかな愛撫もすべて虚しく、<br>
+彼の胸から祖国への愛を追い払うことはできぬ。<br>
+愛する宮殿から煙が立ち昇るのを眺め、<br>
+遠き地平線に愛しき島を望むとき、<br>
+彼はどれほどの充足感をもって目を閉じ得ようか！<br>
+全能なる神は、賢明にして勇敢なる者の<br>
+苦しむ美徳を救うことを怠るというのか？<br>
+フリュギアの岸辺に祭壇を築き、<br>
+頻りなる儀式と清らかな信仰をもって汝の力を認めた者が、<br>
+人間にとって最悪の災厄を味わい、<br>
+祝福もなく、ユピテルの怒りに捨て置かれる宿命にあるというのか？」<br>
+「娘よ！ 汝の唇から、どれほど軽率な言葉が漏れたことか！<br>
+（雷神は武勇ある乙女に答えたり）<br>
+我が裁きによって、人類の中で最も賢く最良の者が<br>
+不当に虐げられていると思うな。<br>
+<mark class="diff-highlight danger" title="【注目例④】誤訳：rarely won（滅多に心動かされぬ）を「稀なる祈りでようやく懐柔され」と肯定誤訳し直後と自己矛盾"><span class="diff-badge danger">論理矛盾</span>ネプトゥヌスは、稀なる悔悟の祈りによってようやく懐柔され、<br>
+巨人の息子の仇を討つため、この英雄を苦しめたり。</mark><br>
+その巨人の眼球から、ユリシーズは光を奪いたり。<br>
+偉大なるポリュペモス、常人を超越した力を持つ者を。<br>
+若きトウサが彼を産みたり（フォルキュスの輝かしき子、<br>
+<mark class="diff-highlight danger" title="【注目例⑤】誤訳：soundsを機械的に音響の「響き」と直訳（正解：入り江・海峡）"><span class="diff-badge danger">辞書的直訳</span>響きと海において恐れられし者なり）。</mark><br>
+<mark class="diff-highlight danger" title="【注目例④】誤訳：ニンフへの分詞修飾（beauty bless'd）を「彼（巨人）を祝福し」と誤認"><span class="diff-badge danger">分詞誤認</span>ネプトゥヌスはその美しき姿に心を奪われ、彼を祝福し、</mark><br>
+自らの洞窟にてしなやかなニンフを抱きたり。<br>
+ゆえに神はギリシャ人を彷徨わせ、<br>
+故郷より絶望的な追放者たらしめたり。<br>
+死のみを避けさせ給うたが、もはや嘆くのは止めよ。<br>
+皆心を一つにして、彼の帰還を成し遂げよ。<br>
+ネプトゥヌスが贖われれば、その怒りも今は静まらん。<br>
+さもなくば、神々の評議を虚しく妨げるのみぞ」<br>
+「崇敬なる父にして王よ！」とミネルヴァは叫べり。<br>
+「オリンポスの館に住まう者すべてが、<br>
+いまや彷徨えるギリシャ人を公の憂いとしているならば、<br>
+ヘルメスを大西洋の島へと遣わせよ。<br>
+輝かしきカリプソの宮廷に至り、<br>
+集まった神々の裁定を伝えるよう命じよ」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 04 PLAMO -->
+      <section class="poem-section" data-section="sec-04" id="plamo-sec-04">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 04</span>
+            <span class="sec-pope-tag">Lines 113–157</span>
+          </div>
+          <h2 class="sec-title">アテナの計画とイタケ降臨：メンテス王への変身と求婚者たちの驕慢</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+賢明なるユリシーズを、彼らの至高の命に従い、<br>
+故郷の地へと急がせねばならぬ。<br>
+一方、海に囲まれたイタカの、花咲く後継者<br>
+テレマコスは、我が配慮を要する。<br>
+未熟なる彼の若き日々を、賢明な議論の中で<br>
+形作り、同輩たちに囲ませ、<br>
+国家を救い、時宜を得て<br>
+求婚者たちの大胆な侵入を制するのが我が務め。<br>
+彼らは宮殿にひしめき、無法な権力をもって<br>
+宴の儀式の中で彼の家畜や羊群を貪り食う。<br>
+遠きスパルタへ、そして砂のピュロスの<br>
+広大な荒野へ、王の子は急がねばならぬ。<br>
+そこで親への愛に燃え、その理由を問わん、<br>
+神のごとき父を領地から遠ざけている理由を。<br>
+早々に名声の声へと、<br>
+不朽なる名の約束を届けんがために」<br>
+彼女はそう言うと、天上の造りによるサンダルを履いた。<br>
+アンブロシアの羽を戴き、黄金に輝くそれを。<br>
+それを履いて彼女は崇高に空を航り、<br>
+翼ある風に乗り上がる。<br>
+大地と大海を越えて飛翔せんとして、<br>
+恐るべき腕には光り輝く投槍を携えたり。<br>
+重く巨大なるそれ、彼女の怒りが燃え上がるとき、<br>
+傲慢な暴君を屈服させ、軍勢をことごとく覆す。<br>
+高きオリンポスより飛行の方向を曲げ、<br>
+イタカの領地へと降り立つ。<br>
+その神々しい面貌は、厳かな変装、<br>
+メンテスの姿となって人の目から隠されり。<br>
+（メンテス、タフィアンの地の君主なり）。<br>
+手には煌めく槍を、威厳をもって振りかざす。<br>
+門辺に佇み、天生まれの乙女は<br>
+凄まじい乱行と無秩序を眺めたり。<br>
+宮殿の門の前、牛の皮の上に<br>
+（贅沢の悲しい残骸なり）、求婚者たちが座せり。<br>
+競い合う技巧と、面持ちに宿る情熱をもって、<br>
+彼らは女王の心を射止めんとチェスに興ず。<br>
+自らの愛を占いながら。傍らでは<br>
+従者たちが溢れる杯を注ぎ足す。<br>
+また別の者たちは、離れて広間を整え、<br>
+勤勉なる配慮をもって豪華な宴を設える。<br>
+そこに若きテレマコス、天上の甘美さに輝く<br>
+花のような顔をして、神のごとき気品をもって<br>
+輪の中に光を放つ。されど希望と恐怖が<br>
+（痛ましい変転よ！）彼の胸を引き裂く。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 05 PLAMO -->
+      <section class="poem-section" data-section="sec-05" id="plamo-sec-05">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 05</span>
+            <span class="sec-pope-tag">Lines 158–202</span>
+          </div>
+          <h2 class="sec-title">テレマコスによる客人の歓待と求婚者たちの宴</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+いま、心に描きしまま、彼は見る。<br>
+平和と喜びの中に、民の正しき主が戻った姿を。<br>
+傲慢な圧政者たちは、復讐の剣に逃れゆく。<br>
+こうした空想上の勝利に魂を昂ぶらせていたとき、<br>
+王の子は見知らぬ客人の姿を認めたり。<br>
+君主の門において、これほど長く、<br>
+気づかれず、敬われぬまま待たれていた客を惜しみ、<br>
+彼は直ちにもてなしの急ぎ足で駆け寄り、<br>
+礼儀正しい態度で新たな友を迎え入れた。<br>
+「旅人よ、汝が何者であれ、安らかに休め。<br>
+我が信頼にかけて、歓迎すべき客とせん。<br>
+館へ入り、親睦の宴を分かち合い、<br>
+その後、汝の心にある目的を明かせ」<br>
+かくも親しみやすく穏やかな様子で王子は先導し、<br>
+見知らぬ天上の者を館へと導いた。<br>
+手から槍を受け取り、彼はそれを<br>
+彫刻に彩られた美しい柱に立てかけた。<br>
+そこには、いまや血に染まることのない<br>
+ユリシーズの武具が、静かな秩序をもって並んでいた。<br>
+彼は女神を主座へと導き、<br>
+その足元には儀礼用の椅子を置いた<br>
+（紫の絨毯が床一面に広げられていた）。<br>
+そして自らの席を、親しげに彼女の傍らへ引き寄せた。<br>
+求婚者たちの群れ――粗野な群衆――から遠く離れ、<br>
+彼らは不遜に、酒に酔い、騒ぎ立てていた。<br>
+そこであれば、自由な客人は、もし知っていれば、<br>
+父の運命を語ることができたであろう。<br>
+従順な乙女が黄金の水差しを運び来る。<br>
+冷たく澄んだ泉から満たされたそれを。<br>
+豊かな水が、輝く壺から<br>
+大きな銀の洗盤へと注がれる。<br>
+彼らは手を洗う。食卓は美しく整えられ、<br>
+輝く容器にはパンが山盛りにされる。<br>
+多種多様な料理が食欲をそそり、<br>
+最上の品と味わい、贅沢な宴なり！<br>
+付き添いの使者が美味なるワインを運び、<br>
+黄金が紫の飲み物に輝きを添えていた。<br>
+芳しき宴の香りに誘われ、<br>
+求婚者たちが貪欲な急ぎ足でなだれ込む。<br>
+しかるべき順序で整列し、給仕が<br>
+一人ひとりに、手を洗うための輝く水差しを差し出す。<br>
+かくして彼らは贅沢に宴に耽る。周囲では<br>
+陽気な若者たちが、満たされた杯を掲げ合っていた。<br>
+飢えの猛りを鎮め、彼らは皆、前へ進み出る。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 06 PLAMO -->
+      <section class="poem-section" data-section="sec-06" id="plamo-sec-06">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 06</span>
+            <span class="sec-pope-tag">Lines 203–246</span>
+          </div>
+          <h2 class="sec-title">吟遊詩人ペミオスの歌とテレマコスの嘆き</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+そして律動ある調べに合わせ、錯綜する舞を舞う。<br>
+弦を張った竪琴はフェミオスに委ねられ、<br>
+その手は不本意ながらも、鳴る弦に触れた。<br>
+フェミオス、その神なる声は最も甘美に<br>
+歌声に応える高き調べを奏でたり。<br>
+その間、王子は天上の客に囁きかけ、<br>
+かくして自らの憤りを表現した。<br>
+「我が込み上げる悲しみを受け止めてくれ、友よ。<br>
+彼らが歌と舞でこの豪奢な宴を締めくくる間。<br>
+舞は軽やかであり、歌は二倍に甘美だ、<br>
+誰か他の者がその喜びの代償を払うならば。<br>
+あの強欲な者たちが彼の宝蔵を食い潰している。<br>
+その骨は、王の墓も<br>
+ありふれた土さえも奪われ、平原に裸で晒され、<br>
+あるいは飲み込む大海の中で悶えゆく運命にある。<br>
+もし彼が戻れば、あの陽気で大胆な群れは、<br>
+金糸で織り込まれ、硬く装飾された紫の衣を纏い、<br>
+恐怖に駆られて慌てて逃げ出し、<br>
+自らの重苦しい誇りの扱いづらさを呪うことだろう。<br>
+だが、ああ、夢か！――定められた時は過ぎ去った。<br>
+あまりに長く虚しい妄想に養われた希望は、<br>
+偽りの名声の噂に耳を貸さず、<br>
+死の名簿にその輝かしい名を委ねてしまった！<br>
+どうか許された自由をもって、今こそ問わせてくれ。<br>
+汝の名を、血統を、そして父祖の地を。<br>
+汝の旅がどこから始まったのか、誠実に語れ。<br>
+そして、どの船の親切な積み荷として来たのかを。<br>
+今、初めて私を訪ねてくれたのか、<br>
+それとも父の親しい一行の一員であったのか。<br>
+父はその選びに値する者をすべて自らの友とし、<br>
+好奇心強く、広く人々を知っておられた」<br>
+「私の生まれは（青い瞳の乙女は叫ぶ）<br>
+名高く賢明なる大アンキアロスなり。<br>
+名はメンテス。私はタフィアンの民を治める。<br>
+その境界は、深く巡る波に包まれている。<br>
+忠義なる民であり、勤勉なる島、<br>
+航海術に長け、嵐の労苦に慣れたる地なり。<br>
+故郷より鉄を積み込み、<br>
+私はブルティアの岸辺へと航海する。<br>
+商いによって、労して得た塊に対し、<br>
+相応の量の燦然たる真鍮を得るためなり。<br>
+汝の都から遠く離れた<br>
+レイトロスに、私の船は安全に錨を下ろしている」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 07 PLAMO -->
+      <section class="poem-section" data-section="sec-07" id="plamo-sec-07">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 07</span>
+            <span class="sec-pope-tag">Lines 247–290</span>
+          </div>
+          <h2 class="sec-title">メンテス（アテナ）の名乗りとユリシーズ帰還の予言</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+軽やかなネイグンに揺れる森が茂り、<br>
+至高の高みより眼下の深淵に影を落とす場所。<br>
+そこから汝の帝都の館を再訪せんため、<br>
+古き世襲の客として私は参上した。<br>
+汝の父の友、ラエルテスが、<br>
+我らの汚れなき信頼と、その始まりを語り得よう。<br>
+心を蝕む悲しみと歳月に押され、<br>
+彼は華やかな宮廷を離れ、田舎の小屋へと退いた。<br>
+そこでは、従者たちの中でただ一人、賢明な妻が、<br>
+素朴な愛情をもって彼の衰えゆく老齢を支えている。<br>
+弱り切った足取りで葡萄の手入れをし、<br>
+労苦の一日が終わり、悲しげに戻ってくる彼を。<br>
+「誤った名声に導かれ、友愛の急ぎ足で、<br>
+ユリシーズの無事な帰還を祝わんと参った。<br>
+だが、ある天上の力の憤怒が、<br>
+嫉妬に満ちた喜びとともに、この至福の時を遅らせている。<br>
+汝の魂を悲しい絶望に沈めてはならぬ。<br>
+彼は生きている。この天上の生命の息吹を吸っている。<br>
+野蛮な民の中にありて、その岩だらけの境界を<br>
+絶え間ない轟音とともに泡立つ深海が囲んでいる。<br>
+私の心を奪われた胸の中で渦巻く想いは、<br>
+預言者ならぬ私に、霊感を与える神々が示唆したものだ。<br>
+私は熟練もせず、研鑽も積まず、予言の眼で<br>
+空の翼ある兆しを判断することはできぬ。<br>
+されど、この確かな言葉を聞け、虚しいと思うな。<br>
+たとえ金剛の絆が主を縛ろうとも、<br>
+その恐ろしい拘束を、彼の知恵が打ち破り、<br>
+間もなく彼を王の座へと戻すだろう。<br>
+だが気高き若者よ！ 誠実に、ありのままに語れ。<br>
+汝は成人し、彼の王たる後継者なのか。<br>
+確かにユリシーズの姿が汝の眼差しに現れている。<br>
+歳が等しければ、その面差しも同じであろう。<br>
+それこそが、私が喜びをもって見つめた顔であった。<br>
+ギリシャの軍勢が結集し、トロイへと波を押し切った前に。<br>
+だが、あの忌まわしき岸辺へと別れを告げたとき、<br>
+不幸にも、我らの目は二度と交わることはなかった」<br>
+「正統な出生を証明するには（王子は答える）<br>
+女性の真実に対する信頼に拠るほかない。<br>
+こうして権利を明らかにし、私は自らの主張を立てる。<br>
+母の清き名声という確かな根拠の上に。<br>
+ユリシーズの息子である。だが、運命が<br>
+偉大なる者を揺さぶる嵐の中に置いた者こそ、より幸福なり！<br>
+白髪の父が祝福されている息子こそ、より幸福なり」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 08 PLAMO -->
+      <section class="poem-section" data-section="sec-08" id="plamo-sec-08">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 08</span>
+            <span class="sec-pope-tag">Lines 291–334</span>
+          </div>
+          <h2 class="sec-title">親子の相似とテレマコスの悲憤：荒らされる王家</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+「慎ましき富と、家庭の安らぎを！<br>
+私よりも幸なる者よ、未来の帝国に生まれながら、<br>
+父の惨めなる運命を嘆く宿命にあるとは！」<br>
+すると、穏やかな面持ちで、神なる客は答えた。<br>
+「おお、王統の正しき末裔よ！<br>
+神々は、貞淑なるペネロペの子らに、<br>
+苦悩なき栄光ある運命を定められた。<br>
+だが問おう、あちらに陽気に装った一行は、<br>
+婚礼の宴か、それとも親睦の宴か？<br>
+あるいは、その振る舞いから察するに、<br>
+傲慢と酒に酔いしれ、分をわきまえぬ者たちか？<br>
+招かれざる狂宴の徒よ、その無法な歓喜は<br>
+賢者の耳を苛み、慎み深き者の目を傷つける。」<br>
+「古の壮麗さは（王子は答えた）<br>
+美徳と共に我らが屋根の下に宿り得ました。<br>
+非の打ち所なき豊穣が王の食卓を飾り、<br>
+この殿堂がその賢明なる主を敬っていた頃のこと。<br>
+だが今は（天の定めにより）、嘆きに暮れ、<br>
+苦しき拘束に、迷い、孤独なる運命にあります。<br>
+むしろ首長は、イリオスの敵地にて、<br>
+勇猛なる軍勢に囲まれて倒れたほうがよかった。<br>
+あるいは、栄光の時代を終え、無事に帰還し、<br>
+友らの抱擁に包まれて、最期を迎えたほうが！<br>
+さすれば、感謝に満ちたギリシャの民が、涙ながらに<br>
+その誉れを刻む歴史的な碑を建てたことでしょう。<br>
+忠実なる石に永遠に刻まれたその誉れは、<br>
+受け継がれる栄誉として、その子を彩ったはずです。<br>
+いまやハルピュイアに連れ去られ、荒涼たる海岸へ。<br>
+英雄は沈み、その栄光は失われました。<br>
+一瞬にして消え去り、語られることもなく、知られもせず！<br>
+そして私は、ただ独り、悲哀の中に遺された後継者。<br>
+失った親への親愛の涙のみならず、<br>
+悲しみに悲しみが重なり、<br>
+妻なき女王を情愛の策で誘惑せんと、<br>
+近隣の島々より貴族たちが集います。<br>
+イオニアの海に囲まれたサモスより、<br>
+ドゥリキウム、そして森深きザキントスの地より。<br>
+不遜な希望を抱き、彼女の床へ登らんと、<br>
+イタカの領主たちが自らの権利を主張いたします。<br>
+彼女は彼らの誓いの言葉に耳を傾けているようですが、<br>
+心では、耳で受け入れたものを忌み嫌っております。<br>
+婚礼の時を虚しく待ちわびる彼らは、<br>
+私の財宝を放蕩に費やしております。」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 09 PLAMO -->
+      <section class="poem-section" data-section="sec-09" id="plamo-sec-09">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 09</span>
+            <span class="sec-pope-tag">Lines 335–379</span>
+          </div>
+          <h2 class="sec-title">アテナの憤りと助言：民会の召集とペネロペの去就</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+「宴と舞踏に快活な月日を費やし、<br>
+その喜びの締めくくりに、我が運命を熟考せん。」<br>
+深い憐れみに打たれ、女神は叫んだ。<br>
+「慈悲深き天が、速やかに確かな救いをもたらさんことを。<br>
+速やかに汝の父が、しかるべき復讐を果たし、<br>
+傲慢なる圧制者たちが、汝へのあらゆる不当を悔い改めんことを！<br>
+おお、あの門に首長が現れたなら。<br>
+その両手には青銅の槍を恐ろしく構え、<br>
+燦然たる甲冑に身を包んで（<br>
+古き日、我が父もまた、そのように宮廷を彩ったものだ。<br>
+社交の喜びがその厳かな魂を和らげたとき、<br>
+満ち足りた宴と、快い杯を前にして）。<br>
+そのとき彼は、イアソンの王統より出でしイルスの<br>
+美しき領地、エピュラより、<br>
+海原の果てまで、労苦に満ちた道のりを、虚しく辿った。<br>
+毒矢に死の薬を染み込ませるという<br>
+恐ろしい術を学ぶため、航海に出たのだが。<br>
+神々を敬い、厳格に公正であったイルスは、<br>
+その禍々しい秘術を伝えることを拒んだ。<br>
+だが、父の魂はより篤い熱意に燃え、<br>
+薬を知り、切望された恩恵を授けた。<br>
+もし彼が今、当時タフォスの宮廷で際立っていたような、<br>
+英雄的な姿で現れたなら。<br>
+傲慢に争う者たちはすぐに争いを止め、<br>
+さもなくば、各々がその罪深き愛の代償として命を捧げることだろう。<br>
+だが、彼が戻ることへの願いは捨て、<br>
+未来の復讐は神々に委ねよ。<br>
+我が宣告を聞け。峻厳なる不快感をもって告げよう。<br>
+求婚者の群れを、それぞれの領地へと追い払え。<br>
+次に朝が紫の東空を温めるとき、<br>
+貴族たちを招集し、神々に証を立てよ。<br>
+汝の魂の奥底にある悲しみを語り、<br>
+沈みゆく国を救う確かな策を練れ。<br>
+もし新たな愛が心地よい炎を灯し、<br>
+貞淑なる女王が婚姻の権利を求めるならば。<br>
+名誉をもって彼女を送り出し、ここから去らせよ。<br>
+偉大なイカリオスのもとへ。彼の父としての配慮が<br>
+彼女の情熱を導き、その選択に<br>
+豊かな持参金と、価値ある婚礼の品をもって報いるであろう。<br>
+されば、我が愛によるこの助言に従え。<br>
+直ちに、異国の地へ船出する準備をせよ。<br>
+父の安否を確かめるために。名声が、あるいは<br>
+予兆を告げる声（ユピテルの使者）が、<br>
+その探索に追い風をもたらすやもしれぬ。汝の労苦を向けよ」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 10 PLAMO -->
+      <section class="poem-section" data-section="sec-10" id="plamo-sec-10">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 10</span>
+            <span class="sec-pope-tag">Lines 380–423</span>
+          </div>
+          <h2 class="sec-title">ピュロス・スパルタへの探索行の勧めとオレステスの模範</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+まずは広大なる海を越え、砂のピュロスへ。<br>
+白髪の賢者ネストルに、その運命を問え。<br>
+そこから急ぎ、スパルタの岸辺へと航海せよ。<br>
+若きアトリデスが、勝利した軍勢の中で<br>
+最後にアカイアの海岸へ辿り着いたのだから。<br>
+もしユリシーズがいまだ生の光を見ているなら、耐えよ。<br>
+巡る一年が戻るまで、儚き時を待て。<br>
+だが、もしその魂が宿命の飛翔を遂げ、<br>
+深き災厄の夜の住人となったのなら、<br>
+敬虔なる速さで海を渡り故郷へ戻れ。<br>
+青白い亡霊に葬送の儀を執り行い、<br>
+空しき墓の上に美しき柱を立てよ。<br>
+英雄には、英雄にふさわしい誉れを。<br>
+礼節ある悲しみをもって王なる死者を悼み、<br>
+貞淑なる女王には、相応しき主を選べ。<br>
+されば、汝の大胆な心を復讐に捧げよ。<br>
+策略か力をもって、求婚者の群れを滅ぼせ。<br>
+そして大人へと成長し、少年時代を脱ぎ捨てよ。<br>
+若きオレステスが、大いなる復讐心に燃え、<br>
+不滅の誉れを勝ち得たことを聞かぬか？<br>
+その処女の剣はアイギストスの血管を染めた。<br>
+殺人者は倒れ、血は血をもって贖われた。<br>
+おお、あらゆる華やぐ美徳に恵まれた者よ！<br>
+等しき歩みで栄光の道を辿れ。<br>
+あの王なる青年に汝のライバルたる名を連ね、<br>
+名声の天球にて永遠に輝け。<br>
+だが、我が連れらは今、私の足止めを嘆いている。<br>
+しわがれた声が響く岸辺で、もどかしげに待っている。<br>
+助言を胸に、慎重に進め。<br>
+我が誉れを指針とし、汝が成すべき事とせよ。」<br>
+「友の助言は（青年は答えた）<br>
+感謝に満ちた私の心に、確信を刻みました。<br>
+父たちが（説得力ある穏やかな言葉で）<br>
+愛する子に、自らの賢明な経験を語るがごとく。<br>
+ですが、別れにあたり、甘美な宴が必要ですので、<br>
+私の従者たちに心温まる料理を用意させましょう。<br>
+そして、誓いし信仰の豊かな証を受け取りたい。<br>
+イタカの空気にふさわしいものを。」<br>
+「約束の恩賞は後にせよ（女神は叫んだ、<br>
+その瞳に天上の蒼が輝きながら）、<br>
+今は私にレイトリアの港へ戻らせてくれ。<br>
+テメセから戻り次第、汝の王宮を<br>
+再び訪れ、その証を受け取ろう。」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 11 PLAMO -->
+      <section class="poem-section" data-section="sec-11" id="plamo-sec-11">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 11</span>
+            <span class="sec-pope-tag">Lines 424–467</span>
+          </div>
+          <h2 class="sec-title">アテナの飛翔・神性の顕現とペネロペの涙</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+「そして、我らの友情の記念となる贈り物を残してくれ。」<br>
+突如として、彼女は鷲のごとき速さで空を切り裂き、<br>
+瞬く間に人間の目からは消え去った。<br>
+そこで初めて、彼は天上の客に気づいた。<br>
+驚きと喜びが交互に胸を焦がし、<br>
+英雄的な想いが注ぎ込まれ、心は高鳴る。<br>
+父の不確かな運命に思いを馳せながら。<br>
+やがて心を落ち着かせ、彼は求婚者の群れに加わり、<br>
+奏でられる歌に耳を澄ませて静まり返った。<br>
+魅力的な竪琴弾きが選んだのは、切ない主題であった。<br>
+ミネルヴァの怒りと、恐ろしい災厄。<br>
+トロイを離れた勝利者たちが背負った苦難、<br>
+<mark class="diff-highlight danger" title="【注目例⑤】誤訳：intercept the store の store（帰還の財宝・船路）を辞書的「蓄え」と直訳"><span class="diff-badge danger">機械的直訳</span>復讐心に満ちた嵐が蓄えを阻んだ物語。</mark><br>
+鋭い調べが丸天井に響き渡り、<br>
+女王へと銀色の音色を反射させる。<br>
+悲しみに暮れ、再び涙を流す美しき女王が歩み寄る。<br>
+君主の歩みには、乙女たちの列が付き従う。<br>
+最高級の織物で仕立てられたヴェールを纏い、<br>
+彼女は静かに歓喜の広間へと向かう。<br>
+そこで彼女は門口から、穏やかな命をもって、<br>
+楽師の奏でる手をそっと制した。<br>
+「フェミウスよ！ 神々の業や、古の英雄たちの事、<br>
+古の吟遊詩人たちが広間や小部屋で語った物語を、<br>
+竪琴に合わせて歌い上げよ。<br>
+悦びに満ちた耳は、それを静かな喜びとともに受け止めるだろう。<br>
+だが、ああ、<mark class="diff-highlight danger" title="【注目例⑥】誤訳：dear unhappy（愛しくも悲痛なる名）を「忌まわしき名」と誤解（貞淑な妻が愛する夫を忌まわしいと呼ぶ致命的キャラ崩壊）"><span class="diff-badge danger">文脈誤読</span>あの忌まわしき名だけは控えてくれ</mark>。<br>
+悲しみに捧げられ、名声に確固たるあの名を。<br>
+その響きに、私の血を流す胸は疼き、<br>
+突き刺さるような一音一音が傷を刻むのだ。」<br>
+「ああ、我が忠実なる愛の最愛なる方よ」<br>
+（王子は答えた）「なぜ吟遊詩人を咎めるのですか？<br>
+しばしばユピテルの天上の光（抗いがたい炎）が、<br>
+歌い手の魂と恍惚たる歌に霊感を与えます。<br>
+それは神聖なる本能ではないでしょうか。<br>
+心と声をもってギリシャの悲哀を歌う彼の選択を、<br>
+厳しく責めないでください。<br>
+新しい歌は、我らの心を奪われた耳を惹きつけますが、<br>
+古い歌に、心は無関心に耳を傾けるものです。<br>
+どうか、この悲しくも心地よい調べを耐えて聴いてください。<br>
+今や悲しみに慣れたあなた、涙を堪え、<br>
+公の悲哀の中で、ご自身の悲しみを忘れてください。<br>
+あなたが泣いているのは、亡き主のためだけにあらず。<br>
+ステュクスの闇を新たに彷徨うギリシャ人のうち、<br>
+誰があなたのユリシーズに同じ運命を願わぬことがありましょうか！」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 12 PLAMO -->
+      <section class="poem-section" data-section="sec-12" id="plamo-sec-12">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 12</span>
+            <span class="sec-pope-tag">Lines 468–510</span>
+          </div>
+          <h2 class="sec-title">母ペネロペを諭すテレマコスと求婚者への宣戦布告</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+「未亡人となった日々は、女性としての労苦と<br>
+機織りの様々な仕事で紛らわしなさい。<br>
+そこでは、宮廷の悩みから離れ、自由に統治せよ。<br>
+その悩みは男の、そしてとりわけ私の役目なのだ。」<br>
+年齢に比して成熟した女王は、<br>
+彼の賢明な答えに感銘を受け、従者と共に退いた。<br>
+すると、膨れ上がった悲しみがかつての境界を突き破り、<br>
+こだまする嘆きとともに、再び殿堂に響き渡った。<br>
+やがて、彼女の哀切な叫びに心を痛めたパラスが、<br>
+眠りの中で銀の流れるような瞳を閉じた。<br>
+その間、王の魅力に再び火がついた男たちの、<br>
+激しい愛が鼓動する胸を熱くした。<br>
+抑えきれない怒りから、口論が始まったが、<br>
+勇敢なテレマコスが大人の振る舞いを見せた。<br>
+「直ちに（彼は叫んだ）女々しい不和を終わらせよ、<br>
+無為な自慢屋どもよ！ そして歌に耳を傾けよ。<br>
+その甘美な強制に従い、不協和音で<br>
+滑らかな旋律を汚すな。<br>
+今は平和に、快い宴を続けよ。<br>
+だが、夜明けが薔薇色の東空を照らせば、<br>
+私は集まった貴族たちに、<br>
+ここで密かに明かした断固たる決意を提案する。<br>
+我が宮廷の癌どもに、これ以上住まわせてはならぬ。<br>
+速やかに各自の領地へ帰れ。<br>
+汝らの土地が許す限り、奔放な狂宴に耽り、<br>
+そこで早々に宴を開き、夜遅くまで飲み明かせ。<br>
+だが、もし失われた名誉のために、<br>
+なおも汝らが私の杯を満たさねばならぬというのなら、私の家畜が血を流すことになる。<br>
+公正なるユピテルよ、私の権利を裁き、報いてくれ！<br>
+彼、そして天上のあらゆる不滅の玉座にかけて<br>
+（聖なる誓いとして）、打ち倒された傲慢な圧制者ひとりにつき、<br>
+この大理石を不名誉な血で染めてくれよう。」<br>
+これほど傲慢で大胆、かつ若き王子に圧倒され、<br>
+怒りが唇を噛みしめ、驚きが舌を縛った。<br>
+ついに陽気なアンティノウスが沈黙を破り、<br>
+無理に微笑みを浮かべて、このように曖昧な口調で言った。<br>
+「いかなる神が、教養なき汝の若さに、<br>
+これほどまで凄まじい言葉の奔流を授けたのか。<br>
+ユピテルが汝の治世を遅らせ、これほど輝かしい<br>
+才能を、国家の労苦という枷に縛り付けんことを！」<br>
+「その労苦には（テレマコスは穏やかに答えた）<br>
+その重みにかかわらず、賢者を惹きつける魅力があるのだ。」
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 13 PLAMO -->
+      <section class="poem-section" data-section="sec-13" id="plamo-sec-13">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 13</span>
+            <span class="sec-pope-tag">Lines 511–554</span>
+          </div>
+          <h2 class="sec-title">アンティノオス・エウリュマコスとの舌戦</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+玉座の傍らには、卑屈な名声が宿り、<br>
+富は絶え間なく黄金の潮流をなして流れ込む。<br>
+アンティノウスが憤ろうとも、若き心に<br>
+富と名声への強い渇望が燃え上がったとしても構わぬ。<br>
+ユピテルに選ばれ、その統治の代理人となれば、<br>
+私は喜びと誇りをもって召喚に応じよう。<br>
+ユリシーズが夜の領域を彷徨い、<br>
+党派的な権力が私の正統な権利を争うとき、<br>
+他のギリシャ人がより正当な権利を主張するかもしれぬ。<br>
+彼らの主張こそが、汝らの言い分に優先するだろう。<br>
+少なくとも、王笏を失ったとしても、私はなお<br>
+家臣たちと家来たちを統べる唯一の主として君臨しよう。」<br>
+これにエウリュマコスが答えた。「空位の玉座を<br>
+誰が継ぐかは、天の意志にのみ委ねよ。<br>
+汝の家産は安らかに保持せよ。<br>
+汝の嫡出としての権利は、疑いようもなく認めよう。<br>
+もし不敬な権力が汝の私的な権利を侵すなら、<br>
+イタカの貴族たちが武器を取って助けるだろう。<br>
+だが、先ほど退いたあの見知らぬ客は何者か、<br>
+どこから来たのか。その名と血統を明かせ。<br>
+その厳かな物腰と威厳ある気品は、<br>
+彼が卑俗な血筋ではないことを物語っている。<br>
+古き権利の借用を求めに来たのか、<br>
+あるいは、王笏を持つ汝の父の先触れとして来たのか。」<br>
+「おお、ポリュボスの息子よ！」王子は答えた。<br>
+「もはや父が、この切なる瞳を喜ばせることはない。<br>
+女王の淡い希望を、作り話の噂が慰め、<br>
+あるいは虚しい占い師の夢が、彼女の不安を紛らわせている。<br>
+あの見知らぬ客は、タフォスの領地の者だ。<br>
+周囲を海に囲まれた領地である。<br>
+メンテスという、古くから尊ばれた名は、<br>
+かつてユリシーズの親交名簿に高く記されていた。」<br>
+こうして彼は、天上の客の存在に気づきながらも、<br>
+狡猾な問いをはぐらかして答えた。<br>
+その間、竪琴は再び快活な調べを奏で、<br>
+愛の歌と舞踏が一日を締めくくった。<br>
+やがて夕星が黄金の光で<br>
+漆黒の夜の貴婦人の額を飾ると、<br>
+陽気な一行は散会して宮廷を離れ、<br>
+それぞれの館へと休息に就いた。<br>
+宮殿にはそびえ立つ建造物が連なっていた。<br>
+思慮深い王子はその方へ足を向けた。<br>
+彼はそこにある自らの天幕へと、眠りに就きに向かった。
+</div>
+        </div>
+      </section>
+
+      <!-- SECTION 14 PLAMO -->
+      <section class="poem-section" data-section="sec-14" id="plamo-sec-14">
+        <div class="section-header-bar plamo-header">
+          <div class="sec-badge-row">
+            <span class="sec-badge plamo-badge">Section 14</span>
+            <span class="sec-pope-tag">Lines 555–574</span>
+          </div>
+          <h2 class="sec-title">宴の終わりと老乳母エウリュクレイアに導かれる就寝</h2>
+        </div>
+        <div class="poem-stanza-wrapper">
+<div class="verse-stanza">
+灯した松明を、賢きエウリュクレイアが運ぶ。<br>
+（オプスの娘にして、公正なるピセノールの子。<br>
+偉大なるラエルテスにより牛二十頭を授かり、<br>
+薔薇色の青春に魅力的な気品を湛え、<br>
+優しく貞潔なる主君に、深い敬意をもって<br>
+尊ばれた。あまりに賢明であったため、嫉妬の争いで<br>
+甘美な夫婦生活の喜びを汚すことはなかった。<br>
+テレマコスへの奉仕こそが、彼女の唯一の務め。<br>
+幼き日には彼を乳飲み子として育て、今は成人した彼に仕えている。）<br>
+王子が自ら寝床へと向かう間、<br>
+忠実な女僕は、紫色の衣を受け取った。<br>
+紫色の衣を端正に整え、<br>
+銀の指輪を抜き、扉を閉め、<br>
+絹の紐に従い、閂を<br>
+頑丈な掛け金の奥深くへと戻し、<br>
+扉を閉ざした。そこで静かな陰に包み込まれ、<br>
+物思いにふけりながら、女神が授けた掟を反芻した。<br>
+柔らかな羊毛の敷物に身を横たえても、安らぎはなく、<br>
+恍惚とした魂の中で、あの幻影が燃え上がっている。
+</div>
+        </div>
+      </section>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const panesContainer = document.getElementById('panesContainer');
+    const scrollOriginal = document.getElementById('scrollOriginal');
+    const scrollPersonal = document.getElementById('scrollPersonal');
+    const scrollNeutral = document.getElementById('scrollNeutral');
+    const syncScrollCheck = document.getElementById('syncScrollCheck');
+    const sectionJump = document.getElementById('sectionJump');
+
+    const btnAll3 = document.getElementById('btnAll3');
+    const btnJp2 = document.getElementById('btnJp2');
+    const btnOrigOnly = document.getElementById('btnOrigOnly');
+    const btnPersonal = document.getElementById('btnPersonal');
+    const btnNeutral = document.getElementById('btnNeutral');
+
+    const btnFontInc = document.getElementById('btnFontInc');
+    const btnFontDec = document.getElementById('btnFontDec');
+    const themeSelect = document.getElementById('themeSelect');
+
+    const allPanes = [scrollOriginal, scrollPersonal, scrollNeutral];
+
+    // 3-Pane Section-Aware Synchronized Scroll (Continuous Piecewise-Linear & Active Driver Lock)
+    let activeDriverPane = null;
+    let driverReleaseTimer = null;
+    let isProgrammaticJump = false;
+    const milestoneCache = new Map();
+
+    function invalidateMilestoneCache() {
+      milestoneCache.clear();
+    }
+
+    function getAnchorPoints(pane) {
+      if (milestoneCache.has(pane)) {
+        return milestoneCache.get(pane);
+      }
+      const maxScroll = Math.max(0, pane.scrollHeight - pane.clientHeight);
+      const sections = Array.from(pane.querySelectorAll('[data-section]'));
+      const points = [{ id: '__top__', pos: 0 }];
+      for (const el of sections) {
+        const pos = Math.min(maxScroll, Math.max(0, el.offsetTop - 12));
+        if (pos > points[points.length - 1].pos) {
+          points.push({ id: el.getAttribute('data-section'), pos });
+        }
+      }
+      if (maxScroll > points[points.length - 1].pos) {
+        points.push({ id: '__bottom__', pos: maxScroll });
+      }
+      milestoneCache.set(pane, points);
+      return points;
+    }
+
+    function markActiveDriver(pane) {
+      if (isProgrammaticJump) return;
+      activeDriverPane = pane;
+      if (driverReleaseTimer) clearTimeout(driverReleaseTimer);
+      driverReleaseTimer = setTimeout(() => {
+        activeDriverPane = null;
+      }, 180);
+    }
+
+    allPanes.forEach(pane => {
+      pane.addEventListener('wheel', () => markActiveDriver(pane), { passive: true });
+      pane.addEventListener('touchstart', () => markActiveDriver(pane), { passive: true });
+      pane.addEventListener('touchmove', () => markActiveDriver(pane), { passive: true });
+      pane.addEventListener('pointerdown', () => markActiveDriver(pane), { passive: true });
+      pane.addEventListener('mouseenter', () => {
+        if (!activeDriverPane) activeDriverPane = pane;
+      }, { passive: true });
+    });
+
+    function mapScrollPosition(sourcePane, targetPane, sTop) {
+      const sPoints = getAnchorPoints(sourcePane);
+      const tPoints = getAnchorPoints(targetPane);
+      if (sPoints.length < 2 || tPoints.length < 2 || sPoints.length !== tPoints.length) {
+        const sMax = Math.max(1, sourcePane.scrollHeight - sourcePane.clientHeight);
+        const tMax = Math.max(0, targetPane.scrollHeight - targetPane.clientHeight);
+        return (sTop / sMax) * tMax;
+      }
+
+      if (sTop <= sPoints[0].pos) return tPoints[0].pos;
+      const lastIdx = sPoints.length - 1;
+      if (sTop >= sPoints[lastIdx].pos) return tPoints[lastIdx].pos;
+
+      // Find segment [i, i+1] containing sTop
+      let segIdx = 0;
+      for (let i = 0; i < lastIdx; i++) {
+        if (sTop >= sPoints[i].pos && sTop <= sPoints[i + 1].pos) {
+          segIdx = i;
+          break;
+        }
+      }
+
+      const sStart = sPoints[segIdx].pos;
+      const sSpan = sPoints[segIdx + 1].pos - sStart;
+      const ratio = sSpan > 0 ? (sTop - sStart) / sSpan : 0;
+
+      const tStart = tPoints[segIdx].pos;
+      const tSpan = tPoints[segIdx + 1].pos - tStart;
+      return tStart + ratio * tSpan;
+    }
+
+    function sync3Panes(sourcePane, forceSync = false) {
+      if (!syncScrollCheck.checked || isProgrammaticJump) return;
+      if (!forceSync && activeDriverPane && activeDriverPane !== sourcePane) return;
+
+      if (!activeDriverPane) {
+        markActiveDriver(sourcePane);
+      }
+
+      const sTop = sourcePane.scrollTop;
+      const targetPanes = allPanes.filter(p => p !== sourcePane && p.offsetParent !== null);
+
+      targetPanes.forEach(tp => {
+        const nextTop = mapScrollPosition(sourcePane, tp, sTop);
+        if (Math.abs(tp.scrollTop - nextTop) >= 0.5) {
+          tp.scrollTop = nextTop;
+        }
+      });
+    }
+
+    scrollOriginal.addEventListener('scroll', () => sync3Panes(scrollOriginal), { passive: true });
+    scrollPersonal.addEventListener('scroll', () => sync3Panes(scrollPersonal), { passive: true });
+    scrollNeutral.addEventListener('scroll', () => sync3Panes(scrollNeutral), { passive: true });
+
+    // Section Quick Jump Dropdown
+    sectionJump.addEventListener('change', (e) => {
+      const secId = e.target.value;
+      if (!secId) return;
+
+      isProgrammaticJump = true;
+      activeDriverPane = null;
+      invalidateMilestoneCache();
+
+      allPanes.forEach(pane => {
+        if (pane.offsetParent !== null) {
+          const target = pane.querySelector(`[data-section="${secId}"]`);
+          if (target) {
+            pane.scrollTo({ top: Math.max(0, target.offsetTop - 12), behavior: 'smooth' });
+          }
+        }
+      });
+
+      setTimeout(() => {
+        isProgrammaticJump = false;
+      }, 650);
+
+      sectionJump.selectedIndex = 0;
+    });
+
+    // View Switcher (All 3, JP 2, Orig Only, Personal Only, Neutral Only)
+    const viewButtons = [btnAll3, btnJp2, btnOrigOnly, btnPersonal, btnNeutral];
+    let isSmallScreen = window.innerWidth <= 1100;
+    let desktopLastView = 'all3';
+
+    function setView(viewMode) {
+      viewButtons.forEach(btn => btn.classList.remove('active'));
+      panesContainer.classList.remove('view-jp2', 'view-orig-only', 'view-personal-only', 'view-neutral-only');
+
+      if (viewMode === 'all3') {
+        desktopLastView = 'all3';
+        btnAll3.classList.add('active');
+      } else if (viewMode === 'jp2') {
+        desktopLastView = 'jp2';
+        btnJp2.classList.add('active');
+        panesContainer.classList.add('view-jp2');
+      } else if (viewMode === 'orig') {
+        btnOrigOnly.classList.add('active');
+        panesContainer.classList.add('view-orig-only');
+      } else if (viewMode === 'personal') {
+        btnPersonal.classList.add('active');
+        panesContainer.classList.add('view-personal-only');
+      } else if (viewMode === 'neutral') {
+        btnNeutral.classList.add('active');
+        panesContainer.classList.add('view-neutral-only');
+      }
+
+      // Re-synchronize remaining visible panes
+      setTimeout(() => {
+        invalidateMilestoneCache();
+        const visiblePanes = allPanes.filter(p => p.offsetParent !== null);
+        if (visiblePanes.length > 0) {
+          sync3Panes(visiblePanes[0], true);
+        }
+      }, 50);
+    }
+
+    function checkResponsiveView() {
+      invalidateMilestoneCache();
+      const currentSmall = window.innerWidth <= 1100;
+      if (currentSmall !== isSmallScreen) {
+        isSmallScreen = currentSmall;
+        if (isSmallScreen) {
+          if (btnAll3.classList.contains('active')) {
+            setView('jp2');
+          }
+        } else {
+          setView(desktopLastView);
+        }
+      }
+    }
+
+    window.addEventListener('resize', checkResponsiveView);
+    if (isSmallScreen) setView('jp2');
+
+    btnAll3.addEventListener('click', () => setView('all3'));
+    btnJp2.addEventListener('click', () => setView('jp2'));
+    btnOrigOnly.addEventListener('click', () => setView('orig'));
+    btnPersonal.addEventListener('click', () => setView('personal'));
+    btnNeutral.addEventListener('click', () => setView('neutral'));
+
+    // Font Size Adjustment
+    let currentFontSize = 15.5;
+    btnFontInc.addEventListener('click', () => {
+      if (currentFontSize < 24) {
+        currentFontSize += 1;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+        invalidateMilestoneCache();
+      }
+    });
+
+    btnFontDec.addEventListener('click', () => {
+      if (currentFontSize > 13) {
+        currentFontSize -= 1;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+        invalidateMilestoneCache();
+      }
+    });
+
+    // Theme Switcher
+    themeSelect.addEventListener('change', (e) => {
+      document.body.classList.remove('theme-sepia', 'theme-dark');
+      if (e.target.value === 'sepia') {
+        document.body.classList.add('theme-sepia');
+      } else if (e.target.value === 'dark') {
+        document.body.classList.add('theme-dark');
+      }
+    });
+  </script>
+</body>
+</html>

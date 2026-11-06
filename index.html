@@ -256,8 +256,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.85rem;
+      gap: 0.5rem;
       margin-bottom: 1.25rem;
+      min-width: 0;
     }
 
     .tag {
@@ -270,7 +271,9 @@
       color: var(--tag-color, var(--primary));
       letter-spacing: 0.02em;
       white-space: nowrap;
-      flex-shrink: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 62%;
     }
 
     .format-badge {
@@ -700,6 +703,65 @@
         <div class="card-footer">
           <span class="card-action">
             並行して読む
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 5: sec_002-critique.html -->
+      <a href="sec_002-critique.html" class="card" data-theme="argon" id="card-sec002-critique">
+        <div class="card-top">
+          <span class="tag">AI / CRITIQUE</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+              <path d="M6 6h10"></path>
+              <path d="M6 10h10"></path>
+            </svg>
+            Text / Essay
+          </span>
+        </div>
+        <h2 class="card-title">『オデュッセイア』第1巻 翻訳の分析と批評</h2>
+        <div class="card-subtitle">Gemini 3.8 Flash vs PLaMo-3-Translate-31B</div>
+        <p class="card-desc">
+          18世紀ポープ英雄対句訳に対する両モデルの翻訳哲学、構文解析力、チャンク境界の文脈断裂、7つの決定的訳し分け事例を1カラム（ゴシック体）で体系的に批評・解説。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            分析・批評を読む
+            <svg class="arrow-icon" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 6: sec_002-compare.html -->
+      <a href="sec_002-compare.html" class="card" data-theme="odyssey" id="card-sec002-compare">
+        <div class="card-top">
+          <span class="tag">CLASSIC / EPIC</span>
+          <span class="format-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+              <line x1="15" y1="3" x2="15" y2="21"></line>
+            </svg>
+            Parallel Read
+          </span>
+        </div>
+        <h2 class="card-title">『オデュッセイア』第1巻 3列並列リーダー</h2>
+        <div class="card-subtitle">英語原文 (Pope) × Gemini版 × PLaMo版</div>
+        <p class="card-desc">
+          アレグザンダー・ポープの英語原文、Gemini 3.8 Flash訳、PLaMo-3-Translate-31B訳の全14節を明朝体（Serif）統一の3列並列・スクロール同期で比較読書できるビュー。
+        </p>
+        <div class="card-footer">
+          <span class="card-action">
+            3列で比較して読む
             <svg class="arrow-icon" viewBox="0 0 24 24">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>

@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ホメロス『オデュッセイア』第1巻（アレグザンダー・ポープ英訳）における Gemini 3.8 Flash と PLaMo-3-Translate-31B の翻訳比較・文学および構文論的批評。">
+  <title>『オデュッセイア』第1巻 翻訳の分析と批評 // Gemini vs PLaMo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-header: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --text-soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+
+      /* Model Accents */
+      --color-gemini: #b45309;
+      --bg-gemini-subtle: #fffbeb;
+      --border-gemini: #fde68a;
+
+      --color-plamo: #3730a3;
+      --bg-plamo-subtle: #eef2ff;
+      --border-plamo: #c7d2fe;
+
+      /* Gothic / Sans-Serif font unified */
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Menlo, monospace;
+      
+      --base-font-size: 16px;
+      --base-line-height: 1.88;
+    }
+
+    body.theme-sepia {
+      --bg-page: #fbf7ee;
+      --bg-header: #f4ece1;
+      --bg-card: #fdfaf4;
+      --bg-card-subtle: #f3ece0;
+      --text-main: #2d261e;
+      --text-body: #473c33;
+      --text-muted: #7c6f64;
+      --text-soft: #a89a8c;
+      --border: #e7decb;
+      --border-dark: #d5c8b0;
+      --bg-gemini-subtle: #fef8eb;
+      --bg-plamo-subtle: #ede9fe;
+      --border-gemini: #eed49f;
+      --border-plamo: #d3c8f8;
+    }
+
+    body.theme-dark {
+      --bg-page: #090d16;
+      --bg-header: #0f172a;
+      --bg-card: #0f172a;
+      --bg-card-subtle: #1e293b;
+      --text-main: #f8fafc;
+      --text-body: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-soft: #64748b;
+      --border: #334155;
+      --border-dark: #475569;
+      --bg-gemini-subtle: #291c0e;
+      --bg-plamo-subtle: #1a1e36;
+      --border-gemini: #78350f;
+      --border-plamo: #3730a3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-page);
+      color: var(--text-body);
+      font-family: var(--font-sans);
+      font-size: var(--base-font-size);
+      line-height: var(--base-line-height);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* Sticky Global Header */
+    .global-header {
+      position: sticky;
+      top: 0;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 1.4rem;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      color: var(--primary);
+      border-color: var(--border-dark);
+    }
+
+    .page-title-wrap h1 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .model-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--bg-gemini-subtle);
+      color: var(--color-gemini);
+      border: 1px solid var(--border-gemini);
+    }
+
+    .model-tag.plamo-tag {
+      background: var(--bg-plamo-subtle);
+      color: var(--color-plamo);
+      border-color: var(--border-plamo);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-nav-reader {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--primary);
+      text-decoration: none;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav-reader:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .theme-select {
+      font-size: 0.78rem;
+      font-family: inherit;
+      padding: 0.3rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      outline: none;
+    }
+
+    .font-controls {
+      display: flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .font-btn {
+      border: none;
+      background: none;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background 0.15s;
+    }
+
+    .font-btn:hover {
+      background: var(--bg-card-subtle);
+      color: var(--text-main);
+    }
+
+    /* Main Container */
+    .critique-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem;
+    }
+
+    /* Hero Banner */
+    .critique-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem 2.2rem;
+      margin-bottom: 2.8rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-category {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-date {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .hero-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.015em;
+    }
+
+    .hero-lead {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-body);
+      font-weight: 400;
+    }
+
+    /* Chapter Section */
+    .critique-chapter {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 5rem;
+    }
+
+    .chapter-header {
+      margin-bottom: 1.4rem;
+      padding-bottom: 0.7rem;
+      border-bottom: 2px solid var(--border-dark);
+    }
+
+    .chapter-num {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .chapter-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .chapter-lead {
+      font-size: 0.98rem;
+      line-height: 1.85;
+      color: var(--text-body);
+      margin-bottom: 1.2rem;
+    }
+
+    h3.sub-heading {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 1.8rem 0 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h4.sub-sub-heading {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 1.4rem 0 0.5rem;
+    }
+
+    p.text-p {
+      font-size: 0.96rem;
+      line-height: 1.88;
+      margin-bottom: 1rem;
+      text-align: justify;
+      text-justify: inter-ideograph;
+    }
+
+    /* Cards & Boxes */
+    .callout-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+      margin: 1.2rem 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .callout-card.gemini-card {
+      background: var(--bg-gemini-subtle);
+      border-color: var(--border-gemini);
+    }
+
+    .callout-card.plamo-card {
+      background: var(--bg-plamo-subtle);
+      border-color: var(--border-plamo);
+    }
+
+    .callout-card.warning-card {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    body.theme-dark .callout-card.warning-card {
+      background: #2b1f0c;
+      border-color: #78350f;
+    }
+
+    .callout-card.danger-card {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    body.theme-dark .callout-card.danger-card {
+      background: #2a1215;
+      border-color: #7f1d1d;
+    }
+
+    .card-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .quote-box {
+      border-left: 3px solid #dc2626;
+      background: var(--bg-card-subtle);
+      padding: 0.75rem 1rem;
+      margin: 0.8rem 0;
+      font-style: italic;
+      font-size: 0.94rem;
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* Tables */
+    .table-scroll-wrap {
+      overflow-x: auto;
+      margin: 1.4rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      background: var(--bg-card);
+    }
+
+    .critique-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      line-height: 1.65;
+      text-align: left;
+    }
+
+    .critique-table th, .critique-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .critique-table th {
+      background: var(--bg-card-subtle);
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .critique-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .critique-table tr:hover td {
+      background-color: var(--bg-card-subtle);
+    }
+
+    .th-sub {
+      font-size: 0.74rem;
+      font-weight: normal;
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    .th-sub.success { color: #16a34a; font-weight: 700; }
+    .th-sub.danger { color: #dc2626; font-weight: 700; }
+
+    .matrix-pill {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-bottom: 0.3rem;
+    }
+
+    .matrix-pill.success { background: #dcfce7; color: #15803d; }
+    .matrix-pill.warning { background: #fef3c7; color: #b45309; }
+    .matrix-pill.danger { background: #fee2e2; color: #b91c1c; }
+    .matrix-pill.neutral { background: #e0e7ff; color: #3730a3; }
+
+    body.theme-dark .matrix-pill.success { background: #14532d; color: #bbf7d0; }
+    body.theme-dark .matrix-pill.warning { background: #78350f; color: #fde68a; }
+    body.theme-dark .matrix-pill.danger { background: #7f1d1d; color: #fecaca; }
+    body.theme-dark .matrix-pill.neutral { background: #1e1b4b; color: #c7d2fe; }
+
+    .reader-link-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: var(--primary-light);
+      color: var(--primary);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.15s ease;
+      margin-top: 0.4rem;
+    }
+
+    .reader-link-badge:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    body.theme-dark .reader-link-badge {
+      background: #1e3a8a;
+      color: #93c5fd;
+      border-color: #2563eb;
+    }
+
+    /* Footer CTA Card */
+    .footer-cta-card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-card-subtle));
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 2.2rem 2.5rem;
+      text-align: center;
+      margin-top: 4rem;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .cta-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.6rem;
+    }
+
+    .cta-desc {
+      font-size: 0.98rem;
+      color: var(--text-body);
+      max-width: 680px;
+      margin: 0 auto 1.4rem;
+      line-height: 1.75;
+    }
+
+    .btn-cta-large {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--primary);
+      text-decoration: none;
+      padding: 0.65rem 1.6rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-cta-large:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .critique-container {
+        padding: 1.6rem 1.2rem 4rem;
+      }
+      .hero-title {
+        font-size: 1.5rem;
+      }
+      .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- STICKY TOP HEADER -->
+  <header class="global-header">
+    <div class="header-inner">
+      <div class="nav-brand">
+        <a href="index.html" class="btn-back">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          Pages
+        </a>
+        <div class="page-title-wrap">
+          <h1>
+            『オデュッセイア』第1巻 翻訳の分析と批評
+            <span class="model-tag">Gemini 3.8 Flash</span>
+            <span class="model-tag plamo-tag">PLaMo-3-Translate-31B</span>
+          </h1>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <a href="sec_002-compare.html" class="btn-nav-reader">
+          📖 3列並列リーダーを開く（原文・Gemini・PLaMo）
+        </a>
+
+        <!-- Section Quick-Jump -->
+        <select class="theme-select" id="critiqueJump" title="章へジャンプ">
+          <option value="">章へジャンプ...</option>
+          <option value="chap-01">第1章：総論（ポープ英訳への二つのアプローチ）</option>
+          <option value="chap-02">第2章：6次元評価マトリクス</option>
+          <option value="chap-03">第3章：Gemini 3.8 Flash 訳の分析</option>
+          <option value="chap-04">第4章：PLaMo-3-Translate-31B 訳の分析</option>
+          <option value="chap-05">第5章：7つの決定的対照事例テーブル</option>
+        </select>
+
+        <!-- Font Size Adjustment -->
+        <div class="font-controls" title="文字サイズ変更">
+          <button class="font-btn" id="btnFontDec">A-</button>
+          <button class="font-btn" id="btnFontInc">A+</button>
+        </div>
+
+        <!-- Theme Selector -->
+        <select class="theme-select" id="themeSelect" title="テーマ切り替え">
+          <option value="light">ライト</option>
+          <option value="sepia">セピア（読書）</option>
+          <option value="dark">ダーク</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- SINGLE-COLUMN CRITIQUE CONTAINER (GOTHIC UNIFIED) -->
+  <main class="critique-container">
+    <!-- Hero Banner -->
+    <div class="critique-hero">
+      <div class="hero-badge-row">
+        <span class="hero-category">Translation Studies & Comparative Criticism</span>
+        <span class="hero-date">2026-10-04 / 2026-11-06</span>
+      </div>
+      <h2 class="hero-title">18世紀新古典主義詩の統語解体と叙事詩的レジスターの再構成</h2>
+      <p class="hero-lead">
+        ホメロスの古代ギリシャ語叙事詩ではなく、アレグザンダー・ポープによる弱強五歩格英雄対句（Heroic Couplets）英訳『オデュッセイア』第1巻を底本として、大規模フロンティアLLM（Gemini 3.8 Flash）と国産翻訳特化モデル（PLaMo-3-Translate-31B）の言語推論・文体構築能力を徹底検証する。
+      </p>
+    </div>
+
+    <!-- CHAPTER 1 -->
+    <section class="critique-chapter" id="chap-01">
+      <div class="chapter-header">
+        <span class="chapter-num">Chapter 01</span>
+        <h2 class="chapter-title">第1章：総論 — 18世紀ポープ英雄対句訳への二つのアプローチ</h2>
+      </div>
+      <p class="text-p">
+        本分析の対象となるテキストは、ホメロスの古代ギリシャ語原典ではなく、18世紀イギリスの詩人<strong>アレグザンダー・ポープ（Alexander Pope, 1725年刊）</strong>による英語翻訳版『オデュッセイア』第1巻である。この底本の性格を理解することが、両モデルの出力の決定的な差異を解き明かす鍵となる。
+      </p>
+      <p class="text-p">
+        ポープの翻訳は、ホメロス本来の素朴で野性味ある叙事詩を、18世紀イギリス新古典主義（Augustan Age）のサロン的洗練へと昇華させた作品である。その最大の特徴は、<strong>弱強五歩格二行連句（Heroic Couplets: aa, bb, cc... の押韻対句）</strong>の厳格な韻律を守るために用いられた、<strong>ラテン語的構文（Latinate syntax）、大胆な詩的倒置（inversion）、凝縮された対句的修辞</strong>にある。神名もギリシャ名（ゼウス、アテナ、ポセイドン、ヘルメス、オデュッセウス）ではなく、ローマ神話名（ユピテル/Jove、ミネルヴァ/Pallas、ネプトゥヌス、メルクリウス、ユリシーズ）で統一されている。
+      </p>
+      <p class="text-p">
+        このようなテキストを翻訳するにあたり、二つのモデルは鮮やかに対照的な哲学を示した：
+      </p>
+      
+      <div class="callout-card gemini-card">
+        <strong class="card-title">① Gemini 3.8 Flash：意味論的・文脈統合型翻訳（Context-Aware Poetic Synthesis）</strong>
+        <p class="text-p">
+          『オデュッセイア』全巻に及ぶ叙事詩の骨格と、18世紀イギリス文学の修辞的語法を巨大なマクロ文脈知識（World Knowledge）として動員。韻律の要請でシャッフルされた語順や懸垂分詞を意味論的に解きほぐし、登場人物の立場や感情の振れ幅に寄り添った<strong>格調高い近代文語・雅語脈の日本語劇詩</strong>へと見事に再構築している。
+        </p>
+      </div>
+
+      <div class="callout-card plamo-card">
+        <strong class="card-title">② PLaMo-3-Translate-31B：局所構文・擬古文表層型翻訳（Chunk-Based Archaic Emulation）</strong>
+        <p class="text-p">
+          原文の語順と語義に対して忠実な逐語的変換を試みつつ、「〜たり」「〜せり」「〜なり」「〜き」といった文語助動詞を積極的に配して叙事詩の重厚さを演出する。しかし、約44行ごとの機械的なチャンク分割処理と局所的構文解析の制約から、チャンク境界を跨ぐ構文の断絶や、古典詩特有の語法に対する誤読が随所に生じている。
+        </p>
+      </div>
+    </section>
+
+    <!-- CHAPTER 2 -->
+    <section class="critique-chapter" id="chap-02">
+      <div class="chapter-header">
+        <span class="chapter-num">Chapter 02</span>
+        <h2 class="chapter-title">第2章：モデル特性・翻訳品質の6次元評価マトリクス</h2>
+      </div>
+      <p class="text-p">
+        フロンティア汎用LLM（Gemini 3.8 Flash）と、パラメータ31Bの国産翻訳特化モデル（PLaMo-3-Translate-31B）の言語処理能力を、古典叙事詩の読解・翻訳における6つの評価軸から体系的に対照評価する。
+      </p>
+
+      <div class="table-scroll-wrap">
+        <table class="critique-table">
+          <thead>
+            <tr>
+              <th style="width: 20%;">評価次元</th>
+              <th style="width: 26%;">Gemini 3.8 Flash</th>
+              <th style="width: 26%;">PLaMo-3-Translate-31B</th>
+              <th style="width: 28%;">分析と要因</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>① 文脈保持・長距離照応</strong></td>
+              <td><span class="matrix-pill success">◎ 極めて高い</span><br>全巻603行を一貫した叙事詩世界として保持。代名詞や分詞の係り受けが崩れない。</td>
+              <td><span class="matrix-pill danger">▲ 境界断裂あり</span><br>約44行のチャンク境界で文脈が途切れ、直前の発話者や係り受けが失われる。</td>
+              <td>長大なコンテキストウィンドウと文脈推論力の有無が、長距離照応で決定的差異を生んだ。</td>
+            </tr>
+            <tr>
+              <td><strong>② 古典詩的構文の解読力</strong></td>
+              <td><span class="matrix-pill success">◎ 極めて高い</span><br>18世紀ポープ特有の倒置、ラテン語的語法、目的不定詞を意味論的に解体・再構成。</td>
+              <td><span class="matrix-pill warning">△ 表層語順に依存</span><br>語順通りの直訳に留まるため、倒置や懸垂分詞構文で主語誤認や論理矛盾が頻発。</td>
+              <td>局所構文解析の限界により、韻律のための語順シャッフルを復元しきれていない。</td>
+            </tr>
+            <tr>
+              <td><strong>③ 文体・詩的格調（トーン）</strong></td>
+              <td><span class="matrix-pill success">◎ 洗練された雅語調</span><br>現代の読者にも無理なく通じる格調高い近代文語・劇詩のリズムを全編で維持。</td>
+              <td><span class="matrix-pill neutral">○ 独自の重厚感</span><br>「〜たり」「〜せり」「〜なり」の擬古文調が叙事詩的雰囲気を醸成するが、現代語と混在。</td>
+              <td>PLaMoの擬古文調への挑戦は高く評価できるが、文体の統制（consistency）に揺らぎがある。</td>
+            </tr>
+            <tr>
+              <td><strong>④ 登場人物の役割語・敬語</strong></td>
+              <td><span class="matrix-pill success">◎ 完璧な制御</span><br>母への敬愛、求婚者への威圧、神々の威厳など、人間関係に応じた言葉遣いを厳格に保持。</td>
+              <td><span class="matrix-pill danger">▲ チャンク間で急変</span><br>母ペネロペへの丁寧な敬体が、次チャンクで突然見下すような尊大命令形へ豹変する。</td>
+              <td>発話対象（聴衆）のコンテキストがチャンクを跨いで引き継がれないことに起因する。</td>
+            </tr>
+            <tr>
+              <td><strong>⑤ 多義語・専門語の選定</strong></td>
+              <td><span class="matrix-pill success">◎ 文脈に適合</span><br><em>sounds</em>（入り江）、<em>store</em>（帰途）、<em>sincere</em>（無垢）など神話・航海用語を正確に選択。</td>
+              <td><span class="matrix-pill danger">▲ 辞書的第一義に偏向</span><br><em>sounds</em>→「響き」、<em>store</em>→「蓄え」など、文脈から乖離した辞書的直訳を適用。</td>
+              <td>専門ドメインの世界モデル（World Knowledge）と文脈制約の反映強度の違い。</td>
+            </tr>
+            <tr>
+              <td><strong>⑥ 対訳データとしての構造性</strong></td>
+              <td><span class="matrix-pill neutral">○ 日本語単独通読</span><br>日本語の韻文として流麗に通読可能（原文対照には別途テキストが必要）。</td>
+              <td><span class="matrix-pill success">◎ 44行英日交互対照</span><br>ポープ英語原本と日本語訳が規則正しいチャンクで交互配置され、対照検証に極めて便利。</td>
+              <td>原詩と翻訳を突き合わせて精読・研究するツールとしてはPLaMoの構造が極めて優れる。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CHAPTER 3 -->
+    <section class="critique-chapter" id="chap-03">
+      <div class="chapter-header">
+        <span class="chapter-num">Chapter 03</span>
+        <h2 class="chapter-title">第3章：Gemini 3.8 Flash 訳の分析 — 文脈推論と劇的レジスターの達成</h2>
+      </div>
+      
+      <h3 class="sub-heading">① 18世紀ラテン語的詩文・倒置構文の正確な解体</h3>
+      <p class="text-p">
+        ポープ訳の最大の難所は、18世紀イギリス新古典主義詩人たちが誇ったラテン詩の模倣構文にある。Gemini 3.8 Flash は、機械的な英日辞書引きでは到底到達できないラテン語原義と修辞慣例を正確に復元している。
+      </p>
+      <p class="text-p">
+        例えば第3節（L122）の <code>Sincere from royal blood, and faith profaned</code> において、<em>sincere from</em> は現代英語の「誠実な」ではなく、ラテン語 <em>sincerus a</em>（〜による汚れ・混ざり気のない、純潔な）の古典詩的用法である。Gemini はこれを<strong>「王の血と破られた信義による汚れがついていなかったころ」</strong>と見事に訳出しており、当時の高踏的な文語表現を完全に我が物にしている。
+      </p>
+      <p class="text-p">
+        また第12節（L500）の <code>Mature beyond his years, the queen admires / His sage reply</code> という構文では、<em>Mature beyond his years</em>（その齢を超えて成熟した）が文脈上、母ペネロペではなく若き王子テレマコスを指す懸垂分詞的修飾であることを見抜き、<strong>「その齢を超えて成熟した息子の賢明なる答えに王妃は感服し」</strong>と正しい係り受けで文脈を整えている。
+      </p>
+
+      <h3 class="sub-heading">② 発話者の位相と劇的レジスター（役割語・敬語）の一貫性</h3>
+      <p class="text-p">
+        長大な叙事詩翻訳において最も破綻しやすいのが、発話者のキャラクター性と敬語体系の一貫性である。Gemini は全編を通じて登場人物間の身分秩序と心理的距離を完璧に統御している：
+      </p>
+      <ul style="padding-left: 1.5rem; margin-bottom: 1.2rem; line-height: 1.8;">
+        <li><strong>最高神ユピテル（ゼウス）</strong>：全知全能の神威をたたえた重厚な独白調。</li>
+        <li><strong>知恵の女神ミネルヴァ（アテナ）</strong>：理性的でありながら情熱を秘めた、父神への品格ある諫言。</li>
+        <li><strong>若き王子テレマコス</strong>：悲嘆に暮れる母ペネロペに対しては、至誠を尽くした丁寧な敬体（<em>「母上よ、なぜ吟遊詩人を咎められるのですか？」「女の務めで心を紛らわせてください」</em>）で語り、直後に居座る不遜な求婚者たちに対しては、王の後継者としての毅然たる命令調（<em>「直ちに女じみた争いをやめよ、手柄もなき大言壮語の輩どもよ！」</em>）へと一変させる。</li>
+      </ul>
+
+      <h3 class="sub-heading">③ わずかな瑕瑾（アーティファクト）</h3>
+      <div class="callout-card warning-card">
+        <strong class="card-title">第11節 L492 における英語原文1行の残留</strong>
+        <p class="text-p">
+          完璧な統制を見せる Gemini 訳であるが、全603行の中で唯一の軽微な出力アーティファクトが第11節に存在する。L492 において、英語原文の1行 <code>And in the public woe forget your own;</code> が削除されずにそのまま残り、直後の L493 に「天下の悲嘆の中に、御身の悲嘆をお忘れください。」という日本語訳が並置されている。翻訳の論理自体には何ら影響を与えないが、生成パイプライン上の軽微な痕跡として記録に値する。
+        </p>
+      </div>
+    </section>
+
+    <!-- CHAPTER 4 -->
+    <section class="critique-chapter" id="chap-04">
+      <div class="chapter-header">
+        <span class="chapter-num">Chapter 04</span>
+        <h2 class="chapter-title">第4章：PLaMo-3-Translate-31B 訳の分析 — 擬古文調の味わいとチャンク分割の限界</h2>
+      </div>
+
+      <h3 class="sub-heading">① 擬古文調（文語助動詞）による叙事詩的リズムの試み</h3>
+      <p class="text-p">
+        PLaMo 訳の最大の魅力は、地の文において「〜たり」「〜せり」「〜なり」「〜き」といった文語助動詞を積極的に導入した点にある。開幕冒頭の：
+      </p>
+      <div class="quote-box">
+        「知恵の諸術に名高き、長き苦難に鍛えられし人よ、おおミューズよ、語り給え。その腕により宿命づけられた聖なるトロイの陥落をもたらし、天が築きし城壁を打ち砕きし後…」
+      </div>
+      <p class="text-p">
+        というフレーズには、土井晩翠による明治期のホメロス訳や上田敏の格調高い訳詩を思わせる骨太な迫力があり、叙事詩独特の張り詰めた空気を見事に演出している。しかし一方で、同じ節の中で「待ち構えている」「身を投げたのだ」「答える」といった現代口語終止形と文語助動詞が混在し、文体の純度（Stylistic Consistency）に揺らぎが生じている。
+      </p>
+
+      <h3 class="sub-heading">② チャンク分割翻訳（Chunking Boundary Artifacts）が引き起こす統語と人格の断裂</h3>
+      <p class="text-p">
+        <code>sec_002P.md</code> は英語原文を約42〜44行ずつのブロックに機械的に区切って逐次翻訳している。ポープの詩文は18世紀特有の流麗なエンジャブメント（行跨ぎ）によって連句を跨いで流れるため、このチャンク境界で深刻な破綻が生じている。
+      </p>
+
+      <div class="callout-card warning-card">
+        <strong class="card-title">典型例1：セクション2→3境界における構文の強制終結</strong>
+        <p class="text-p">
+          ポープ原文は <code>Amidst an isle, around whose rocky shore / The forests murmur, and the surges roar, / The blameless hero from his wish'd-for home / A goddess guards...</code> と一文で流れている。しかしPLaMoは前チャンク末尾（L180）で<strong>「波濤が咆哮する、ある島のただ中にて、」</strong>と文を強制的に完結させてしまい、次チャンク冒頭（L225）「非の打ち所なき英雄を…護りたり」との前置詞句・主語の関係が完全に切断されている。
+        </p>
+      </div>
+
+      <div class="callout-card danger-card">
+        <strong class="card-title">典型例2：セクション11→12境界におけるテレマコスの豹変</strong>
+        <p class="text-p">
+          セクション11（L964-978）では、テレマコスは母ペネロペに対し<em>「なぜ吟遊詩人を咎めるのですか？」「ご自身の悲しみを忘れてください」</em>と敬虔な敬体で語りかけていた。ところがチャンク境界（L980 <code>Your widow'd hours...</code>）を跨いだ途端、直前の対話相手（母）の文脈を失い、次のように母を見下す尊大命令調へと豹変する：
+        </p>
+        <div class="quote-box">
+          「未亡人となった日々は、女性としての労苦と機織りの様々な仕事で紛らわしなさい。そこでは、宮廷の悩みから離れ、自由に統治せよ。その悩みは男の、そしてとりわけ私の役目なのだ。」（L1023-1026）
+        </div>
+      </div>
+
+      <h3 class="sub-heading">③ 31B 翻訳特化モデルと汎用フロンティアLLMの分水嶺</h3>
+      <p class="text-p">
+        PLaMo-3-Translate-31B は、現代の標準的な実務文書やニュース翻訳においては卓越した流暢性を発揮する優れたオープン系特化モデルである。しかし、18世紀新古典主義詩のように「語順が韻律のために大胆にシャッフルされ、神話的系譜や登場人物の年齢・立場という世界知識を前提に代名詞や分詞が配置されるテキスト」においては、<strong>文脈推論力（Long-Context Reasoning）と世界モデル（World Knowledge）の規模差</strong>がそのまま翻訳精度の分水嶺となった。
+      </p>
+    </section>
+
+    <!-- CHAPTER 5 -->
+    <section class="critique-chapter" id="chap-05">
+      <div class="chapter-header">
+        <span class="chapter-num">Chapter 05</span>
+        <h2 class="chapter-title">第5章：決定的訳し分け・誤訳対照テーブル（7つの代表事例）</h2>
+      </div>
+      <p class="text-p">
+        以下の対照表は、ポープの高度な修辞に対して両モデルの解析力がいかに決定的な差を生んだかを示す7つの重要事例である。各行の「本文で確認」ボタンをクリックすると、3列並列リーダーの該当箇所へ直接ジャンプして詩文全体と照合できる。
+      </p>
+
+      <div class="table-scroll-wrap">
+        <table class="critique-table">
+          <thead>
+            <tr>
+              <th style="width: 22%;">比較項目 / ポープ英語原文</th>
+              <th style="width: 30%;">Gemini 3.8 Flash 訳<br><span class="th-sub success">◎ 文脈統合・正解</span></th>
+              <th style="width: 28%;">PLaMo-3-Translate-31B 訳<br><span class="th-sub danger">▲ 局所直訳・誤読</span></th>
+              <th style="width: 20%;">分析と対照リンク</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>① 開幕の時制設定</strong><br>
+                <small>Sec 01 (Argument)<br><code>within forty eight days of the arrival...</code></small>
+              </td>
+              <td>「帰着する<strong>48日前の時点</strong>から幕を開ける」</td>
+              <td>「到着してから<strong>48日後の場面</strong>から始まる」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                全40余日の叙事詩全体構造を正しく把握。PLaMoは物語構造と完全矛盾。<br>
+                <a href="sec_002-compare.html#gemini-sec-01" class="reader-link-badge">📖 第1節で確認 ↗</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>② 不定詞の目的用法</strong><br>
+                <small>Sec 01 (L50-52)<br><code>Safe with his friends to gain his natal shore: / Vain toils!</code></small>
+              </td>
+              <td>「友らとともに無事、生国の岸辺を踏まんと<strong>願った。空しき労苦よ！</strong>」</td>
+              <td>「友と共に無事に故郷の岸辺へと<strong>辿り着きたり。虚しき労苦よ！</strong>」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                目的の不定詞（帰還を願ったが空しかった）を解読。PLaMoは完了事実と誤読し直後と自己破綻。<br>
+                <a href="sec_002-compare.html#gemini-sec-01" class="reader-link-badge">📖 第1節で確認 ↗</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>③ 古典詩語 sincere from</strong><br>
+                <small>Sec 03 (L122)<br><code>Sincere from royal blood, and faith profaned</code></small>
+              </td>
+              <td>「王の血と破られた信義による<strong>汚れがついていなかったころ</strong>」</td>
+              <td>「王家の血に<strong>忠実であり</strong>、冒涜されし信義により」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                ラテン語 <em>sincerus a</em>（〜に汚されぬ）の詩語用法を完璧に解体。PLaMoは現代語の直訳。<br>
+                <a href="sec_002-compare.html#gemini-sec-03" class="reader-link-badge">📖 第3節で確認 ↗</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>④ 否定副詞と分詞構文</strong><br>
+                <small>Sec 03 (L108, L126)<br><code>rarely won</code> / <code>with bloom of beauty bless'd</code></small>
+              </td>
+              <td>「悔悛の祈願にも<strong>滅多に心動かされぬ</strong>」「美の盛りに恵まれた<strong>彼女を見初め</strong>」</td>
+              <td>「稀なる悔悟の祈りによって<strong>ようやく懐柔され</strong>…苦しめたり」「<strong>彼を祝福し</strong>」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                rarely wonの否定を正しく解釈。PLaMoは肯定と誤読し直後と自己矛盾。分詞も巨人と誤認。<br>
+                <a href="sec_002-compare.html#gemini-sec-03" class="reader-link-badge">📖 第3節で確認 ↗</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>⑤ 多義語の文脈選択</strong><br>
+                <small>Sec 03 & 11<br><code>sounds and seas</code> / <code>intercept the store</code></small>
+              </td>
+              <td>「<strong>入り江と海</strong>で恐れられる」<br>「復讐の嵐がその<strong>帰途</strong>を阻んだ」</td>
+              <td>「<strong>響きと海</strong>において」<br>「嵐が<strong>蓄え</strong>を阻んだ」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                sounds（海峡・入り江）や store（帰路・船路）の地勢・航海文脈を的確に適用。PLaMoは辞書的一義直訳。<br>
+                <a href="sec_002-compare.html#gemini-sec-11" class="reader-link-badge">📖 第11節で確認 ↗</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>⑥ 心情形容詞の解釈</strong><br>
+                <small>Sec 11 (L475)<br><code>forbear the dear unhappy name</code></small>
+              </td>
+              <td>「あの<strong>愛しくも悲痛なる名</strong>を歌うのはやめておくれ」</td>
+              <td>「あの<strong>忌まわしき名</strong>だけは控えてくれ」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                貞淑な妻ペネロペが愛する夫を追慕する心情を正確に表現。PLaMoは愛する夫を「忌まわしい」と呼ぶ重大キャラ崩壊。<br>
+                <a href="sec_002-compare.html#gemini-sec-11" class="reader-link-badge">📖 第11節で確認 ↗</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>⑦ 詩的倒置の主語判定</strong><br>
+                <small>Sec 12 (L500)<br><code>Mature beyond his years, the queen admires / His sage reply</code></small>
+              </td>
+              <td>「<strong>その齢を超えて成熟した息子の</strong>賢明なる答えに王妃は感服し」</td>
+              <td>「<strong>年齢に比して成熟した女王は</strong>、彼の賢明な答えに感銘を受け」</td>
+              <td>
+                <span class="matrix-pill success">Gemini 正解</span><br>
+                <em>his years</em> を見落とさず懸垂分詞を息子に帰属。PLaMoは機械的係り受けミス。<br>
+                <a href="sec_002-compare.html#gemini-sec-12" class="reader-link-badge">📖 第12節で確認 ↗</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER CTA CARD -->
+    <div class="footer-cta-card">
+      <h3 class="cta-title">📖 3列並列リーダーで実際の詩文を比較する</h3>
+      <p class="cta-desc">
+        Alexander Popeによる1725年英雄対句の英語原文、Geminiの雅語劇詩訳、PLaMoの擬古文対訳を、左右3列並列・セクション同期スクロールで直接読み比べることができます。
+      </p>
+      <a href="sec_002-compare.html" class="btn-cta-large">
+        3列並列リーダーを開く（原文・Gemini・PLaMo） →
+      </a>
+    </div>
+  </main>
+
+  <script>
+    // Elements
+    const critiqueJump = document.getElementById('critiqueJump');
+    const btnFontInc = document.getElementById('btnFontInc');
+    const btnFontDec = document.getElementById('btnFontDec');
+    const themeSelect = document.getElementById('themeSelect');
+
+    // Quick-Jump Dropdown
+    critiqueJump.addEventListener('change', (e) => {
+      const targetId = e.target.value;
+      if (!targetId) return;
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      critiqueJump.selectedIndex = 0;
+    });
+
+    // Font Size Adjustment
+    let currentFontSize = 16;
+    btnFontInc.addEventListener('click', () => {
+      if (currentFontSize < 24) {
+        currentFontSize += 1;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+      }
+    });
+
+    btnFontDec.addEventListener('click', () => {
+      if (currentFontSize > 13) {
+        currentFontSize -= 1;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+      }
+    });
+
+    // Theme Switcher
+    themeSelect.addEventListener('change', (e) => {
+      document.body.classList.remove('theme-sepia', 'theme-dark');
+      if (e.target.value === 'sepia') {
+        document.body.classList.add('theme-sepia');
+      } else if (e.target.value === 'dark') {
+        document.body.classList.add('theme-dark');
+      }
+    });
+  </script>
+</body>
+</html>
